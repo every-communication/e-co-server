@@ -1,0 +1,9 @@
+spring:
+    application:
+        name: ecoserver
+
+    datasource:
+        url: jdbc:mysql://localhost:3306/eco_database
+        username: root
+        password: 0000
+        driver-class-name: com.mysql.cj.jdbc.Driver
