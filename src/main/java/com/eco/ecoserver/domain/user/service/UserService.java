@@ -1,5 +1,6 @@
 package com.eco.ecoserver.domain.user.service;
 
+import com.eco.ecoserver.domain.user.UserType;
 import com.eco.ecoserver.domain.user.repository.UserRepository;
 import com.eco.ecoserver.domain.user.dto.UserSignUpDto;
 import com.eco.ecoserver.domain.user.Role;
@@ -32,6 +33,7 @@ public class UserService {
                 .password(userSignUpDto.getPassword())
                 .nickname(userSignUpDto.getNickname())
                 .role(Role.USER)
+                .userType(UserType.NONDEAF)
                 .build();
 
         user.passwordEncode(passwordEncoder);

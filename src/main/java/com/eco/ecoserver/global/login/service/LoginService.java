@@ -8,6 +8,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+/**
+ * 사용자 인증 정보를 로드하는 서비스
+ * UserDetailsService를 구현하여 사용자 정보 로드
+ */
 @Service
 @RequiredArgsConstructor
 public class LoginService implements UserDetailsService {
