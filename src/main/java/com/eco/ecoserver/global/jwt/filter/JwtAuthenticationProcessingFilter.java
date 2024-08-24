@@ -21,6 +21,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.util.Optional;
 
 /**
  * Jwt 인증 필터
@@ -48,8 +49,12 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        String uri = request.getRequestURI();
+        log.info("Request URI: {}", uri);
+
         if (request.getRequestURI().equals(NO_CHECK_URL)) {
             filterChain.doFilter(request, response); // "/login" 요청이 들어오면, 다음 필터 호출
+            log.info("skip URI : {}", uri);
             return; // return으로 이후 현재 필터 진행 막기 (안해주면 아래로 내려가서 계속 필터 진행시킴)
         }
 
@@ -66,6 +71,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
         // 일치한다면 AccessToken을 재발급해준다.
         if (refreshToken != null) {
             checkRefreshTokenAndReIssueAccessToken(response, refreshToken);
+            log.info("Valid refresh token found. Checking user and re-issuing access token.");
             return; // RefreshToken을 보낸 경우에는 AccessToken을 재발급 하고 인증 처리는 하지 않게 하기위해 바로 return으로 필터 진행 막기
         }
 
@@ -73,6 +79,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
         // AccessToken이 없거나 유효하지 않다면, 인증 객체가 담기지 않은 상태로 다음 필터로 넘어가기 때문에 403 에러 발생
         // AccessToken이 유효하다면, 인증 객체가 담긴 상태로 다음 필터로 넘어가기 때문에 인증 성공
         if (refreshToken == null) {
+            log.info("No valid refresh token found. Checking access token and authentication.");
             checkAccessTokenAndAuthentication(request, response, filterChain);
         }
     }
@@ -116,6 +123,11 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     public void checkAccessTokenAndAuthentication(HttpServletRequest request, HttpServletResponse response,
                                                   FilterChain filterChain) throws ServletException, IOException {
         log.info("checkAccessTokenAndAuthentication() 호출");
+
+        // AccessToken 추출
+        Optional<String> accessTokenOptional = jwtService.extractAccessToken(request);
+        log.info("Extracted Access Token: {}", accessTokenOptional.orElse("No Access Token"));
+
         jwtService.extractAccessToken(request)
                 .filter(jwtService::isTokenValid)
                 .ifPresent(accessToken -> jwtService.extractEmail(accessToken)
@@ -123,6 +135,8 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
                                 .ifPresent(this::saveAuthentication)));
 
         filterChain.doFilter(request, response);
+        log.info("checkAccessTokenAndAuthentication() 종료");
+
     }
 
     /**
