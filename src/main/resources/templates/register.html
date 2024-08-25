@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원 가입</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            margin: 0;
+        }
+        .register-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        input[type="submit"], .btn {
+            background: #87CEFA; /* 하늘색 */
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            text-decoration: none;
+            display: block;
+            margin-top: 10px;
+        }
+        input[type="submit"]:hover, .btn:hover {
+            background: #00BFFF; /* 하늘색의 더 진한 버전 */
+        }
+        .error-message {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="register-container">
+    <h2>회원 가입</h2>
+    <form action="additional-info.html" method="post">
+        <div class="form-group">
+            <label for="username">아이디</label>
+            <input type="text" id="username" name="username" required>
+            <button type="button" class="btn" onclick="checkUsername()">중복 확인</button>
+        </div>
+        <div class="form-group">
+            <label for="password">비밀번호</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <div class="form-group">
+            <label for="name">이름</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        <input type="submit" value="회원 가입">
+        <div class="error-message">
+            <!-- 오류 메시지가 있을 경우 여기에 표시됩니다. -->
+        </div>
+    </form>
+</div>
+<script>
+    function checkUsername() {
+        // 여기에 아이디 중복 확인을 위한 로직을 추가하세요.
+        alert('아이디 중복 확인 기능은 서버에서 처리됩니다.');
+    }
+</script>
+</body>
+</html>

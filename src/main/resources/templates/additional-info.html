@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>추가 정보 입력</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            margin: 0;
+        }
+        .info-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        input[type="submit"] {
+            background: #87CEFA; /* 하늘색 */
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            text-decoration: none;
+            display: block;
+            margin-top: 10px;
+        }
+        input[type="submit"]:hover {
+            background: #00BFFF; /* 하늘색의 더 진한 버전 */
+        }
+    </style>
+</head>
+<body>
+<div class="info-container">
+    <h2>추가 정보 입력</h2>
+    <form action="login.html" method="post">
+        <div class="form-group">
+            <label for="user-type">유저타입</label>
+            <select id="user-type" name="user-type" required>
+                <option value="청인" selected>청인</option>
+                <option value="농인">농인</option>
+            </select>
+        </div>
+        <input type="submit" value="제출">
+    </form>
+</div>
+</body>
+</html>
