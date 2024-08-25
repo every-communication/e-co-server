@@ -48,8 +48,12 @@ dependencies {
 	// JWT library
 	implementation 'com.auth0:java-jwt:4.2.1'
 
-	// h2database Connector
-	runtimeOnly 'com.h2database:h2'
+	// mysql Connector
+	//implementation 'com.mysql:mysql-connector-j'
+	implementation 'mysql:mysql-connector-java:8.0.33'
+
+	// hibernate
+	implementation 'org.hibernate.orm:hibernate-core:6.5.2.Final'
 
 	// Lombok
 	compileOnly 'org.projectlombok:lombok'
