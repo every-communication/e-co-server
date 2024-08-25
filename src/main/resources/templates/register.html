@@ -25,6 +25,7 @@
         h2 {
             margin-bottom: 20px;
             color: #333;
+            text-align: center;
         }
         .form-group {
             margin-bottom: 15px;
@@ -35,7 +36,7 @@
             color: #555;
         }
         input[type="text"], input[type="password"] {
-            width: 100%;
+            width: calc(100% - 20px); /* Adjust width for padding */
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
@@ -56,28 +57,63 @@
         input[type="submit"]:hover, .btn:hover {
             background: #00BFFF; /* 하늘색의 더 진한 버전 */
         }
+        .form-group-inline {
+            display: flex;
+            justify-content: space-between;
+        }
+        .form-group-inline > div {
+            flex: 1;
+            margin-right: 10px;
+        }
+        .form-group-inline > div:last-child {
+            margin-right: 0;
+        }
         .error-message {
             color: red;
             margin-top: 10px;
+        }
+        .image-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
         }
     </style>
 </head>
 <body>
 <div class="register-container">
+    <div class="image-container">
+        <img src="your-image-url-here.jpg" alt="상단 이미지">
+    </div>
     <h2>회원 가입</h2>
     <form action="additional-info.html" method="post">
         <div class="form-group">
-            <label for="username">아이디</label>
-            <input type="text" id="username" name="username" required>
-            <button type="button" class="btn" onclick="checkUsername()">중복 확인</button>
+            <label for="email">이메일</label>
+            <input type="text" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+            <label for="nickname">닉네임</label>
+            <input type="text" id="nickname" name="nickname" required>
         </div>
         <div class="form-group">
             <label for="password">비밀번호</label>
             <input type="password" id="password" name="password" required>
         </div>
         <div class="form-group">
-            <label for="name">이름</label>
-            <input type="text" id="name" name="name" required>
+            <label for="password-confirm">비밀번호 확인</label>
+            <input type="password" id="password-confirm" name="password-confirm" required>
+        </div>
+        <div class="form-group-inline">
+            <div>
+                <label for="user-type">유저타입</label>
+                <select id="user-type" name="user-type" required>
+                    <option value="청인">청인</option>
+                    <option value="농인">농인</option>
+                </select>
+            </div>
         </div>
         <input type="submit" value="회원 가입">
         <div class="error-message">
@@ -86,10 +122,15 @@
     </form>
 </div>
 <script>
-    function checkUsername() {
-        // 여기에 아이디 중복 확인을 위한 로직을 추가하세요.
-        alert('아이디 중복 확인 기능은 서버에서 처리됩니다.');
-    }
+    document.querySelector('form').addEventListener('submit', function(event) {
+        const password = document.getElementById('password').value;
+        const passwordConfirm = document.getElementById('password-confirm').value;
+
+        if (password !== passwordConfirm) {
+            event.preventDefault();
+            alert('비밀번호와 비밀번호 확인이 일치하지 않습니다.');
+        }
+    });
 </script>
 </body>
 </html>

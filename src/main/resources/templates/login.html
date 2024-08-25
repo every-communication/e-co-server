@@ -21,12 +21,24 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 400px;
+            position: relative;
+        }
+        .login-container::before {
+            content: 'e-co';
+            font-size: 24px;
+            font-weight: bold;
+            position: absolute;
+            top: -40px;
+            left: 20px;
+            color: #0056D2;
         }
         h2 {
             margin-bottom: 20px;
             color: #333;
+            text-align: center;
         }
         .form-group {
+            position: relative;
             margin-bottom: 15px;
         }
         label {
@@ -35,32 +47,55 @@
             color: #555;
         }
         input[type="text"], input[type="password"] {
-            width: 100%;
+            width: calc(100% - 40px); /* Adjust width to accommodate the X button */
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .clearable-input {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .clearable-input input {
+            flex: 1;
+        }
+        .clearable-input .clear-btn {
+            position: absolute;
+            right: 10px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #555;
+            font-size: 18px;
         }
         input[type="submit"], .btn {
-            background: #87CEFA; /* 하늘색 */
+            background: #0056D2; /* 하늘색 */
             color: #fff;
             border: none;
             padding: 10px;
             border-radius: 4px;
             cursor: pointer;
-            width: 100%;
+            width: 48%; /* Adjust width for two-column layout */
             font-size: 16px;
             text-decoration: none;
-            display: block;
+            display: inline-block;
             margin-top: 10px;
+            text-align: center;
         }
         input[type="submit"]:hover, .btn:hover {
-            background: #00BFFF; /* 하늘색의 더 진한 버전 */
+            background: #003E9C; /* 하늘색의 더 진한 버전 */
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
         }
         .social-login {
             margin-top: 20px;
         }
         .social-login a {
-            width: 100%;
             display: block;
             padding: 10px;
             border: 1px solid #ddd;
@@ -68,11 +103,13 @@
             cursor: pointer;
             margin-top: 10px;
             text-align: center;
-            color: #fff;
+            color: #000000;
             text-decoration: none;
+            width: 100%;
+            box-sizing: border-box;
         }
         .kakao { background: #F7E300; color: #000; }
-        .google { background: #4285F4; }
+        .google { background: #DCDCDC; }
         .naver { background: #1EC800; }
         .social-login a:hover {
             opacity: 0.9;
@@ -83,6 +120,7 @@
         }
         .register-link p {
             margin: 0;
+            padding-bottom: 10px;
         }
         .register-link a {
             color: #007bff;
@@ -92,30 +130,39 @@
             text-decoration: underline;
         }
     </style>
+    <script>
+        function clearInput(input) {
+            input.value = '';
+        }
+    </script>
 </head>
 <body>
 <div class="login-container">
-    <h2>로그인</h2>
+    <h2>e-co</h2>
     <form action="/login" method="post">
-        <div class="form-group">
-            <label for="username">아이디</label>
-            <input type="text" id="username" name="username" required>
+        <div class="form-group clearable-input">
+            <label for="username">이메일</label>
+            <input type="text" id="username" name="username" placeholder="이메일을 입력하세요" required>
+            <button type="button" class="clear-btn" onclick="clearInput(document.getElementById('username'))">&times;</button>
         </div>
-        <div class="form-group">
-            <label for="password">패스워드</label>
-            <input type="password" id="password" name="password" required>
+        <div class="form-group clearable-input">
+            <label for="password">비밀번호</label>
+            <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
+            <button type="button" class="clear-btn" onclick="clearInput(document.getElementById('password'))">&times;</button>
         </div>
-        <input type="submit" value="로그인">
+        <div class="button-container">
+            <input type="submit" value="로그인">
+            <button class="btn" onclick="location.href='success.html'">로그인 성공</button>
+            <button class="btn" onclick="location.href='failure.html'">로그인 실패</button>
+        </div>
     </form>
-    <button class="btn" onclick="location.href='success.html'">로그인 성공</button>
-    <button class="btn" onclick="location.href='failure.html'">로그인 실패</button>
 
     <div class="register-link">
-        <p>회원가입이 아직 안되었나요? <a href="register.html">회원 가입</a></p>
+        <p>회원가입이 아직 안되었나요?</p>
+        <a href="register.html">회원 가입</a>
     </div>
 
     <div class="social-login">
-        <h3>소셜 로그인</h3>
         <a href="/oauth2/authorization/kakao" class="kakao">카카오 로그인</a>
         <a href="/oauth2/authorization/google" class="google">구글 로그인</a>
         <a href="/oauth2/authorization/naver" class="naver">네이버 로그인</a>

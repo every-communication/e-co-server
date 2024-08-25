@@ -8,7 +8,7 @@ import org.springframework.web.servlet.view.RedirectView;
 @Controller
 public class PageController {
     @GetMapping("/")
-    public String index(Model model) {
+    public String home() {
         return "index";
     }
 
@@ -42,10 +42,10 @@ public class PageController {
         return "failure"; // src/main/resources/templates/failure.html
     }
 
-
+    /*
     @GetMapping("/redirect-to-other-page")
     public RedirectView redirectToOtherPage() {
         return new RedirectView("/other-page");
     }
-
+    */
 }
