@@ -117,10 +117,23 @@ public class JwtService {
      * 헤더를 가져온 후 "Bearer"를 삭제(""로 replace)
      */
     public Optional<String> extractAccessToken(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        log.info("Extracting Access Token from Header: {}", token);
+        return Optional.ofNullable(token)
+                .filter(accessToken -> accessToken.startsWith(BEARER))
+                .map(accessToken -> accessToken.substring(BEARER.length()).trim());
+    }
+
+    /*
+    public Optional<String> extractAccessToken(HttpServletRequest request) {
+        // Log the Authorization header
+        String authHeader = request.getHeader("Authorization");
+        log.info("Authorization Header: {}", authHeader);
+
         return Optional.ofNullable(request.getHeader(accessHeader))
                 .filter(accessToken -> accessToken.startsWith(BEARER))
                 .map(accessToken -> accessToken.replace(BEARER, ""));
-    }
+    }*/
 
     /**
      * AccessToken에서 Email 추출

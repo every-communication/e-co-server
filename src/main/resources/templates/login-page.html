@@ -70,27 +70,22 @@
             color: #555;
             font-size: 18px;
         }
-        input[type="submit"], .btn {
+        input[type="submit"] {
             background: #0056D2; /* 하늘색 */
             color: #fff;
             border: none;
             padding: 10px;
             border-radius: 4px;
             cursor: pointer;
-            width: 48%; /* Adjust width for two-column layout */
+            width: 100%; /* 버튼을 컨테이너 너비로 맞춤 */
             font-size: 16px;
             text-decoration: none;
-            display: inline-block;
+            display: block; /* 버튼을 블록 요소로 변환 */
             margin-top: 10px;
             text-align: center;
         }
-        input[type="submit"]:hover, .btn:hover {
+        input[type="submit"]:hover {
             background: #003E9C; /* 하늘색의 더 진한 버전 */
-        }
-        .button-container {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
         }
         .social-login {
             margin-top: 20px;
@@ -134,12 +129,81 @@
         function clearInput(input) {
             input.value = '';
         }
+
+        function handleLogin(event) {
+            event.preventDefault(); // 폼의 기본 동작을 막습니다.
+
+            const email = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // JSON 데이터
+            const data = {
+                email: email,
+                password: password
+            };
+
+            // 로그인 요청
+            fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    // 응답에서 Authorization 헤더를 읽기
+                    const authHeader = response.headers.get('Authorization');
+                    if (authHeader) {
+                        const token = authHeader.split(' ')[1]; // "Bearer {token}"에서 토큰 부분 추출
+                        console.log('Access Token:', token);
+                    }
+                    console.log(token);
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.accessToken) {
+                        // Access Token 추출
+                        const token = data.accessToken;
+
+                        // /jwt-test 엔드포인트로 인증 검증 요청
+                        return fetch('/jwt-test', {
+                            method: 'GET',
+                            headers: {
+                                'Auth-Type': 'Bearer Token', // Auth-Type 설정
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                    } else {
+                        throw new Error('Access Token is missing in login response');
+                    }
+                })
+                .then(response => response.text()) // text()를 사용하여 문자열 응답을 받음
+                .then(text => {
+                    console.log('Response Text:', text);
+                    if (text === 'jwtTest 요청 성공') {
+                        // 성공적인 인증 후 /success 페이지로 이동
+                        //window.location.href = '/success';
+                    } else {
+                        // 인증 실패 시 /failure 페이지로 이동
+                        //window.location.href = '/failure';
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    // 로그인 실패 시 /failure 페이지로 이동
+                    //window.location.href = '/failure';
+                });
+        }
     </script>
 </head>
 <body>
 <div class="login-container">
     <h2>e-co</h2>
-    <form action="/login" method="post">
+    <form onsubmit="handleLogin(event)">
         <div class="form-group clearable-input">
             <label for="username">이메일</label>
             <input type="text" id="username" name="username" placeholder="이메일을 입력하세요" required>
@@ -150,16 +214,12 @@
             <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
             <button type="button" class="clear-btn" onclick="clearInput(document.getElementById('password'))">&times;</button>
         </div>
-        <div class="button-container">
-            <input type="submit" value="로그인">
-            <button class="btn" onclick="location.href='success.html'">로그인 성공</button>
-            <button class="btn" onclick="location.href='failure.html'">로그인 실패</button>
-        </div>
+        <input type="submit" value="로그인">
     </form>
 
     <div class="register-link">
         <p>회원가입이 아직 안되었나요?</p>
-        <a href="register.html">회원 가입</a>
+        <a href="/register">회원 가입</a>
     </div>
 
     <div class="social-login">

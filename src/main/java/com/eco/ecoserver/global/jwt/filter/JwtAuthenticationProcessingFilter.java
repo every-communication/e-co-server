@@ -52,6 +52,10 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
         String uri = request.getRequestURI();
         log.info("Request URI: {}", uri);
 
+        // Log the Authorization header
+        String authHeader = request.getHeader("Authorization");
+        log.info("Authorization Header: {}", authHeader);
+
         if (request.getRequestURI().equals(NO_CHECK_URL)) {
             filterChain.doFilter(request, response); // "/login" 요청이 들어오면, 다음 필터 호출
             log.info("skip URI : {}", uri);

@@ -89,7 +89,7 @@
         <img src="your-image-url-here.jpg" alt="상단 이미지">
     </div>
     <h2>회원 가입</h2>
-    <form action="additional-info.html" method="post">
+    <form id="register-form">
         <div class="form-group">
             <label for="email">이메일</label>
             <input type="text" id="email" name="email" required>
@@ -122,14 +122,47 @@
     </form>
 </div>
 <script>
-    document.querySelector('form').addEventListener('submit', function(event) {
+    document.getElementById('register-form').addEventListener('submit', function(event) {
+        event.preventDefault(); // 폼의 기본 제출 방식을 막음
+
+        const email = document.getElementById('email').value;
+        const nickname = document.getElementById('nickname').value;
         const password = document.getElementById('password').value;
         const passwordConfirm = document.getElementById('password-confirm').value;
 
+        // 비밀번호 확인
         if (password !== passwordConfirm) {
-            event.preventDefault();
             alert('비밀번호와 비밀번호 확인이 일치하지 않습니다.');
+            return;
         }
+
+        // JSON 객체 생성
+        const data = {
+            email: email,
+            password: password,
+            nickname: nickname
+        };
+
+        // AJAX 요청
+        fetch('/sign-up', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => {
+                if (response.ok) {
+                    // 회원 가입 성공 시 /reg-success로 이동
+                    window.location.href = '/reg-success';
+                } else {
+                    alert('회원 가입에 실패했습니다.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('회원 가입 중 오류가 발생했습니다.');
+            });
     });
 </script>
 </body>

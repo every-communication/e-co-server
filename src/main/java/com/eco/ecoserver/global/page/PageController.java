@@ -19,9 +19,9 @@ public class PageController {
     }
 
     // 로그인 페이지
-    @GetMapping("/login")
+    @GetMapping("/login-page")
     public String login() {
-        return "login"; // src/main/resources/templates/login.html
+        return "login-page"; // src/main/resources/templates/login.html
     }
 
     // 회원가입 페이지
@@ -40,6 +40,10 @@ public class PageController {
     @GetMapping("/failure")
     public String failure() {
         return "failure"; // src/main/resources/templates/failure.html
+    }
+    @GetMapping("/reg-success")
+    public String regSuccess() {
+        return "reg-success";
     }
 
     /*
