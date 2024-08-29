@@ -24,18 +24,51 @@ repositories {
 }
 
 dependencies {
+	// Spring Boot Starter
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+	// Jakarta EE APIs
+	//implementation 'jakarta.servlet:jakarta.servlet-api:5.0.0'
+	implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
+	implementation 'jakarta.transaction:jakarta.transaction-api:2.0.1'
+
+	// Spring Security
+	implementation 'org.springframework.security:spring-security-web:6.3.1' //:6.0.1'
+	implementation 'org.springframework.security:spring-security-config:6.3.1' //:6.0.1'
+	implementation 'org.springframework.security:spring-security-core:6.3.1' //:6.0.1'
+	implementation 'org.springframework.security:spring-security-oauth2-client'
+
+	// Tomcat Embedding
+	implementation 'org.apache.tomcat.embed:tomcat-embed-core:10.1.26'
+
+	// JWT library
+	implementation 'com.auth0:java-jwt:4.2.1'
+
+	// mysql Connector
+	//implementation 'com.mysql:mysql-connector-j'
+	implementation 'mysql:mysql-connector-java:8.0.33'
+
+	// hibernate
+	implementation 'org.hibernate.orm:hibernate-core:6.5.2.Final'
+
+	// Lombok
 	compileOnly 'org.projectlombok:lombok'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	// Development tools
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+	// Testing
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	// JSON Processing
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
 }
 
 tasks.named('test') {

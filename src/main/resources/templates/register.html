@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원 가입</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            margin: 0;
+        }
+        .register-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input[type="text"], input[type="password"] {
+            width: calc(100% - 20px); /* Adjust width for padding */
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        input[type="submit"], .btn {
+            background: #87CEFA; /* 하늘색 */
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            text-decoration: none;
+            display: block;
+            margin-top: 10px;
+        }
+        input[type="submit"]:hover, .btn:hover {
+            background: #00BFFF; /* 하늘색의 더 진한 버전 */
+        }
+        .form-group-inline {
+            display: flex;
+            justify-content: space-between;
+        }
+        .form-group-inline > div {
+            flex: 1;
+            margin-right: 10px;
+        }
+        .form-group-inline > div:last-child {
+            margin-right: 0;
+        }
+        .error-message {
+            color: red;
+            margin-top: 10px;
+        }
+        .image-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="register-container">
+    <div class="image-container">
+        <img src="your-image-url-here.jpg" alt="상단 이미지">
+    </div>
+    <h2>회원 가입</h2>
+    <form id="register-form">
+        <div class="form-group">
+            <label for="email">이메일</label>
+            <input type="text" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+            <label for="nickname">닉네임</label>
+            <input type="text" id="nickname" name="nickname" required>
+        </div>
+        <div class="form-group">
+            <label for="password">비밀번호</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <div class="form-group">
+            <label for="password-confirm">비밀번호 확인</label>
+            <input type="password" id="password-confirm" name="password-confirm" required>
+        </div>
+        <div class="form-group-inline">
+            <div>
+                <label for="user-type">유저타입</label>
+                <select id="user-type" name="user-type" required>
+                    <option value="청인">청인</option>
+                    <option value="농인">농인</option>
+                </select>
+            </div>
+        </div>
+        <input type="submit" value="회원 가입">
+        <div class="error-message">
+            <!-- 오류 메시지가 있을 경우 여기에 표시됩니다. -->
+        </div>
+    </form>
+</div>
+<script>
+    document.getElementById('register-form').addEventListener('submit', function(event) {
+        event.preventDefault(); // 폼의 기본 제출 방식을 막음
+
+        const email = document.getElementById('email').value;
+        const nickname = document.getElementById('nickname').value;
+        const password = document.getElementById('password').value;
+        const passwordConfirm = document.getElementById('password-confirm').value;
+
+        // 비밀번호 확인
+        if (password !== passwordConfirm) {
+            alert('비밀번호와 비밀번호 확인이 일치하지 않습니다.');
+            return;
+        }
+
+        // JSON 객체 생성
+        const data = {
+            email: email,
+            password: password,
+            nickname: nickname
+        };
+
+        // AJAX 요청
+        fetch('/sign-up', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => {
+                if (response.ok) {
+                    // 회원 가입 성공 시 /reg-success로 이동
+                    window.location.href = '/reg-success';
+                } else {
+                    alert('회원 가입에 실패했습니다.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('회원 가입 중 오류가 발생했습니다.');
+            });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 페이지</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            margin: 0;
+        }
+        .login-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+        }
+        .login-container::before {
+            content: 'e-co';
+            font-size: 24px;
+            font-weight: bold;
+            position: absolute;
+            top: -40px;
+            left: 20px;
+            color: #0056D2;
+        }
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+        .form-group {
+            position: relative;
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input[type="text"], input[type="password"] {
+            width: calc(100% - 40px); /* Adjust width to accommodate the X button */
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .clearable-input {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .clearable-input input {
+            flex: 1;
+        }
+        .clearable-input .clear-btn {
+            position: absolute;
+            right: 10px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #555;
+            font-size: 18px;
+        }
+        input[type="submit"] {
+            background: #0056D2; /* 하늘색 */
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%; /* 버튼을 컨테이너 너비로 맞춤 */
+            font-size: 16px;
+            text-decoration: none;
+            display: block; /* 버튼을 블록 요소로 변환 */
+            margin-top: 10px;
+            text-align: center;
+        }
+        input[type="submit"]:hover {
+            background: #003E9C; /* 하늘색의 더 진한 버전 */
+        }
+        .social-login {
+            margin-top: 20px;
+        }
+        .social-login a {
+            display: block;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            text-align: center;
+            color: #000000;
+            text-decoration: none;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .kakao { background: #F7E300; color: #000; }
+        .google { background: #DCDCDC; }
+        .naver { background: #1EC800; }
+        .social-login a:hover {
+            opacity: 0.9;
+        }
+        .register-link {
+            text-align: center;
+            margin-top: 15px;
+        }
+        .register-link p {
+            margin: 0;
+            padding-bottom: 10px;
+        }
+        .register-link a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <script>
+        function clearInput(input) {
+            input.value = '';
+        }
+
+        function handleLogin(event) {
+            event.preventDefault(); // 폼의 기본 동작을 막습니다.
+
+            const email = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // JSON 데이터
+            const data = {
+                email: email,
+                password: password
+            };
+
+            // 로그인 요청
+            fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    // 응답에서 Authorization 헤더를 읽기
+                    const authHeader = response.headers.get('Authorization');
+                    if (authHeader) {
+                        const token = authHeader.split(' ')[1]; // "Bearer {token}"에서 토큰 부분 추출
+                        console.log('Access Token:', token);
+                    }
+                    console.log(token);
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.accessToken) {
+                        // Access Token 추출
+                        const token = data.accessToken;
+
+                        // /jwt-test 엔드포인트로 인증 검증 요청
+                        return fetch('/jwt-test', {
+                            method: 'GET',
+                            headers: {
+                                'Auth-Type': 'Bearer Token', // Auth-Type 설정
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                    } else {
+                        throw new Error('Access Token is missing in login response');
+                    }
+                })
+                .then(response => response.text()) // text()를 사용하여 문자열 응답을 받음
+                .then(text => {
+                    console.log('Response Text:', text);
+                    if (text === 'jwtTest 요청 성공') {
+                        // 성공적인 인증 후 /success 페이지로 이동
+                        //window.location.href = '/success';
+                    } else {
+                        // 인증 실패 시 /failure 페이지로 이동
+                        //window.location.href = '/failure';
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    // 로그인 실패 시 /failure 페이지로 이동
+                    //window.location.href = '/failure';
+                });
+        }
+    </script>
+</head>
+<body>
+<div class="login-container">
+    <h2>e-co</h2>
+    <form onsubmit="handleLogin(event)">
+        <div class="form-group clearable-input">
+            <label for="username">이메일</label>
+            <input type="text" id="username" name="username" placeholder="이메일을 입력하세요" required>
+            <button type="button" class="clear-btn" onclick="clearInput(document.getElementById('username'))">&times;</button>
+        </div>
+        <div class="form-group clearable-input">
+            <label for="password">비밀번호</label>
+            <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
+            <button type="button" class="clear-btn" onclick="clearInput(document.getElementById('password'))">&times;</button>
+        </div>
+        <input type="submit" value="로그인">
+    </form>
+
+    <div class="register-link">
+        <p>회원가입이 아직 안되었나요?</p>
+        <a href="/register">회원 가입</a>
+    </div>
+
+    <div class="social-login">
+        <a href="/oauth2/authorization/kakao" class="kakao">카카오 로그인</a>
+        <a href="/oauth2/authorization/google" class="google">구글 로그인</a>
+        <a href="/oauth2/authorization/naver" class="naver">네이버 로그인</a>
+    </div>
+</div>
+</body>
+</html>
