@@ -13,5 +13,16 @@ public class GlobalExceptionController {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(DuplicateFriendRequestException.class)
+    public ResponseEntity<String> handleDuplicateFriendRequestException(DuplicateFriendRequestException ex) {
+        // 로그를 남기거나 다른 처리할 내용이 있으면 추가 가능
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(DuplicateFriendException.class)
+    public ResponseEntity<String> handleDuplicateFriendException(DuplicateFriendException ex) {
+        // 로그를 남기거나 다른 처리할 내용이 있으면 추가 가능
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
+    }
     // 다른 예외 처리기도 추가할 수 있음
 }

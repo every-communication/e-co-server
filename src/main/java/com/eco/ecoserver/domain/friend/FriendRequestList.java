@@ -9,7 +9,13 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(name = "FRIEND_REQUEST_LIST")
+@Table(name = "FRIEND_REQUEST_LIST",
+    // 복합 unique키 설정 (중복 저장 X)
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        columnNames = {"user_id", "friend_id", "friend_state"}
+                )
+        })
 public class FriendRequestList {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,5 +37,9 @@ public class FriendRequestList {
         this.userId = userId;
         this.friendId = friendId;
         this.friendState = friendState;
+    }
+
+    public void updateState(FriendState state){
+        this.friendState = state;
     }
 }

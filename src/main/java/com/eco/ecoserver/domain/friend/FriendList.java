@@ -6,7 +6,12 @@ import lombok.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(name = "FRIEND_LIST")
+@Table(name = "FRIEND_LIST",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        columnNames = {"user_id", "friend_id"}
+                )
+        })
 public class FriendList {
 
     @Id

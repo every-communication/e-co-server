@@ -1,7 +1,12 @@
 package com.eco.ecoserver.domain.friend.service;
 
 import com.eco.ecoserver.domain.friend.FriendList;
+import com.eco.ecoserver.domain.friend.FriendRequestList;
+import com.eco.ecoserver.domain.friend.FriendState;
 import com.eco.ecoserver.domain.friend.dto.CreateFriendListDTO;
+import com.eco.ecoserver.domain.friend.dto.FriendListDTO;
+import com.eco.ecoserver.domain.friend.exception.DuplicateFriendException;
+import com.eco.ecoserver.domain.friend.exception.DuplicateFriendRequestException;
 import com.eco.ecoserver.domain.friend.repository.FriendListRepository;
 import com.eco.ecoserver.domain.user.User;
 import com.eco.ecoserver.domain.user.repository.UserRepository;
@@ -25,11 +30,20 @@ public class FriendListService {
     //친구 교차 저장
     @Transactional
     public Long save(CreateFriendListDTO createFriendListDTO){
+        checkDuplicate(createFriendListDTO.getUserId(), createFriendListDTO.getFriendId());
         CreateFriendListDTO createFriendListDTOReversed = new CreateFriendListDTO(createFriendListDTO.getFriendId(),
                 createFriendListDTO.getUserId());
         Long friendListId = friendListRepository.save(createFriendListDTO.toEntity()).getId();
         friendListRepository.save(createFriendListDTOReversed.toEntity());
         return friendListId;
+    }
+
+    private void checkDuplicate(Long userId, Long friendId){
+        List<FriendList> friendLists =  friendListRepository.findByUserIdAndFriendId(userId, friendId);
+        if(!friendLists.isEmpty())
+            throw new DuplicateFriendException("이미 친구입니다.");
+
+
     }
 
     //친구 교차 삭제
@@ -46,15 +60,20 @@ public class FriendListService {
 
 
     @Transactional
-    public List<User> getFriendList(Long userId){
+    public List<FriendListDTO> getFriendList(Long userId){
         List<FriendList> friends = friendListRepository.findByUserId(userId);
-        List<User> friendsList = new ArrayList<>();
+        List<FriendListDTO> friendListDTOS = new ArrayList<>();
         for (FriendList friend : friends) {
             Optional<User> getUser = userRepository.findById(friend.getFriendId());
-            System.out.println(getUser.get());
-            getUser.ifPresent(friendsList::add);
+            //System.out.println(getUser.get());
+            if(getUser.isPresent()){
+                User user = getUser.get();
+                FriendListDTO friendListDTO = new FriendListDTO(user.getEmail(), user.getNickname(), user.getThumbnail());
+                friendListDTOS.add(friendListDTO);
+            }
+
         }
-        return friendsList;
+        return friendListDTOS;
     }
 
 

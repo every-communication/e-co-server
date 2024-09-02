@@ -8,7 +8,6 @@ import java.util.List;
 
 public interface FriendListRepository extends JpaRepository<FriendList, Long> {
    List<FriendList> findByUserIdAndFriendId(Long userId, Long friendId);
-   List<FriendList> findByFriendIdAndUserId(Long friendId, Long userId);
 
    List<FriendList> findByUserId(Long userId);
    void deleteByUserIdAndFriendId(Long userId, Long friendId);
