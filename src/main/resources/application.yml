@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: ecoserver
+
+  profiles:
+    group:
+      local:
+        - local
+        - jwt
+        - oauth
+      ci:
+        - ci
+        - jwt
+        - oauth
+    active: ci
+
+  logging:
+    level:
+      org.springframework: DEBUG
+      org.hibernate: DEBUG

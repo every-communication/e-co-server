@@ -1,0 +1,36 @@
+services:
+  server:
+    container_name: e-co-server
+    restart: on-failure
+    build: .
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://database:3306/${MYSQL_DATABASE}?useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      SPRING_PROFILES_ACTIVE: ci
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database
+    networks:
+      - e-co-network
+
+  database:
+    container_name: e-co-db
+    restart: unless-stopped
+    image: mysql:8.0.33
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    command:
+      [
+        "--character-set-server=utf8mb4",
+        "--collation-server=utf8mb4_unicode_ci",
+      ]
+    ports:
+      - "3305:3306"
+    networks:
+      - e-co-network
+
+networks:
+  e-co-network:
