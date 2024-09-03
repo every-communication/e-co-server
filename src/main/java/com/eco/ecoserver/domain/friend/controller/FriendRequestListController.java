@@ -31,16 +31,16 @@ public class FriendRequestListController {
 
     //친구 요청 수락
     @PostMapping("/friend-requested/approve")
-    public Long approveFriendRequest(@RequestBody Long friendId, @RequestHeader("Authorization") String authHeader){
+    public Long approveFriendRequested(@RequestBody Long friendId, @RequestHeader("Authorization") String authHeader){
         String e = getUserEmail(authHeader);
-        return friendRequestListService.approveFriendRequest(userService.getUserIdByEmail(e),friendId);
+        return friendRequestListService.approveFriendRequest(friendId, userService.getUserIdByEmail(e));
     }
 
     //친구 요청 거절
     @PatchMapping("/friend-requested/remove")
-    public void removeFriendRequest(@RequestBody Long friendId, @RequestHeader("Authorization") String authHeader){
+    public void removeFriendRequested(@RequestBody Long friendId, @RequestHeader("Authorization") String authHeader){
         String e = getUserEmail(authHeader);
-        friendRequestListService.removeFriendRequest(userService.getUserIdByEmail(e), friendId);
+        friendRequestListService.removeFriendRequest(friendId, userService.getUserIdByEmail(e));
     }
 
     //요청받은 친구목록
@@ -60,10 +60,14 @@ public class FriendRequestListController {
 
 
     //내가 요청한 친구 취소
+    @PatchMapping("/friend-request/remove")
+    public void removeFriendRequest(@RequestBody Long friendId, @RequestHeader("Authorization") String authHeader) {
+        String e = getUserEmail(authHeader);
+        friendRequestListService.removeFriendRequest(userService.getUserIdByEmail(e), friendId);
+    }
 
 
-
-    private String getUserEmail(String authHeader){
+        private String getUserEmail(String authHeader){
         // Authorization 헤더에서 "Bearer " 접두어 제거
         String token = authHeader.replace("Bearer ", "");
         Optional<String> email = jwtService.extractEmail(token);

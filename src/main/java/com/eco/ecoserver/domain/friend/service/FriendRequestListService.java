@@ -48,7 +48,7 @@ public class FriendRequestListService {
 
     @Transactional
     public List<FriendListDTO> getFriendRequestedList(Long userId){
-        List<FriendRequestList> friendRequestList = friendRequestListRepository.findByFriendId(userId);
+        List<FriendRequestList> friendRequestList = friendRequestListRepository.findByFriendIdAndFriendState(userId, FriendState.SENDING);
         List<FriendListDTO> friendListDTOS = new ArrayList<>();
         for(FriendRequestList f : friendRequestList){
             Optional<User> getUser = userRepository.findById(f.getUserId());
@@ -63,7 +63,7 @@ public class FriendRequestListService {
 
     @Transactional
     public List<FriendListDTO> getFriendRequestList(Long userId){
-        List<FriendRequestList> friendRequestList = friendRequestListRepository.findByUserId(userId);
+        List<FriendRequestList> friendRequestList = friendRequestListRepository.findByUserIdAndFriendState(userId, FriendState.SENDING);
         List<FriendListDTO> friendListDTOS = new ArrayList<>();
         for(FriendRequestList f : friendRequestList){
             Optional<User> getUser = userRepository.findById(f.getFriendId());
@@ -95,12 +95,12 @@ public class FriendRequestListService {
     }
 
     private void checkDuplicate(Long requestId, Long friendId){
-        List<FriendRequestList> friendRequestLists = friendRequestListRepository.findByUserIdAndFriendId(requestId, friendId);
-        for(FriendRequestList f : friendRequestLists){
+        List<FriendRequestList> friendRequestLists = new ArrayList<>(friendRequestListRepository.findByUserIdAndFriendId(requestId, friendId));
+        friendRequestLists.addAll(friendRequestListRepository.findByUserIdAndFriendId(friendId, requestId));
+        for(FriendRequestList f: friendRequestLists){
             if(!f.getFriendState().equals(FriendState.REMOVED)){
-                throw new DuplicateFriendRequestException("이미 보낸 요청이거나 친구입니다.");
+                throw new DuplicateFriendRequestException("이미 보낸 요청이거나, 받은 요청이거나, 친구입니다.");
             }
-
         }
     }
 
