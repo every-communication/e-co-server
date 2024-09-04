@@ -1,13 +1,15 @@
 package com.eco.ecoserver.domain.user.service;
 
-import com.eco.ecoserver.domain.user.UserType;
 import com.eco.ecoserver.domain.user.repository.UserRepository;
 import com.eco.ecoserver.domain.user.dto.UserSignUpDto;
 import com.eco.ecoserver.domain.user.Role;
 import com.eco.ecoserver.domain.user.User;
+import com.eco.ecoserver.global.jwt.service.JwtService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -46,4 +48,11 @@ public class UserService {
                 .map(user -> passwordEncoder.matches(password, user.getPassword()))
                 .orElse(false);
     }
+
+    public Long getUserIdByEmail(String email){
+
+        User user = userRepository.findByEmail(email).get();
+        return user.getId();
+    }
+
 }

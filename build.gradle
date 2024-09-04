@@ -69,6 +69,11 @@ dependencies {
 
 	// JSON Processing
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+
+	//swagger
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0' // 최신 버전으로 변경 가능
+
 }
 
 tasks.named('test') {
