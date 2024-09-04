@@ -8,6 +8,7 @@ import com.eco.ecoserver.domain.user.service.UserService;
 import com.eco.ecoserver.global.jwt.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
+@Transactional
 public class FriendRequestListController {
 
     private final FriendRequestListService friendRequestListService;
