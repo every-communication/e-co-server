@@ -12,9 +12,18 @@ spring:
         - ci
         - jwt
         - oauth
-    active: ci
+    active: local
 
   logging:
     level:
       org.springframework: DEBUG
       org.hibernate: DEBUG
+
+springdoc:
+  swagger-ui:
+    disable-swagger-default-url: true
+    path: /api-ui.html
+  api-docs:
+    path: /api-docs
+  show-actuator: true
+  default-produces-media-type: application/json

@@ -53,7 +53,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/h2-console/**").permitAll()
                         .requestMatchers("/sign-up").permitAll() // 회원가입 접근 가능
-                        .requestMatchers("/", "/login-page","/register", "/success", "/failure", "/reg-success").permitAll() //TODO: 임시 접근
+                        .requestMatchers(",/api*","/api-docs/**", "/swagger-ui/**").permitAll()
+                        //.requestMatchers("/", "/login-page","/register", "/success", "/failure", "/reg-success").permitAll() //TODO: 임시 접근
                         .anyRequest().authenticated() // 위의 경로 이외에는 모두 인증된 사용자만 접근 가능
                 )
                 .csrf(csrf -> csrf.disable()) // CSRF 비활성화
