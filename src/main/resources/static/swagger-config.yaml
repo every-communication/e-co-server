@@ -1,0 +1,5 @@
+urls:
+  - url: "/v3/api-docs"  # 또는 "/v3/api-docs/your-custom-api"와 같이 특정 엔드포인트로 설정할 수 있음
+    description: "Your API Documentation"
+
+# 기본적으로 Swagger UI가 로드될 때 첫 번째 URL이 표시됩니다.
