@@ -5,7 +5,7 @@ import com.eco.ecoserver.domain.user.dto.UserSignUpDto;
 import com.eco.ecoserver.domain.user.Role;
 import com.eco.ecoserver.domain.user.User;
 import com.eco.ecoserver.global.jwt.service.JwtService;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.core.Authentication;
