@@ -2,7 +2,6 @@ spring:
   config:
     activate:
       on-profile: "ci"
-    import: optional:file:.env[.properties]
 
   application:
     name: ecoserver-ci
@@ -28,9 +27,8 @@ spring:
         dialect: org.hibernate.dialect.MySQL8Dialect
     hibernate:
       ddl-auto: create #update
-    defer-datasource-initialization: true  #애플리케이션이 실행될 때 db를 초기화하지 않고 첫 데이터베이스 액세스 시 초기화를 수행
+    defer-datasource-initialization: true #애플리케이션이 실행될 때 db를 초기화하지 않고 첫 데이터베이스 액세스 시 초기화를 수행
     generate-ddl: true
-
 
   thymeleaf:
     cache: false

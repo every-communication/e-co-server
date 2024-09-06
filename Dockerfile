@@ -27,4 +27,4 @@ COPY settings.gradle /server/
 
 EXPOSE 8080
 
-CMD ["./gradlew", "bootRun", "-Dspring.profiles.active=ci"]
+CMD ["./gradlew", "bootRun", "--args='--spring.profiles.active=ci'"]
