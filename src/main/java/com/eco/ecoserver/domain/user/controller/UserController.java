@@ -20,12 +20,11 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/users")
 public class UserController {
     private final UserService userService;
     private final JwtService jwtService;
 
-    @PostMapping("/sign-up")
+    @PostMapping("/auth/sign-up")
     public ResponseEntity<ApiResponseDto<String>> signUp(@RequestBody UserSignUpDto userSignUpDto) {
         try {
             userService.signUp(userSignUpDto);
@@ -45,7 +44,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("/me")
+    @GetMapping("/users/me")
     public ResponseEntity<ApiResponseDto<User>> getUser(HttpServletRequest request) {
         Optional<String> email = jwtService.extrctEmailFromToken(request);
         if (email.isEmpty()) {
@@ -57,7 +56,7 @@ public class UserController {
                 .orElseGet(() -> ResponseEntity.status(404).body(ApiResponseDto.failure(404, "사용자를 찾을 수 없습니다.")));
     }
 
-    @PutMapping("/me")
+    @PutMapping("/users/me")
     public ResponseEntity<ApiResponseDto<User>> updateUser(HttpServletRequest request, @RequestBody UserUpdateDto userUpdateDto) throws Exception {
         Optional<String> email = jwtService.extrctEmailFromToken(request);
         if (email.isEmpty()) {
@@ -73,7 +72,7 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/me")
+    @DeleteMapping("/users/me")
     public ResponseEntity<ApiResponseDto<String>> deleteUser(HttpServletRequest request) throws Exception {
         Optional<String> email = jwtService.extrctEmailFromToken(request);
         if (email.isEmpty()) {
