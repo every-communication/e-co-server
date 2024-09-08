@@ -25,7 +25,6 @@ public class UserService {
 
     // 회원가입
     public void signUp(UserSignUpDto userSignUpDto) throws Exception {
-
         if (userRepository.findByEmail(userSignUpDto.getEmail()).isPresent()) {
             throw new Exception("이미 존재하는 이메일입니다.");
         }
@@ -80,6 +79,10 @@ public class UserService {
     }
 
     // 이메일로 사용자 ID 조회
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
     public Long getUserIdByEmail(String email){
         return userRepository.findByEmail(email)
                 .map(User::getId)
