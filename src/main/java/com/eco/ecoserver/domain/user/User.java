@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
@@ -16,16 +15,19 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private Long id; //TODO: UUID로 변경?
+    private Long id;
 
     private String email;
+    @Setter
     private String password;
+    @Setter
     private String nickname;
     private String thumbnail; //imageUrl
 
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     private UserType userType;
 
@@ -49,4 +51,5 @@ public class User {
     public void updateRefreshToken(String updateRefreshToken) {
         this.refreshToken = updateRefreshToken;
     }
+
 }
