@@ -73,7 +73,6 @@ public class SecurityConfig {
                         .requestMatchers("/api*","/api-docs/**", "/swagger-ui/**").permitAll()
                         .requestMatchers("/users/**").permitAll() //.hasRole("USER") // TODO: 유저 관련 권한 인증 필터 (지우면 작동 안함... 수정바람)
                         .requestMatchers("/auth/**").permitAll()
-                        //.requestMatchers("/**").permitAll()
                         .anyRequest().authenticated() // 위의 경로 이외에는 모두 인증된 사용자만 접근 가능
                 )
                 .csrf(csrf -> csrf.disable()) // CSRF 비활성화
@@ -82,12 +81,16 @@ public class SecurityConfig {
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable())) // FrameOptions 비활성화
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용하지 않으므로 STATELESS로 설정
 
-
                 //== 소셜 로그인 설정 ==//
                 .oauth2Login(oauth2 -> oauth2
                         .successHandler(oAuth2LoginSuccessHandler) // 동의하고 계속하기를 눌렀을 때 Handler 설정
                         .failureHandler(oAuth2LoginFailureHandler) // 소셜 로그인 실패 시 핸들러 설정
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService)) // customUserService 설정
+                )
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.sendRedirect("/swagger-ui/index.html");
+                        })
                 )
 
         // CORS 필터를 UsernamePasswordAuthenticationFilter 전에 추가
