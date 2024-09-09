@@ -32,9 +32,16 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 import org.slf4j.Logger;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
+
+import java.util.Arrays;
 
 /**
  * 인증은 CustomJsonUsernamePasswordAuthenticationFilter에서 authenticate()로 인증된 사용자로 처리
@@ -60,12 +67,13 @@ public class SecurityConfig {
         http
                 //== URL별 권한 관리 옵션 ==//
                 // 아이콘, css, js 관련
-                // 기본 페이지, css, image, js 하위 폴더에 있는 자료들은 모두 접근 가능, h2-console에 접근 가능
+                // 기본 페이지, css, image, js 하위 폴더에 있는 자료들은 모두 접근 가능
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/h2-console/**").permitAll()
+                        .requestMatchers("/", "/css/**", "/images/**", "/js/**", "/favicon.ico").permitAll()
                         .requestMatchers("/api*","/api-docs/**", "/swagger-ui/**").permitAll()
                         .requestMatchers("/users/**").permitAll() //.hasRole("USER") // TODO: 유저 관련 권한 인증 필터 (지우면 작동 안함... 수정바람)
                         .requestMatchers("/auth/**").permitAll()
+                        //.requestMatchers("/**").permitAll()
                         .anyRequest().authenticated() // 위의 경로 이외에는 모두 인증된 사용자만 접근 가능
                 )
                 .csrf(csrf -> csrf.disable()) // CSRF 비활성화
@@ -74,20 +82,37 @@ public class SecurityConfig {
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable())) // FrameOptions 비활성화
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용하지 않으므로 STATELESS로 설정
 
+
                 //== 소셜 로그인 설정 ==//
                 .oauth2Login(oauth2 -> oauth2
                         .successHandler(oAuth2LoginSuccessHandler) // 동의하고 계속하기를 눌렀을 때 Handler 설정
                         .failureHandler(oAuth2LoginFailureHandler) // 소셜 로그인 실패 시 핸들러 설정
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService)) // customUserService 설정
-                );
+                )
+
+        // CORS 필터를 UsernamePasswordAuthenticationFilter 전에 추가
+                .addFilterBefore(new CorsFilter(corsConfigurationSource()), UsernamePasswordAuthenticationFilter.class)
+
 
         // 원래 스프링 시큐리티 필터 순서가 LogoutFilter 이후에 로그인 필터 동작
         // 따라서, LogoutFilter 이후에 우리가 만든 필터 동작하도록 설정
         // 순서 : LogoutFilter -> JwtAuthenticationProcessingFilter -> CustomJsonUsernamePasswordAuthenticationFilter
-        http.addFilterAfter(customJsonUsernamePasswordAuthenticationFilter(), LogoutFilter.class);
-        http.addFilterBefore(jwtAuthenticationProcessingFilter(), CustomJsonUsernamePasswordAuthenticationFilter.class);
+                .addFilterAfter(customJsonUsernamePasswordAuthenticationFilter(), LogoutFilter.class)
+                .addFilterBefore(jwtAuthenticationProcessingFilter(), CustomJsonUsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // 허용할 도메인
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE")); // 허용할 HTTP 메서드
+        configuration.setAllowedHeaders(Arrays.asList("*")); // 허용할 헤더
+        configuration.setAllowCredentials(true); // 자격 증명 허용
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration); // 모든 경로에 대해 CORS 설정 적용
+        return source;
     }
 
     @Bean

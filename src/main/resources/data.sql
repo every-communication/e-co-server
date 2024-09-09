@@ -1,17 +1,17 @@
 insert into users (USER_ID, EMAIL, NICKNAME, PASSWORD, ROLE, USER_TYPE)
-values (99990, 'admin1234', 'admin1234', '{bcrypt}$2a$10$EwUz1xN6sDbOM6Ss40bLxO5j.EPmj9pbhL2oO92ZBJQ8zuXoRUPwG', 'ADMIN', 'DEAF');
+values (99990, 'admin@eco.com', 'admin1234', '{bcrypt}$2a$10$EwUz1xN6sDbOM6Ss40bLxO5j.EPmj9pbhL2oO92ZBJQ8zuXoRUPwG', 'ADMIN', 'DEAF');
 
 insert into users (USER_ID, EMAIL, NICKNAME, PASSWORD, ROLE, USER_TYPE)
-values (99991, 'friend1', 'friend1', '{bcrypt}$2a$10$EwUz1xN6sDbOM6Ss40bLxO5j.EPmj9pbhL2oO92ZBJQ8zuXoRUPwG', 'ADMIN', 'DEAF');
+values (99991, 'friend1@eco.com', 'friend1', '{bcrypt}$2a$10$EwUz1xN6sDbOM6Ss40bLxO5j.EPmj9pbhL2oO92ZBJQ8zuXoRUPwG', 'ADMIN', 'DEAF');
 
 insert into users (USER_ID, EMAIL, NICKNAME, PASSWORD, ROLE, USER_TYPE)
-values (99992, 'friend2', 'friend2', '{bcrypt}$2a$10$EwUz1xN6sDbOM6Ss40bLxO5j.EPmj9pbhL2oO92ZBJQ8zuXoRUPwG', 'ADMIN', 'DEAF');
+values (99992, 'friend2@eco.com', 'friend2', '{bcrypt}$2a$10$EwUz1xN6sDbOM6Ss40bLxO5j.EPmj9pbhL2oO92ZBJQ8zuXoRUPwG', 'ADMIN', 'DEAF');
 
 insert into users (USER_ID, EMAIL, NICKNAME, PASSWORD, ROLE, USER_TYPE)
-values (99993, 'friend3', 'friend3', '{bcrypt}$2a$10$EwUz1xN6sDbOM6Ss40bLxO5j.EPmj9pbhL2oO92ZBJQ8zuXoRUPwG', 'ADMIN', 'DEAF');
+values (99993, 'friend3@eco.com', 'friend3', '{bcrypt}$2a$10$EwUz1xN6sDbOM6Ss40bLxO5j.EPmj9pbhL2oO92ZBJQ8zuXoRUPwG', 'ADMIN', 'DEAF');
 
 insert into users (USER_ID, EMAIL, NICKNAME, PASSWORD, ROLE, USER_TYPE)
-values (99994, 'friend4', 'friend4', '{bcrypt}$2a$10$EwUz1xN6sDbOM6Ss40bLxO5j.EPmj9pbhL2oO92ZBJQ8zuXoRUPwG', 'ADMIN', 'NONDEAF');
+values (99994, 'friend4@eco.com', 'friend4', '{bcrypt}$2a$10$EwUz1xN6sDbOM6Ss40bLxO5j.EPmj9pbhL2oO92ZBJQ8zuXoRUPwG', 'ADMIN', 'NONDEAF');
 
 insert into friend_list (friend_list_id, friend_id, user_id)
 values (99991, 99991, 99990);
