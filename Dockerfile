@@ -25,6 +25,8 @@ COPY gradlew /server/
 COPY build.gradle /server/
 COPY settings.gradle /server/
 
+RUN chmod +x gradlew
+
 EXPOSE 8080
 
 CMD ["./gradlew", "bootRun", "--args='--spring.profiles.active=ci'"]
