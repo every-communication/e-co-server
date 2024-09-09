@@ -8,6 +8,7 @@ COPY gradlew /server/
 COPY build.gradle /server/
 COPY settings.gradle /server/
 
+RUN sed -i 's/\r$//' "./gradlew"
 RUN bash -c "./gradlew build"
 
 # Stage 2: Run
