@@ -1,5 +1,7 @@
 package com.eco.ecoserver.global.config;
 
+import com.eco.ecoserver.domain.user.Role;
+import com.eco.ecoserver.global.dto.ApiResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.eco.ecoserver.domain.user.repository.UserRepository;
 import com.eco.ecoserver.global.jwt.filter.JwtAuthenticationProcessingFilter;
@@ -12,9 +14,12 @@ import com.eco.ecoserver.global.oauth2.handler.OAuth2LoginFailureHandler;
 import com.eco.ecoserver.global.oauth2.handler.OAuth2LoginSuccessHandler;
 import com.eco.ecoserver.global.oauth2.service.CustomOAuth2UserService;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -24,12 +29,18 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.AccessDeniedHandlerImpl;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
+
+import org.slf4j.Logger;
 
 /**
  * 인증은 CustomJsonUsernamePasswordAuthenticationFilter에서 authenticate()로 인증된 사용자로 처리
  * JwtAuthenticationProcessingFilter는 AccessToken, RefreshToken 재발급
  */
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -53,7 +64,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/h2-console/**").permitAll()
                         .requestMatchers("/api*","/api-docs/**", "/swagger-ui/**").permitAll()
-                        .requestMatchers("/users/**", "/auth/**").permitAll() // TODO: 유저 관련 권한 인증 필터
+                        .requestMatchers("/users/**").permitAll() //.hasRole("USER") // TODO: 유저 관련 권한 인증 필터 (지우면 작동 안함... 수정바람)
+                        .requestMatchers("/auth/**").permitAll()
                         .anyRequest().authenticated() // 위의 경로 이외에는 모두 인증된 사용자만 접근 가능
                 )
                 .csrf(csrf -> csrf.disable()) // CSRF 비활성화
