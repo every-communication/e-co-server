@@ -22,3 +22,7 @@ docker compose down
 
 - 실행 이후 http://localhost:8080/swagger-ui/index.html 를 통해 스웨거 접근 가능.
 - DB의 경우 localhost:3305
+
+
+### ERD
+![Untitled](https://github.com/user-attachments/assets/900551ba-caea-4844-b126-24ca685c8a48)
