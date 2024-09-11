@@ -157,7 +157,7 @@ public class JwtService {
         }
     }
 
-    public Optional<String> extrctEmailFromToken(HttpServletRequest request) {
+    public Optional<String> extractEmailFromToken(HttpServletRequest request) {
         Optional<String> accessToken = extractAccessToken(request);
         if (accessToken.isEmpty()) {
             return Optional.empty();

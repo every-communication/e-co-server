@@ -1,11 +1,8 @@
 package com.eco.ecoserver.domain.user.controller;
 
 import com.eco.ecoserver.domain.user.User;
-import com.eco.ecoserver.domain.user.dto.LoginResponseDto;
-import com.eco.ecoserver.domain.user.dto.UserSignInDto;
 import com.eco.ecoserver.domain.user.dto.UserUpdateDto;
 import com.eco.ecoserver.domain.user.service.UserService;
-import com.eco.ecoserver.domain.user.dto.UserSignUpDto;
 import com.eco.ecoserver.global.dto.ApiResponseDto;
 import com.eco.ecoserver.global.jwt.service.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,7 +21,7 @@ public class UserController {
 
     @GetMapping("/me")
     public ResponseEntity<ApiResponseDto<User>> getUser(HttpServletRequest request) {
-        Optional<String> email = jwtService.extrctEmailFromToken(request);
+        Optional<String> email = jwtService.extractEmailFromToken(request);
         if (email.isEmpty()) {
             return ResponseEntity.status(403).body(ApiResponseDto.failure(403, "권한이 없습니다."));
         }
@@ -37,7 +34,7 @@ public class UserController {
 
     @PutMapping("/me")
     public ResponseEntity<ApiResponseDto<User>> updateUser(HttpServletRequest request, @RequestBody UserUpdateDto userUpdateDto) throws Exception {
-        Optional<String> email = jwtService.extrctEmailFromToken(request);
+        Optional<String> email = jwtService.extractEmailFromToken(request);
         if (email.isEmpty()) {
             return ResponseEntity.status(403).body(ApiResponseDto.failure(403, "권한이 없습니다."));
         }
@@ -53,7 +50,7 @@ public class UserController {
 
     @DeleteMapping("/me")
     public ResponseEntity<ApiResponseDto<String>> deleteUser(HttpServletRequest request) throws Exception {
-        Optional<String> email = jwtService.extrctEmailFromToken(request);
+        Optional<String> email = jwtService.extractEmailFromToken(request);
         if (email.isEmpty()) {
             return ResponseEntity.status(403).body(ApiResponseDto.failure(403, "권한이 없습니다."));
         }
