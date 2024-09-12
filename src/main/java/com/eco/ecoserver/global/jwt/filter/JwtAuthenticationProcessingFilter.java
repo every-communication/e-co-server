@@ -38,7 +38,7 @@ import java.util.Set;
 @Slf4j
 public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     // TODO: 예외 uri 추가가 필요할 수도 있음.
-    String NO_CHECK_URL = "/swagger-ui";
+    String NO_CHECK_URL = "/login"; //TODO: 변경할 수 있음
 
     private final JwtService jwtService;
     private final UserRepository userRepository;
@@ -118,7 +118,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
                 .ifPresent(accessToken -> jwtService.extractEmail(accessToken)
                         .ifPresent(email -> userRepository.findByEmail(email)
                                 .ifPresent(this::saveAuthentication)));
-        
+
         // 다음 인증 필터로 이동.
         filterChain.doFilter(request, response);
     }
