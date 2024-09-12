@@ -38,11 +38,7 @@ import java.util.Set;
 @Slf4j
 public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     // TODO: 예외 uri 추가가 필요할 수도 있음.
-    private static final Set<String> NO_CHECK_URL = new HashSet<>();
-    static {
-        NO_CHECK_URL.add("/auth/sign-in");
-        NO_CHECK_URL.add("/auth/refresh");
-    }
+    String NO_CHECK_URL = "/swagger-ui";
 
     private final JwtService jwtService;
     private final UserRepository userRepository;
@@ -55,7 +51,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
         log.info("Request URI: {}", uri);
 
         // 로그인 uri 는 해당 필터(jwt)를 적용시키지 않음. -> 바로 다음 필터(custom)를 호출
-        if (NO_CHECK_URL.contains(uri)) {
+        if (uri.startsWith(NO_CHECK_URL)) {
             filterChain.doFilter(request, response);
             log.info("skip URI : {}", uri);
             return;
@@ -117,30 +113,12 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
         // access token 추출 -> filter (isTokenValid 를 통해 유효한지 확인) -> access token 으로 email 추출
         // -> email로 user 확인 -> saveAuthentication 호출 (내장 메소드)
-        /*
         jwtService.extractAccessToken(request)
                 .filter(jwtService::isTokenValid)
                 .ifPresent(accessToken -> jwtService.extractEmail(accessToken)
                         .ifPresent(email -> userRepository.findByEmail(email)
                                 .ifPresent(this::saveAuthentication)));
-         */
-
-        //<<<<< 부터 //TODO: 위에 코드랑 확인
-        if (accessTokenOptional.isPresent() && jwtService.isTokenValid(accessTokenOptional.get())) {
-            Optional<String> email = jwtService.extractEmail(accessTokenOptional.get());
-            email.flatMap(e -> userRepository.findByEmail(e))
-                    .ifPresent(this::saveAuthentication);
-        } else {
-            // 액세스 토큰이 없거나 유효하지 않은 경우
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            ApiResponseDto<?> responseDto = ApiResponseDto.failure("액세스 토큰이 만료되었습니다.");
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.writeValue(response.getWriter(), responseDto);
-        }
-        //>>>>> 까지
-
-
+        
         // 다음 인증 필터로 이동.
         filterChain.doFilter(request, response);
     }

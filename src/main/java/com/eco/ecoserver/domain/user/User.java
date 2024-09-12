@@ -37,7 +37,6 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private UserSocial userSocial;
 
-
     // 유저 권한 설정 메소드
     public void authorizeUser() { this.role = Role.USER; }
 

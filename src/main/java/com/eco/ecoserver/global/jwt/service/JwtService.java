@@ -114,9 +114,9 @@ public class JwtService {
      * 토큰 형식 : "Bearer " + access token
      */
     public Optional<String> extractAccessToken(HttpServletRequest request) {
-        //String authHeader = request.getHeader("Authorization");
-        //log.info("Extracting Access Token from Header: {}", authHeader);
-        return Optional.ofNullable(accessHeader)
+        String authHeader = request.getHeader("Authorization");
+        log.info("Extracting Access Token from Header: {}", authHeader);
+        return Optional.ofNullable(authHeader)
                 .filter(accessToken -> accessToken.startsWith(BEARER))
                 .map(accessToken -> accessToken.substring(BEARER.length()).trim());
     }

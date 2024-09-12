@@ -19,7 +19,7 @@ spring:
     show-sql: true
     database: mysql
     hibernate:
-      ddl-auto: create # Hibernate가 데이터베이스 스키마를 자동으로 생성하도록 지정 (update:변화 유지)
+      ddl-auto: create-drop # Hibernate가 데이터베이스 스키마를 자동으로 생성하도록 지정 (update:변화 유지)
     properties:
       hibernate:
         format_sql: true
