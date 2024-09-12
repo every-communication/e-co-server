@@ -3,6 +3,7 @@ package com.eco.ecoserver.global.oauth2.service;
 import com.eco.ecoserver.domain.user.SocialType;
 import com.eco.ecoserver.domain.user.User;
 import com.eco.ecoserver.domain.user.repository.UserRepository;
+import com.eco.ecoserver.domain.user.repository.UserSocialRepository;
 import com.eco.ecoserver.global.oauth2.CustomOAuth2User;
 import com.eco.ecoserver.global.oauth2.OAuthAttributes;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ import java.util.Map;
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
     private final UserRepository userRepository;
+    private final UserSocialRepository userSocialRepository;
 
     private static final String NAVER = "naver";
     private static final String KAKAO = "kakao";
@@ -82,7 +84,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
      * 만약 찾은 회원이 있다면, 그대로 반환하고 없다면 saveUser()를 호출하여 회원을 저장한다.
      */
     private User getUser(OAuthAttributes attributes, SocialType socialType) {
-        User findUser = userRepository.findBySocialTypeAndSocialId(socialType,
+        User findUser = userSocialRepository.findBySocialTypeAndSocialId(socialType,
                 attributes.getOauth2UserInfo().getId()).orElse(null);
 
         if(findUser == null) {

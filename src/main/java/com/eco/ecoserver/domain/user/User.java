@@ -31,13 +31,11 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserType userType;
 
-    @Enumerated(EnumType.STRING)
-    private SocialType socialType;
+    private String refreshToken;
 
-    private String socialId; // 로그인한 소셜 타입의 식별자 값 (일반 로그인인 경우 null)
-
-    private String refreshToken; // 리프레시 토큰
-
+    // 연관관계의 owner -> foreign key 생성하지 않고, 주인이 관리
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private UserSocial userSocial;
 
 
     // 유저 권한 설정 메소드

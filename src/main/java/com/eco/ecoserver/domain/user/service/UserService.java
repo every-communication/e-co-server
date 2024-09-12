@@ -1,5 +1,6 @@
 package com.eco.ecoserver.domain.user.service;
 
+import com.eco.ecoserver.domain.user.dto.UserInfoDto;
 import com.eco.ecoserver.domain.user.dto.UserUpdateDto;
 import com.eco.ecoserver.domain.user.repository.UserRepository;
 import com.eco.ecoserver.domain.user.dto.UserSignUpDto;
@@ -41,13 +42,8 @@ public class UserService {
         userRepository.save(user);
     }
 
-    // 사용자 정보 조회
-    public Optional<User> findById(Long id) {
-        return userRepository.findById(id);
-    }
-
     // 사용자 정보 업데이트
-    public User updateUser(Long id, UserUpdateDto userUpdateDto) throws Exception {
+    public UserInfoDto updateUser(Long id, UserUpdateDto userUpdateDto) throws Exception {
         Optional<User> userOptional = userRepository.findById(id);
         if(userOptional.isPresent()) {
             User user = userOptional.get();
@@ -56,7 +52,9 @@ public class UserService {
             if(userUpdateDto.getPassword() != null) {
                 user.setPassword(passwordEncoder.encode(userUpdateDto.getPassword()));
             }
-            return userRepository.save(user);
+            user = userRepository.save(user);
+
+            return new UserInfoDto(user);
         } else {
             throw new Exception("사용자를 찾을 수 없습니다.");
         }
