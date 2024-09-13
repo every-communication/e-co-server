@@ -38,7 +38,7 @@ import java.util.Set;
 @Slf4j
 public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     // TODO: 예외 uri 추가가 필요할 수도 있음.
-    String NO_CHECK_URL = "/login"; //TODO: 변경할 수 있음
+    String NO_CHECK_URL = "/auth"; //TODO: 변경할 수 있음
 
     private final JwtService jwtService;
     private final UserRepository userRepository;

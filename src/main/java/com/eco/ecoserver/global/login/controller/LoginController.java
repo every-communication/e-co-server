@@ -34,6 +34,17 @@ public class LoginController {
     @Autowired
     private UserRepository userRepository;
 
+    @PostMapping("/sign-up")
+    public ResponseEntity<ApiResponseDto<String>> signUp(@RequestBody UserSignUpDto userSignUpDto) {
+        try {
+            userService.signUp(userSignUpDto);
+            return ResponseEntity.ok(ApiResponseDto.success("회원가입 성공"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ApiResponseDto.failure(e.getMessage()));
+        }
+    }
+
+
     @PostMapping("/sign-in")
     public ResponseEntity<ApiResponseDto<TokenDto>> signIn(@RequestBody UserSignInDto userSignInDto) {
         System.out.println(userSignInDto);
@@ -105,18 +116,18 @@ public class LoginController {
     }
 
     @GetMapping("/naver")
-    public String redirectToNaver() {
-        return "redirect:/oauth2/authorization/naver";
+    public void redirectToNaver(HttpServletResponse response) throws IOException {
+        response.sendRedirect("/oauth2/authorization/naver");
     }
 
     @GetMapping("/google")
-    public String redirectToGoogle() {
-        return "redirect:/oauth2/authorization/google";
+    public void redirectToGoogle(HttpServletResponse response) throws IOException {
+        response.sendRedirect("/oauth2/authorization/google");
     }
 
     @GetMapping("/kakao")
-    public String redirectToKakao() {
-        return "redirect:/oauth2/authorization/kakao";
+    public void redirectToKakao(HttpServletResponse response) throws IOException {
+        response.sendRedirect("/oauth2/authorization/kakao");
     }
 
     //@GetMapping("/oauth-register") //TODO: QUERY=social_id (ex){domain}/auth/oauth-register?id=jaweofjoi

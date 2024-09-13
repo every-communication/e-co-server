@@ -18,21 +18,12 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/users")
 public class UserController {
     private final UserService userService;
     private final JwtService jwtService;
 
-    @PostMapping("/auth/sign-up")
-    public ResponseEntity<ApiResponseDto<String>> signUp(@RequestBody UserSignUpDto userSignUpDto) {
-        try {
-            userService.signUp(userSignUpDto);
-            return ResponseEntity.ok(ApiResponseDto.success("회원가입 성공"));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(ApiResponseDto.failure(e.getMessage()));
-        }
-    }
-
-    @GetMapping("/users/me")
+    @GetMapping("/me")
     public ResponseEntity<ApiResponseDto<UserInfoDto>> getUser(HttpServletRequest request) {
         // request(token)에서 email 추출
         Optional<String> email = jwtService.extractEmailFromToken(request);
@@ -50,7 +41,7 @@ public class UserController {
         }).orElseGet(() -> ResponseEntity.status(404).body(ApiResponseDto.failure(404, "사용자를 찾을 수 없습니다.")));
     }
 
-    @PutMapping("/users/me")
+    @PutMapping("/me")
     public ResponseEntity<ApiResponseDto<UserInfoDto>> updateUser(HttpServletRequest request, @RequestBody UserUpdateDto userUpdateDto) throws Exception {
         // request(token)에서 email 추출
         Optional<String> email = jwtService.extractEmailFromToken(request);
@@ -68,7 +59,7 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/users/me")
+    @DeleteMapping("/me")
     public ResponseEntity<ApiResponseDto<String>> deleteUser(HttpServletRequest request) throws Exception {
         Optional<String> email = jwtService.extractEmailFromToken(request);
         if (email.isEmpty()) {

@@ -1,5 +1,5 @@
 package com.eco.ecoserver.domain.user;
 
 public enum SocialType {
-    KAKAO, GOOGLE, NAVER
+    KAKAO, GOOGLE, NAVER, ECO
 }

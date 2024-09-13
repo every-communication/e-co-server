@@ -1,11 +1,14 @@
 package com.eco.ecoserver.domain.user.service;
 
+import com.eco.ecoserver.domain.user.SocialType;
+import com.eco.ecoserver.domain.user.UserSocial;
 import com.eco.ecoserver.domain.user.dto.UserInfoDto;
 import com.eco.ecoserver.domain.user.dto.UserUpdateDto;
 import com.eco.ecoserver.domain.user.repository.UserRepository;
 import com.eco.ecoserver.domain.user.dto.UserSignUpDto;
 import com.eco.ecoserver.domain.user.Role;
 import com.eco.ecoserver.domain.user.User;
+import com.eco.ecoserver.domain.user.repository.UserSocialRepository;
 import com.eco.ecoserver.global.jwt.service.JwtService;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +26,7 @@ import java.util.Optional;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserSocialRepository userSocialRepository;
 
     // 회원가입
     public void signUp(UserSignUpDto userSignUpDto) throws Exception {
@@ -39,7 +43,15 @@ public class UserService {
                 .build();
 
         user.passwordEncode(passwordEncoder);
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+        UserSocial userSocial = UserSocial.builder()
+                .user(savedUser)
+                .socialType(SocialType.ECO)
+                .socialId(savedUser.getEmail())
+                .build();
+
+        userSocialRepository.save(userSocial);
     }
 
     // 사용자 정보 업데이트
