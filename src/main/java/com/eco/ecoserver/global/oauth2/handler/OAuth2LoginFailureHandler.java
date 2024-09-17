@@ -16,6 +16,7 @@ public class OAuth2LoginFailureHandler implements AuthenticationFailureHandler {
     private static final Logger log = Logger.getLogger(OAuth2LoginFailureHandler.class.getName());
 
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+        //TODO: ApiResponseDto 로 보내기
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         response.setContentType("text/plain;charset=UTF-8");
         response.getWriter().write("소셜 로그인 실패! 서버 로그를 확인해주세요.");

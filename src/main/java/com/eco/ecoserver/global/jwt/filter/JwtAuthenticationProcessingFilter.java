@@ -1,13 +1,10 @@
 package com.eco.ecoserver.global.jwt.filter;
 
 import com.eco.ecoserver.domain.user.User;
-import com.eco.ecoserver.domain.user.dto.TokenDto;
 import com.eco.ecoserver.domain.user.repository.UserRepository;
-import com.eco.ecoserver.global.dto.ApiResponseDto;
 import com.eco.ecoserver.global.jwt.service.JwtService;
 import com.eco.ecoserver.global.jwt.util.PasswordUtil;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,9 +20,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -38,7 +33,10 @@ import java.util.Set;
 @Slf4j
 public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     // TODO: 예외 uri 추가가 필요할 수도 있음.
-    String NO_CHECK_URL = "/auth"; //TODO: 변경할 수 있음
+    private static final Set<String> NO_CHECK_URL = new HashSet<>() {{
+        add("/login");
+        add("/auth");
+    }};
 
     private final JwtService jwtService;
     private final UserRepository userRepository;
@@ -51,10 +49,12 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
         log.info("Request URI: {}", uri);
 
         // 로그인 uri 는 해당 필터(jwt)를 적용시키지 않음. -> 바로 다음 필터(custom)를 호출
-        if (uri.startsWith(NO_CHECK_URL)) {
-            filterChain.doFilter(request, response);
-            log.info("skip URI : {}", uri);
-            return;
+        for(String checkUrl : NO_CHECK_URL) {
+            if (uri.startsWith(checkUrl)) {
+                filterChain.doFilter(request, response);
+                log.info("skip URI : {}", uri);
+                return;
+            }
         }
 
         // Request Header 에서 Authorization 추출

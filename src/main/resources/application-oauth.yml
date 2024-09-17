@@ -18,13 +18,13 @@ spring:
 
           kakao:
             client-id: ${KAKAO_CLIENT_ID}
+            client-secret: ${KAKAO_CLIENT_SECRET}
             redirect-uri: ${KAKAO_REDIRECT_URI}
-            client-authentication-method: POST
             authorization-grant-type: authorization_code
             scope: profile_nickname, profile_image
             client-name: Kakao
 
-        provider:
+        provider: #Kakao, Naver만 추가로 작성, OAuth2에서 Google은 처리
           naver:
             authorization_uri: https://nid.naver.com/oauth2.0/authorize
             token_uri: https://nid.naver.com/oauth2.0/token

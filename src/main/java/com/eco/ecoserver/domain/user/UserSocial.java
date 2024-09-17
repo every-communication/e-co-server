@@ -25,4 +25,12 @@ public class UserSocial {
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    // User를 설정하는 메서드
+    public void setUser(User user) {
+        this.user = user;
+        if (user.getUserSocial() != this) {
+            user.setUserSocial(this);
+        }
+    }
 }

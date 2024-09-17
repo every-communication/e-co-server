@@ -1,4 +1,4 @@
-package com.eco.ecoserver.domain.user.dto;
+package com.eco.ecoserver.global.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

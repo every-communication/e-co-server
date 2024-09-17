@@ -9,7 +9,7 @@ import com.eco.ecoserver.domain.user.dto.UserSignUpDto;
 import com.eco.ecoserver.domain.user.Role;
 import com.eco.ecoserver.domain.user.User;
 import com.eco.ecoserver.domain.user.repository.UserSocialRepository;
-import com.eco.ecoserver.global.jwt.service.JwtService;
+import com.eco.ecoserver.global.oauth2.dto.OAuthRegistrationDto;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -99,4 +99,19 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
     }
 
+    public User oauthRegister(String email, OAuthRegistrationDto oauthRegistrationDto) throws Exception {
+        Optional<User> userOptional = findByEmail(email);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            user.setNickname(oauthRegistrationDto.getNickname());
+            user.setUserType(oauthRegistrationDto.getUserType());
+            user.authorizeUser(); // Change role to USER
+
+            user = userRepository.save(user);
+
+            return user;
+        } else {
+            throw new Exception("사용자를 찾을 수 없습니다.");
+        }
+    }
 }

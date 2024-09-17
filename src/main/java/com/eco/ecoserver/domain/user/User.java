@@ -37,6 +37,14 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private UserSocial userSocial;
 
+    // 양방향 연관 관계 설정 메서드 추가
+    public void setUserSocial(UserSocial userSocial) {
+        this.userSocial = userSocial;
+        if (userSocial != null && userSocial.getUser() != this) {
+            userSocial.setUser(this);
+        }
+    }
+
     public SocialType getSocialType() {
         return this.userSocial != null ? this.userSocial.getSocialType() : null;
     }

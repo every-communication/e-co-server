@@ -1,6 +1,6 @@
 package com.eco.ecoserver.global.oauth2.handler;
 
-import com.eco.ecoserver.domain.user.dto.TokenDto;
+import com.eco.ecoserver.global.dto.TokenDto;
 import com.eco.ecoserver.domain.user.repository.UserRepository;
 import com.eco.ecoserver.global.jwt.service.JwtService;
 import com.eco.ecoserver.global.oauth2.CustomOAuth2User;
@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -38,8 +37,10 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
 
         if (oAuth2User.getRole() == Role.GUEST) {
+            log.info("OAuth2 Login - Guest!");
             handleGeustLogin(response, oAuth2User);
         } else {
+            log.info("OAuth2 Login 성공! - User");
             loginSuccess(response, oAuth2User);
         }
     }
@@ -55,6 +56,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     }
 
     private void loginSuccess(HttpServletResponse response, CustomOAuth2User oAuth2User) throws IOException {
+        // USER일 경우 access token, refresh token 발급
         String accessToken = jwtService.createAccessToken(oAuth2User.getEmail());
         String refreshToken = jwtService.createRefreshToken();
 
@@ -70,11 +72,5 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                             user.updateRefreshToken(refreshToken);
                             userRepository.saveAndFlush(user);
                         });
-        /* 기존 코드
-        response.addHeader(jwtService.getAccessHeader(), "Bearer " + accessToken);
-        response.addHeader(jwtService.getRefreshHeader(), "Bearer " + refreshToken);
-        jwtService.sendAccessAndRefreshToken(response, accessToken, refreshToken);
-        jwtService.updateRefreshToken(oAuth2User.getEmail(), refreshToken);
-         */
     }
 }

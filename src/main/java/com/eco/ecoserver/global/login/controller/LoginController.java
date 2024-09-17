@@ -1,7 +1,7 @@
 package com.eco.ecoserver.global.login.controller;
 
 import com.eco.ecoserver.domain.user.User;
-import com.eco.ecoserver.domain.user.dto.TokenDto;
+import com.eco.ecoserver.global.dto.TokenDto;
 import com.eco.ecoserver.domain.user.dto.UserSignInDto;
 import com.eco.ecoserver.domain.user.dto.UserSignUpDto;
 import com.eco.ecoserver.domain.user.repository.UserRepository;
@@ -9,7 +9,6 @@ import com.eco.ecoserver.domain.user.service.UserService;
 import com.eco.ecoserver.global.dto.ApiResponseDto;
 import com.eco.ecoserver.global.jwt.service.JwtService;
 import com.eco.ecoserver.global.login.service.LoginService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -75,24 +74,6 @@ public class LoginController {
         } else {
             return ResponseEntity.badRequest().body(ApiResponseDto.failure("로그인 실패: 이메일 또는 비밀번호가 잘못되었습니다."));
         }
-        /*
-        System.out.println(userSignInDto);
-        if (userService.authenticate(userSignInDto.getEmail(), userSignInDto.getPassword())) {
-            String accessToken = jwtService.createAccessToken(userSignInDto.getEmail());
-
-            String refreshToken = jwtService.createRefreshToken();
-
-            userRepository.findByEmail(userSignInDto.getEmail())
-                    .ifPresent(user -> {
-                        user.updateRefreshToken(refreshToken);
-                        userRepository.saveAndFlush(user);
-                    });
-            return ResponseEntity.ok(ApiResponseDto.success(new TokenDto(accessToken, refreshToken)));
-        } else {
-            return ResponseEntity.badRequest().body(ApiResponseDto.failure("로그인 실패: 이메일 또는 비밀번호가 잘못되었습니다."));
-        }
-
-         */
     }
 
     @PostMapping("/refresh")
@@ -114,24 +95,6 @@ public class LoginController {
             return ResponseEntity.status(403).body(ApiResponseDto.failure("유효하지 않은 refresh token입니다."));
         }
     }
-
-    @GetMapping("/naver")
-    public void redirectToNaver(HttpServletResponse response) throws IOException {
-        response.sendRedirect("/oauth2/authorization/naver");
-    }
-
-    @GetMapping("/google")
-    public void redirectToGoogle(HttpServletResponse response) throws IOException {
-        response.sendRedirect("/oauth2/authorization/google");
-    }
-
-    @GetMapping("/kakao")
-    public void redirectToKakao(HttpServletResponse response) throws IOException {
-        response.sendRedirect("/oauth2/authorization/kakao");
-    }
-
-    //@GetMapping("/oauth-register") //TODO: QUERY=social_id (ex){domain}/auth/oauth-register?id=jaweofjoi
-    //@GetMapping("/oauth-callback") //TODO: QUERY=access token, refresh token
 
     @GetMapping("/jwt-test")
     public String jwtTest() {
