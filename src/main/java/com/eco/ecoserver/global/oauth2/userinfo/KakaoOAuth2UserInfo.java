@@ -21,7 +21,7 @@ public class KakaoOAuth2UserInfo extends OAuth2UserInfo {
             return null;
         }
 
-        return (String)properties.get("nickname");
+        return (String)properties.get("profile_nickname");
     }
 
     @Override
@@ -32,6 +32,6 @@ public class KakaoOAuth2UserInfo extends OAuth2UserInfo {
             return null;
         }
 
-        return (String)properties.get("thumbnail_image_url");
+        return (String)properties.get("profile_image");
     }
 }

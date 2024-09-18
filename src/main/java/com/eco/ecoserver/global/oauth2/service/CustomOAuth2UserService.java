@@ -6,9 +6,11 @@ import com.eco.ecoserver.domain.user.UserSocial;
 import com.eco.ecoserver.domain.user.repository.UserRepository;
 import com.eco.ecoserver.domain.user.repository.UserSocialRepository;
 import com.eco.ecoserver.domain.user.service.UserService;
+import com.eco.ecoserver.global.jwt.service.JwtService;
 import com.eco.ecoserver.global.oauth2.CustomOAuth2User;
 import com.eco.ecoserver.global.oauth2.OAuthAttributes;
 import com.eco.ecoserver.global.oauth2.dto.OAuthRegistrationDto;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +24,9 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -33,6 +38,7 @@ import java.util.Optional;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final UserRepository userRepository;
     private final UserSocialRepository userSocialRepository;
+    private final JwtService jwtService;
 
     private static final String NAVER = "naver";
     private static final String KAKAO = "kakao";
@@ -41,6 +47,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         log.info("CustomOAuth2UserService.loadUser() 실행 - OAuth2 로그인 요청 진입");
+
+        // OAuth2UserRequest 객체의 정보 출력
+        log.info("Client Registration Id: {}", userRequest.getClientRegistration().getRegistrationId());
+        log.info("Access Token: {}", userRequest.getAccessToken().getTokenValue());
+        log.info("Authorization Exchange: {}", userRequest.getAdditionalParameters().toString());
 
         // 1. OAuth2 로그인 유저 정보를 가져옴
         OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
@@ -101,5 +112,29 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private User saveUser(OAuthAttributes attributes, SocialType socialType) {
         User createdUser = attributes.toEntity(socialType, attributes.getOauth2UserInfo());
         return userRepository.save(createdUser);
+    }
+
+    public void handleGuestLogin(HttpServletResponse response, CustomOAuth2User oAuth2User) throws IOException {
+        String accessToken = jwtService.createAccessToken(oAuth2User.getEmail());
+        String redirectUrl = "/auth/oauth-register?id=" + oAuth2User.getEmail();
+        response.addHeader(jwtService.getAccessHeader(), "Bearer " + accessToken);
+        response.sendRedirect(redirectUrl);
+    }
+
+    public void loginSuccess(HttpServletResponse response, CustomOAuth2User oAuth2User) throws IOException {
+        String accessToken = jwtService.createAccessToken(oAuth2User.getEmail());
+        String refreshToken = jwtService.createRefreshToken();
+
+        String redirectUrl = String.format("/auth/oauth-callback?accessToken=%s&refreshToken=%s",
+                URLEncoder.encode(accessToken, StandardCharsets.UTF_8.name()),
+                URLEncoder.encode(refreshToken, StandardCharsets.UTF_8.name()));
+
+        userRepository.findByEmail(oAuth2User.getEmail())
+                .ifPresent(user -> {
+                    user.updateRefreshToken(refreshToken);
+                    userRepository.saveAndFlush(user);
+                });
+
+        response.sendRedirect(redirectUrl);
     }
 }
