@@ -32,14 +32,14 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     }
 
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        log.info("OAuth2 Login 성공!");
+        log.info("OAuth2 Login Success!");
         CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
 
         if (oAuth2User.getRole() == Role.GUEST) {
-            log.info("OAuth2 Login - Guest!");
+            log.info("OAuth2 Login Success! - Guest");
             customOAuth2UserService.handleGuestLogin(response, oAuth2User);
         } else {
-            log.info("OAuth2 Login 성공! - User");
+            log.info("OAuth2 Login Success! - User");
             customOAuth2UserService.loginSuccess(response, oAuth2User);
         }
     }
