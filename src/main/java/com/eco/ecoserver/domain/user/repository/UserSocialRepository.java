@@ -4,11 +4,10 @@ import com.eco.ecoserver.domain.user.SocialType;
 import com.eco.ecoserver.domain.user.User;
 import com.eco.ecoserver.domain.user.UserSocial;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-@Repository
+
 public interface UserSocialRepository extends JpaRepository<UserSocial, Long> {
     /**
      * 소셜 타입과 소셜의 식별값으로 회원 찾는 메소드
