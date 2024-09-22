@@ -61,7 +61,8 @@ public class FriendListService {
 
 
     @Transactional
-    public List<FriendListDTO> getFriendList(Long userId){
+    public List<FriendListDTO> getFriendList(User u){
+        Long userId = u.getId();
         List<FriendList> friends = friendListRepository.findByUserId(userId);
         List<FriendListDTO> friendListDTOS = new ArrayList<>();
         for (FriendList friend : friends) {
@@ -69,7 +70,7 @@ public class FriendListService {
             //System.out.println(getUser.get());
             if(getUser.isPresent()){
                 User user = getUser.get();
-                FriendListDTO friendListDTO = new FriendListDTO(user.getEmail(), user.getNickname(), user.getThumbnail());
+                FriendListDTO friendListDTO = new FriendListDTO(user.getId(), user.getEmail(), user.getNickname(), user.getThumbnail());
                 friendListDTOS.add(friendListDTO);
             }
 
