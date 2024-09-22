@@ -82,7 +82,7 @@ public class OAuthAttributes {
         // User 객체 생성 및 반환
         User user = User.builder()
                 .nickname(oauth2UserInfo.getNickname())              // 닉네임
-                .email(oauth2UserInfo.getId() + "@socialUser.com")                    // 이메일
+                .email(oauth2UserInfo.getId() + "@" + socialType.name().toLowerCase() + ".com")                    // 이메일
                 .thumbnail(oauth2UserInfo.getImageUrl())
                 .role(Role.GUEST)                // 기본 역할 GUEST
                 .userSocial(userSocial)          // UserSocial과 연결

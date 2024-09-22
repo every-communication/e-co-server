@@ -123,7 +123,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     public void loginSuccess(HttpServletResponse response, CustomOAuth2User oAuth2User) throws IOException {
         String accessToken = jwtService.createAccessToken(oAuth2User.getEmail());
-        String refreshToken = jwtService.createRefreshToken();
+        String refreshToken = jwtService.createRefreshToken(oAuth2User.getEmail());
 
         String redirectUrl = String.format("http://localhost:3000/auth/oauth-callback?accessToken=%s&refreshToken=%s",
                 URLEncoder.encode(accessToken, StandardCharsets.UTF_8.name()),

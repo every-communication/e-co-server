@@ -2,9 +2,11 @@ package com.eco.ecoserver.global.jwt.filter;
 
 import com.eco.ecoserver.domain.user.User;
 import com.eco.ecoserver.domain.user.repository.UserRepository;
+import com.eco.ecoserver.global.dto.ApiResponseDto;
 import com.eco.ecoserver.global.jwt.service.JwtService;
 import com.eco.ecoserver.global.jwt.util.PasswordUtil;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -40,6 +42,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserRepository userRepository;
+    private final ObjectMapper objectMapper;
 
     private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
@@ -96,7 +99,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
      * create refresh token -> update refresh token -> save & flush
      */
     private String reIssueRefreshToken(User user) {
-        String reIssuedRefreshToken = jwtService.createRefreshToken();
+        String reIssuedRefreshToken = jwtService.createRefreshToken(user.getEmail());
         user.updateRefreshToken(reIssuedRefreshToken);
         userRepository.saveAndFlush(user);
         return reIssuedRefreshToken;
@@ -113,12 +116,24 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
         // access token 추출 -> filter (isTokenValid 를 통해 유효한지 확인) -> access token 으로 email 추출
         // -> email로 user 확인 -> saveAuthentication 호출 (내장 메소드)
-        jwtService.extractAccessToken(request)
-                .filter(jwtService::isTokenValid)
-                .ifPresent(accessToken -> jwtService.extractEmail(accessToken)
-                        .ifPresent(email -> userRepository.findByEmail(email)
-                                .ifPresent(this::saveAuthentication)));
+        if(accessTokenOptional.isPresent()) {
+            String accessToken = accessTokenOptional.get();
 
+            if(!jwtService.isTokenValid(accessToken)) {
+                // 유효하지 않은 토큰 응답
+                response.setContentType("application/json");
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 상태 코드
+
+                ApiResponseDto<String> apiResponse = ApiResponseDto.failure(401, "Invalid access token.");
+                response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
+                return; // 필터 체인 중단
+            }
+
+            // 유효한 경우 이메일 추출 및 사용자 확인
+            jwtService.extractEmail(accessToken)
+                    .ifPresent(email -> userRepository.findByEmail(email)
+                            .ifPresent(this::saveAuthentication));
+        }
         // 다음 인증 필터로 이동.
         filterChain.doFilter(request, response);
     }

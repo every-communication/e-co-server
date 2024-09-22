@@ -31,6 +31,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserType userType;
 
+    @Column(name = "refresh_token", length = 512)
     private String refreshToken;
 
     // 연관관계의 owner -> foreign key 생성하지 않고, 주인이 관리

@@ -50,7 +50,7 @@ public class LoginController {
 
         if (userService.authenticate(userSignInDto.getEmail(), userSignInDto.getPassword())) {
             String accessToken = jwtService.createAccessToken(userSignInDto.getEmail());
-            String refreshToken = jwtService.createRefreshToken();
+            String refreshToken = jwtService.createRefreshToken(userSignInDto.getEmail());
 
             Optional<User> userOptional = userRepository.findByEmail(userSignInDto.getEmail());
 
@@ -80,8 +80,8 @@ public class LoginController {
     public ResponseEntity<ApiResponseDto<?>> refreshAccessToken(@RequestBody TokenDto tokenDto) {
         String refreshToken = tokenDto.getRefreshToken();
 
-        if(jwtService.isTokenValid(tokenDto.getRefreshToken())) {
-            Optional<String> email = jwtService.extractEmail(tokenDto.getAccessToken());
+        if(jwtService.isTokenValid(refreshToken)) {
+            Optional<String> email = jwtService.extractEmail(refreshToken);
 
             if(email.isPresent()) {
                 String newAccessToken = jwtService.createAccessToken(email.get());
@@ -92,12 +92,7 @@ public class LoginController {
             }
         }
         else {
-            return ResponseEntity.status(403).body(ApiResponseDto.failure("유효하지 않은 refresh token입니다."));
+            return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Invalid refresh token."));
         }
-    }
-
-    @GetMapping("/jwt-test")
-    public String jwtTest() {
-        return "jwtTest 요청 성공";
     }
 }
