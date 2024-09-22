@@ -29,7 +29,7 @@ public class FriendRequestListService {
     private final FriendListService friendListService;
 
     @Transactional
-    public Long createFriendRequest(String searchUser, Long requestId) {
+    public CreateFriendRequestListDTO createFriendRequest(String searchUser, Long requestId) {
         Optional<User> userFindByNickname= userRepository.findByNickname(searchUser);
         Optional<User> userFindByEmail = userRepository.findByEmail(searchUser);
         User user;
@@ -42,8 +42,8 @@ public class FriendRequestListService {
         }
         checkDuplicate(requestId, user.getId());
         CreateFriendRequestListDTO createFriendRequestListDTO = new CreateFriendRequestListDTO(requestId, user.getId(), FriendState.SENDING);
-        return friendRequestListRepository.save(createFriendRequestListDTO.toEntity()).getId();
-
+        friendRequestListRepository.save(createFriendRequestListDTO.toEntity());
+        return createFriendRequestListDTO;
 
     }
 
@@ -55,7 +55,7 @@ public class FriendRequestListService {
             Optional<User> getUser = userRepository.findById(f.getUserId());
             if(getUser.isPresent()){
                 User user = getUser.get();
-                FriendListDTO friendListDTO = new FriendListDTO(user.getEmail(), user.getNickname(), user.getThumbnail());
+                FriendListDTO friendListDTO = new FriendListDTO(user.getId(), user.getEmail(), user.getNickname(), user.getThumbnail());
                 friendListDTOS.add(friendListDTO);
             }
         }
@@ -70,7 +70,7 @@ public class FriendRequestListService {
             Optional<User> getUser = userRepository.findById(f.getFriendId());
             if(getUser.isPresent()){
                 User user = getUser.get();
-                FriendListDTO friendListDTO = new FriendListDTO(user.getEmail(), user.getNickname(), user.getThumbnail());
+                FriendListDTO friendListDTO = new FriendListDTO(user.getId(), user.getEmail(), user.getNickname(), user.getThumbnail());
                 friendListDTOS.add(friendListDTO);
             }
         }
@@ -78,21 +78,24 @@ public class FriendRequestListService {
     }
 
     @Transactional
-    public Long approveFriendRequest(Long userId, Long friendId){
+    public CreateFriendListDTO approveFriendRequest(Long userId, Long friendId){
         List<FriendRequestList> friendRequestLists =  friendRequestListRepository.findByUserIdAndFriendId(userId ,friendId);
         for(FriendRequestList f:friendRequestLists){
             f.updateState(FriendState.APPROVED);
         }
-        return friendListService.save(new CreateFriendListDTO(friendId, userId));
+        CreateFriendListDTO createFriendListDTO = new CreateFriendListDTO(friendId, userId);
+        friendListService.save(createFriendListDTO);
+        return createFriendListDTO;
 
     }
 
     @Transactional
-    public void removeFriendRequest(Long userId, Long friendId){
+    public List<FriendRequestList> removeFriendRequest(Long userId, Long friendId){
         List<FriendRequestList> friendRequestLists =  friendRequestListRepository.findByUserIdAndFriendId(userId ,friendId);
         for(FriendRequestList f:friendRequestLists){
             f.updateState(FriendState.REMOVED);
         }
+        return friendRequestLists;
     }
 
     private void checkDuplicate(Long requestId, Long friendId){
