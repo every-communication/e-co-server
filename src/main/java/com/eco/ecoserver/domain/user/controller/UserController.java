@@ -29,7 +29,7 @@ public class UserController {
         Optional<String> email = jwtService.extractEmailFromToken(request);
         // TODO: email이 없는 경우 로그인이 안된 경우 (401), 권한이 없는 경우(ROLE 등) (403)
         if (email.isEmpty()) {
-            return ResponseEntity.status(401).body(ApiResponseDto.failure(403, "권한이 없습니다."));
+            return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "권한이 없습니다."));
         }
 
         // email로 찾은 user 반환
@@ -46,7 +46,7 @@ public class UserController {
         // request(token)에서 email 추출
         Optional<String> email = jwtService.extractEmailFromToken(request);
         if (email.isEmpty()) {
-            return ResponseEntity.status(403).body(ApiResponseDto.failure(403, "권한이 없습니다."));
+            return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "권한이 없습니다."));
         }
 
         // email로 찾은 user, update 후 info 반환
@@ -63,7 +63,7 @@ public class UserController {
     public ResponseEntity<ApiResponseDto<String>> deleteUser(HttpServletRequest request) throws Exception {
         Optional<String> email = jwtService.extractEmailFromToken(request);
         if (email.isEmpty()) {
-            return ResponseEntity.status(403).body(ApiResponseDto.failure(403, "권한이 없습니다."));
+            return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "권한이 없습니다."));
         }
 
         Optional<User> user = userService.findByEmail(email.get());
