@@ -43,9 +43,9 @@ public class OauthController {
         response.sendRedirect("/oauth2/authorization/kakao");
     }
 
-    @PostMapping("/oauth-register")
+    @PostMapping("/oauth-register/{socialId}")
     public ResponseEntity<ApiResponseDto<SocialType>> oauthRegister(
-            @RequestParam String id,
+            @PathVariable("socialId") String id,
             @RequestBody OAuthRegistrationDto oauthRegistrationDto) throws Exception {
         try{
             User user = userService.oauthRegister(id, oauthRegistrationDto);
