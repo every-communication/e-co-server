@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -41,6 +42,11 @@ public class OauthController {
     @GetMapping("/kakao")
     public void redirectToKakao(HttpServletResponse response) throws IOException {
         response.sendRedirect("/oauth2/authorization/kakao");
+    }
+
+    @GetMapping("/oauth-id-validate/{socialId}")
+    public boolean socialIdValid(@PathVariable String socialId, HttpServletResponse response) throws IOException {
+        return userService.emailExists(socialId);
     }
 
     @PostMapping("/oauth-register/{socialId}")

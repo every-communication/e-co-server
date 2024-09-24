@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.util.Collections;
 
 @Slf4j
@@ -34,6 +35,10 @@ public class KakaoLoginController {
     public KakaoLoginController(KakaoLoginService kakaoLoginService, CustomOAuth2UserService customOAuth2UserService) {
         this.kakaoLoginService = kakaoLoginService;
         this.customOAuth2UserService = customOAuth2UserService;
+    }
+    @GetMapping("/")
+    public void defaultServerPage(HttpServletResponse response) throws IOException {
+        response.sendRedirect("/swagger-ui/index.html");
     }
 
     @GetMapping("/auth/code/kakao")

@@ -93,6 +93,10 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
+    public boolean emailExists(String email) {
+        return userRepository.findByEmail(email).isPresent();
+    }
+
     public Long getUserIdByEmail(String email){
         return userRepository.findByEmail(email)
                 .map(User::getId)
