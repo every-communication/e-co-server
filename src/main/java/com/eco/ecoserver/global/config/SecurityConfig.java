@@ -1,6 +1,5 @@
 package com.eco.ecoserver.global.config;
 
-import com.eco.ecoserver.domain.user.Role;
 import com.eco.ecoserver.global.dto.ApiResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.eco.ecoserver.domain.user.repository.UserRepository;
@@ -41,6 +40,8 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 /**
@@ -70,8 +71,7 @@ public class SecurityConfig {
                 // 기본 페이지, css, image, js 하위 폴더에 있는 자료들은 모두 접근 가능
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/css/**", "/images/**", "/js/**", "/favicon.ico").permitAll()
-                        .requestMatchers("/api*","/api-docs/**", "/swagger-ui/**").permitAll()
-                        .requestMatchers("/users/**").permitAll() //.hasRole("USER") // TODO: 유저 관련 권한 인증 필터 (지우면 작동 안함... 수정바람)
+                        .requestMatchers("/api*", "/api-docs/**", "/swagger-ui/**").permitAll()
                         .requestMatchers("/auth/**", "/login/**", "/oauth2/**").permitAll()
                         .anyRequest().authenticated() // 위의 경로 이외에는 모두 인증된 사용자만 접근 가능
                 )
@@ -87,37 +87,28 @@ public class SecurityConfig {
                         .failureHandler(oAuth2LoginFailureHandler) // 소셜 로그인 실패 시 핸들러 설정
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService)) // customUserService 설정
                 )
-
-
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint((request, response, authException) -> {
-                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+                            sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
                         })
-                )
-                /*
-                .exceptionHandling(exceptionHandling -> exceptionHandling
-                        .authenticationEntryPoint((request, response, authException) -> {
-                            response.sendRedirect("/swagger-ui/index.html");
-                        })
-                )
-
-                 */
+                );
 
         // CORS 필터를 UsernamePasswordAuthenticationFilter 전에 추가
-                .addFilterBefore(new CorsFilter(corsConfigurationSource()), UsernamePasswordAuthenticationFilter.class)
+        http.addFilterBefore(new CorsFilter(corsConfigurationSource()), UsernamePasswordAuthenticationFilter.class);
 
 
         // 원래 스프링 시큐리티 필터 순서가 LogoutFilter 이후에 로그인 필터 동작
         // 따라서, LogoutFilter 이후에 우리가 만든 필터 동작하도록 설정
         // 순서 : LogoutFilter -> JwtAuthenticationProcessingFilter -> CustomJsonUsernamePasswordAuthenticationFilter
-                .addFilterAfter(customJsonUsernamePasswordAuthenticationFilter(), LogoutFilter.class)
-                .addFilterBefore(jwtAuthenticationProcessingFilter(), CustomJsonUsernamePasswordAuthenticationFilter.class);
+        http.addFilterAfter(customJsonUsernamePasswordAuthenticationFilter(), LogoutFilter.class);
+        http.addFilterBefore(jwtAuthenticationProcessingFilter(), CustomJsonUsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
+
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // 허용할 도메인
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE")); // 허용할 HTTP 메서드
         configuration.setAllowedHeaders(Arrays.asList("*")); // 허용할 헤더
@@ -127,7 +118,16 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration); // 모든 경로에 대해 CORS 설정 적용
         return source;
     }
+    public void sendErrorResponse(HttpServletResponse response, int status, String message) throws IOException {
+        ApiResponseDto<String> errorResponse = ApiResponseDto.failure(status, message);
 
+        response.setContentType("application/json");
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+        response.setStatus(status);
+
+        String jsonResponse = objectMapper.writeValueAsString(errorResponse);
+        response.getWriter().write(jsonResponse);
+    }
     @Bean
     public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
