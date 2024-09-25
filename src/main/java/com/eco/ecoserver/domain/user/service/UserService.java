@@ -31,7 +31,7 @@ public class UserService {
     // 회원가입
     public void signUp(UserSignUpDto userSignUpDto) throws Exception {
         if (userRepository.findByEmail(userSignUpDto.getEmail()).isPresent()) {
-            throw new Exception("이미 존재하는 이메일입니다.");
+            throw new Exception("Email already exists");
         }
 
         User user = User.builder()
@@ -68,7 +68,7 @@ public class UserService {
 
             return new UserInfoDto(user);
         } else {
-            throw new Exception("사용자를 찾을 수 없습니다.");
+            throw new Exception("User not found");
         }
     }
 
@@ -77,7 +77,7 @@ public class UserService {
         if (userRepository.existsById(id)) {
             userRepository.deleteById(id);
         } else {
-            throw new Exception("사용자를 찾을 수 없습니다.");
+            throw new Exception("User not found");
         }
     }
 
@@ -100,7 +100,7 @@ public class UserService {
     public Long getUserIdByEmail(String email){
         return userRepository.findByEmail(email)
                 .map(User::getId)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
     public User oauthRegister(String email, OAuthRegistrationDto oauthRegistrationDto) throws Exception {
@@ -115,7 +115,7 @@ public class UserService {
 
             return user;
         } else {
-            throw new Exception("사용자를 찾을 수 없습니다.");
+            throw new Exception("User not found");
         }
     }
 }

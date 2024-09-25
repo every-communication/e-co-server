@@ -37,7 +37,7 @@ public class LoginController {
     public ResponseEntity<ApiResponseDto<String>> signUp(@RequestBody UserSignUpDto userSignUpDto) {
         try {
             userService.signUp(userSignUpDto);
-            return ResponseEntity.ok(ApiResponseDto.success("회원가입 성공"));
+            return ResponseEntity.ok(ApiResponseDto.success("Registration successful"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ApiResponseDto.failure(e.getMessage()));
         }
@@ -67,12 +67,12 @@ public class LoginController {
                 // 로그 추가
                 log.info("User after update: {}", user);
             } else {
-                return ResponseEntity.badRequest().body(ApiResponseDto.failure("로그인 실패: 유저를 찾을 수 없습니다."));
+                return ResponseEntity.badRequest().body(ApiResponseDto.failure("User not found"));
             }
 
             return ResponseEntity.ok(ApiResponseDto.success(new TokenDto(accessToken, refreshToken)));
         } else {
-            return ResponseEntity.badRequest().body(ApiResponseDto.failure("로그인 실패: 이메일 또는 비밀번호가 잘못되었습니다."));
+            return ResponseEntity.badRequest().body(ApiResponseDto.failure("User not found"));
         }
     }
 
@@ -88,11 +88,11 @@ public class LoginController {
                 return ResponseEntity.ok(ApiResponseDto.success(new TokenDto(newAccessToken, refreshToken)));
             }
             else {
-                return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "액세스 토큰에서 이메일을 추출할 수 없습니다."));
+                return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorized"));
             }
         }
         else {
-            return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Invalid refresh token."));
+            return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorized"));
         }
     }
 }
