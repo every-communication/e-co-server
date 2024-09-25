@@ -37,14 +37,14 @@ public class FriendRequestListController {
         Optional<String> email = jwtService.extractEmailFromToken(request);
 
         if (email.isEmpty()) {
-            return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorized"));
+            return ResponseEntity.status(401).body(ApiResponseDto.failure(403, "권한이 없습니다."));
         }
         // email로 찾은 user 반환
         Optional<User> user = userService.findByEmail(email.get());
         return user.map(value -> {
             CreateFriendRequestListDTO createFriendRequestListDTO = friendRequestListService.createFriendRequest(searchUser, value.getId());
             return ResponseEntity.ok(ApiResponseDto.success(createFriendRequestListDTO));
-        }).orElseGet(() -> ResponseEntity.status(401).body(ApiResponseDto.failure(401, "User not found")));
+        }).orElseGet(() -> ResponseEntity.status(404).body(ApiResponseDto.failure(404, "사용자를 찾을 수 없습니다.")));
 
 
     }
@@ -56,14 +56,14 @@ public class FriendRequestListController {
         Optional<String> email = jwtService.extractEmailFromToken(request);
 
         if (email.isEmpty()) {
-            return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorized"));
+            return ResponseEntity.status(401).body(ApiResponseDto.failure(403, "권한이 없습니다."));
         }
         // email로 찾은 user 반환
         Optional<User> user = userService.findByEmail(email.get());
         return user.map(value -> {
             CreateFriendListDTO createFriendListDTO = friendRequestListService.approveFriendRequest(userId, value.getId());
             return ResponseEntity.ok(ApiResponseDto.success(createFriendListDTO));
-        }).orElseGet(() -> ResponseEntity.status(401).body(ApiResponseDto.failure(401, "User not found")));
+        }).orElseGet(() -> ResponseEntity.status(404).body(ApiResponseDto.failure(404, "사용자를 찾을 수 없습니다.")));
 
     }
 
@@ -74,14 +74,14 @@ public class FriendRequestListController {
         Optional<String> email = jwtService.extractEmailFromToken(request);
 
         if (email.isEmpty()) {
-            return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorized"));
+            return ResponseEntity.status(401).body(ApiResponseDto.failure(403, "권한이 없습니다."));
         }
         // email로 찾은 user 반환
         Optional<User> user = userService.findByEmail(email.get());
         return user.map(value -> {
             List<FriendRequestList> friendRequestLists = friendRequestListService.removeFriendRequest(friendId, value.getId());
             return ResponseEntity.ok(ApiResponseDto.success(friendRequestLists));
-        }).orElseGet(() -> ResponseEntity.status(401).body(ApiResponseDto.failure(401, "User not found")));
+        }).orElseGet(() -> ResponseEntity.status(404).body(ApiResponseDto.failure(404, "사용자를 찾을 수 없습니다.")));
 
     }
 
@@ -92,14 +92,14 @@ public class FriendRequestListController {
         Optional<String> email = jwtService.extractEmailFromToken(request);
 
         if (email.isEmpty()) {
-            return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorized"));
+            return ResponseEntity.status(401).body(ApiResponseDto.failure(403, "권한이 없습니다."));
         }
         // email로 찾은 user 반환
         Optional<User> user = userService.findByEmail(email.get());
         return user.map(value->{
             List<FriendListDTO> friendListDTOS = friendRequestListService.getFriendRequestedList(value.getId());
             return ResponseEntity.ok(ApiResponseDto.success(friendListDTOS));
-        }).orElseGet(() -> ResponseEntity.status(401).body(ApiResponseDto.failure(401, "User not found")));
+        }).orElseGet(() -> ResponseEntity.status(404).body(ApiResponseDto.failure(404, "사용자를 찾을 수 없습니다.")));
 
     }
 
@@ -112,14 +112,14 @@ public class FriendRequestListController {
         Optional<String> email = jwtService.extractEmailFromToken(request);
 
         if (email.isEmpty()) {
-            return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorized"));
+            return ResponseEntity.status(401).body(ApiResponseDto.failure(403, "권한이 없습니다."));
         }
         // email로 찾은 user 반환
         Optional<User> user = userService.findByEmail(email.get());
         return user.map(value->{
             List<FriendListDTO> friendListDTOS = friendRequestListService.getFriendRequestList(value.getId());
             return ResponseEntity.ok(ApiResponseDto.success(friendListDTOS));
-        }).orElseGet(() -> ResponseEntity.status(401).body(ApiResponseDto.failure(401, "User not found")));
+        }).orElseGet(() -> ResponseEntity.status(404).body(ApiResponseDto.failure(404, "사용자를 찾을 수 없습니다.")));
 
     }
 
@@ -131,14 +131,14 @@ public class FriendRequestListController {
         Optional<String> email = jwtService.extractEmailFromToken(request);
 
         if (email.isEmpty()) {
-            return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorized"));
+            return ResponseEntity.status(401).body(ApiResponseDto.failure(403, "권한이 없습니다."));
         }
         // email로 찾은 user 반환
         Optional<User> user = userService.findByEmail(email.get());
         return user.map(value -> {
             List<FriendRequestList> friendRequestLists = friendRequestListService.removeFriendRequest(value.getId(), friendId);
             return ResponseEntity.ok(ApiResponseDto.success(friendRequestLists));
-        }).orElseGet(() -> ResponseEntity.status(401).body(ApiResponseDto.failure(401, "User not found")));
+        }).orElseGet(() -> ResponseEntity.status(404).body(ApiResponseDto.failure(404, "사용자를 찾을 수 없습니다.")));
 
     }
 

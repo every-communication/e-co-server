@@ -131,7 +131,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
                 response.setContentType("application/json");
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 상태 코드
 
-                ApiResponseDto<String> apiResponse = ApiResponseDto.failure(401, "Unauthorized");
+                ApiResponseDto<String> apiResponse = ApiResponseDto.failure(401, "Invalid access token.");
                 response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
                 return; // 필터 체인 중단
             }

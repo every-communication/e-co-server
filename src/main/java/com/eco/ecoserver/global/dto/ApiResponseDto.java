@@ -11,7 +11,7 @@ public class ApiResponseDto<T> {
         this.data = data;
     }
     public static <T> ApiResponseDto<T> success(T data) {
-        return new ApiResponseDto<>(200, "Success", data);
+        return new ApiResponseDto<>(200, "성공", data);
     }
     public static <T> ApiResponseDto<T> failure(String message) {
         return new ApiResponseDto<>(400, message, null);

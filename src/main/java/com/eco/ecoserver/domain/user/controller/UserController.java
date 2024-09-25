@@ -27,8 +27,9 @@ public class UserController {
     public ResponseEntity<ApiResponseDto<UserInfoDto>> getUser(HttpServletRequest request) {
         // request(token)에서 email 추출
         Optional<String> email = jwtService.extractEmailFromToken(request);
+        // TODO: email이 없는 경우 로그인이 안된 경우 (401), 권한이 없는 경우(ROLE 등) (403)
         if (email.isEmpty()) {
-            return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorized"));
+            return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "권한이 없습니다."));
         }
 
         // email로 찾은 user 반환
@@ -37,7 +38,7 @@ public class UserController {
         return user.map(value -> {
             UserInfoDto userInfoDto = new UserInfoDto(value);
             return ResponseEntity.ok(ApiResponseDto.success(userInfoDto));
-        }).orElseGet(() -> ResponseEntity.status(401).body(ApiResponseDto.failure(401, "User not found")));
+        }).orElseGet(() -> ResponseEntity.status(404).body(ApiResponseDto.failure(404, "사용자를 찾을 수 없습니다.")));
     }
 
     @PutMapping("/me")
@@ -45,7 +46,7 @@ public class UserController {
         // request(token)에서 email 추출
         Optional<String> email = jwtService.extractEmailFromToken(request);
         if (email.isEmpty()) {
-            return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorized"));
+            return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "권한이 없습니다."));
         }
 
         // email로 찾은 user, update 후 info 반환
@@ -54,7 +55,7 @@ public class UserController {
             UserInfoDto updatedUserInfo = userService.updateUser(user.get().getId(), userUpdateDto);
             return ResponseEntity.ok(ApiResponseDto.success(updatedUserInfo));
         } else {
-            return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "User not found"));
+            return ResponseEntity.status(404).body(ApiResponseDto.failure(404, "사용자를 찾을 수 없습니다."));
         }
     }
 
@@ -62,15 +63,15 @@ public class UserController {
     public ResponseEntity<ApiResponseDto<String>> deleteUser(HttpServletRequest request) throws Exception {
         Optional<String> email = jwtService.extractEmailFromToken(request);
         if (email.isEmpty()) {
-            return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorized"));
+            return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "권한이 없습니다."));
         }
 
         Optional<User> user = userService.findByEmail(email.get());
         if (user.isPresent()) {
             userService.deleteUser(user.get().getId());
-            return ResponseEntity.ok(ApiResponseDto.success("User deletion successful"));
+            return ResponseEntity.ok(ApiResponseDto.success("사용자 삭제 완료"));
         } else {
-            return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "User not found"));
+            return ResponseEntity.status(404).body(ApiResponseDto.failure(404, "사용자를 찾을 수 없습니다."));
         }
     }
 
