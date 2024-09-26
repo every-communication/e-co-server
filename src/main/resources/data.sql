@@ -46,4 +46,4 @@ insert into friend_request_list (friend_request_list_id, friend_id, friend_state
 values (99993, 99993, 'REMOVED', 99990);
 
 insert into friend_request_list (friend_request_list_id, friend_id, friend_state, user_id)
-values (99994, 99994, 'APPROVED', 99990);
+values (99994, 99990, 'SENDING', 99994);
