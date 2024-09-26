@@ -1,9 +1,13 @@
 package com.eco.ecoserver.global.dto;
 
+import lombok.Getter;
+
+@Getter
 public class ApiResponseDto<T> {
-    private int status;
-    private String message;   // 응답 메시지
-    private T data;           // 성공 시 반환할 데이터
+    // Getters and Setters
+    private final int status;
+    private final String message;   // 응답 메시지
+    private final T data;           // 성공 시 반환할 데이터
 
     public ApiResponseDto(int status, String message, T data) {
         this.status = status;
@@ -22,8 +26,4 @@ public class ApiResponseDto<T> {
         return new ApiResponseDto<>(status, message, null);
     }
 
-    // Getters and Setters
-    public int getStatus() { return status; }
-    public String getMessage() { return message; }
-    public T getData() { return data; }
 }
