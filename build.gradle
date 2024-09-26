@@ -76,6 +76,9 @@ dependencies {
 	//swagger
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0' // 최신 버전으로 변경 가능
 
+
+	//시그널링 서버 구축을 위한 web socket
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 }
 
 tasks.named('test') {
