@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class FriendNotificationDto {
+public class NotificationDto {
     private Long tupleId;
     private String title;
     private String message;

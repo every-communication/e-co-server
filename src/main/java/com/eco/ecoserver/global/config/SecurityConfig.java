@@ -71,7 +71,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/css/**", "/images/**", "/js/**", "/favicon.ico").permitAll()
                         .requestMatchers("/api*","/api-docs/**", "/swagger-ui/**").permitAll()
-                        .requestMatchers("/users/**").permitAll() //.hasRole("USER") // TODO: 유저 관련 권한 인증 필터 (지우면 작동 안함... 수정바람)
+                        .requestMatchers("/notifications/**").permitAll() //.hasRole("USER") // TODO: 유저 관련 권한 인증 필터 (지우면 작동 안함... 수정바람)
                         .requestMatchers("/auth/**", "/login/**", "/oauth2/**","/signaling/**").permitAll()
                         .anyRequest().authenticated() // 위의 경로 이외에는 모두 인증된 사용자만 접근 가능
                 )

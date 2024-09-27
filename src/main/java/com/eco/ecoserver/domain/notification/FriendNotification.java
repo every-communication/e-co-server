@@ -1,14 +1,34 @@
 package com.eco.ecoserver.domain.notification;
 
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.Entity;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 
-@Getter
 @Setter
+@Getter
+@Builder
 @Entity
-@DiscriminatorValue("FRIEND_NOTIFICATION")
-public class FriendNotification extends BaseNotification {
+@NoArgsConstructor
+@AllArgsConstructor
+public class FriendNotification {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
+    @Column(nullable = false)
+    private String title;
+
+    @Column(nullable = false)
+    private String message;
+
+    @Column(nullable = false)
+    private boolean view = false; // true if viewed, false otherwise
+
+    @Column(nullable = false)
+    private Long friendRequestListId;
+
+    @Column(nullable = false)
+    private Long requestUserId;
+
+    @Column(nullable = false)
+    private Long receiptUserId;
 }
