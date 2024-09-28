@@ -30,12 +30,6 @@ values (99991, 99991, 99990);
 insert into friend_list (friend_list_id, friend_id, user_id)
 values (99992, 99990, 99991);
 
-insert into friend_list (friend_list_id, friend_id, user_id)
-values (99993, 99994, 99990);
-
-insert into friend_list (friend_list_id, friend_id, user_id)
-values (99994, 99990, 99994);
-
 insert into friend_request_list (friend_request_list_id, friend_id, friend_state, user_id)
 values (99991, 99991, 'APPROVED', 99990);
 
