@@ -42,6 +42,7 @@ public class FriendRequestListService {
         users.addAll(usersByEmail);
         //System.out.println("user:" + users.toArray());
 
+        users.remove(user);
         List<FriendSearchDTO> friendSearchDTOS = new ArrayList<>();
         if(!users.isEmpty()){
             for(User u : users){
