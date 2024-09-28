@@ -145,7 +145,8 @@ public class FriendRequestListService {
         List<FriendRequestList> friendRequestLists =  friendRequestListRepository.findByUserIdAndFriendId(userId ,friendId);
         for(FriendRequestList f:friendRequestLists){
             //System.out.println("friend: " +f.getFriendId());
-            friendRequestLists.remove(f);
+            friendRequestListRepository.delete(f);
+            //friendRequestLists.remove(f);
             break;
         }
         CreateFriendListDTO createFriendListDTO = new CreateFriendListDTO(friendId, userId);
