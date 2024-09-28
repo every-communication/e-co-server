@@ -29,11 +29,6 @@ public class OauthController {
     private final UserRepository userRepository;
     private final CustomOAuth2UserService customOAuth2UserService;
 
-    @GetMapping("/naver")
-    public void redirectToNaver(HttpServletResponse response) throws IOException {
-        response.sendRedirect("/oauth2/authorization/naver");
-    }
-
     @GetMapping("/google")
     public void redirectToGoogle(HttpServletResponse response) throws IOException {
         response.sendRedirect("/oauth2/authorization/google");
@@ -54,7 +49,7 @@ public class OauthController {
             @PathVariable("socialId") String id,
             @RequestBody OAuthRegistrationDto oauthRegistrationDto) throws Exception {
         try{
-            User user = userService.oauthRegister(id, oauthRegistrationDto);
+            User user = loginService.oauthRegister(id, oauthRegistrationDto);
             return ResponseEntity.ok(ApiResponseDto.success(user.getSocialType()));
         } catch (Exception e) {
             return ResponseEntity.ok(ApiResponseDto.failure(e.getMessage()));

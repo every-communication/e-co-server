@@ -34,7 +34,6 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Slf4j
 public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
-    // TODO: 예외 uri 추가가 필요할 수도 있음.
     private static final Set<String> NO_CHECK_URL = new HashSet<>() {{
         add("/login");
         add("/auth");
@@ -48,12 +47,6 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
-        response.setHeader("Access-Control-Allow-Credentials", "true");
-        response.setHeader("Access-Control-Allow-Methods","*");
-        response.setHeader("Access-Control-Max-Age", "3600");
-        response.setHeader("Access-Control-Allow-Headers",
-                "Origin, X-Requested-With, Content-Type, Accept, Authorization");
 
         String uri = request.getRequestURI();
         log.info("Request URI: {}", uri);
@@ -84,15 +77,11 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
         // 2. refresh token 이 있다 -> access token 이 만료되어 재발급 요청 -> refresh token 체크 후 재발급
         if (refreshToken != null) {
-            checkRefreshTokenAndReIssueAccessToken(response, refreshToken);
             log.info("Valid refresh token found. Checking user and re-issuing access token.");
-            return; // RefreshToken을 보낸 경우에는 AccessToken을 재발급 하고 인증 처리는 하지 않게 하기위해 바로 return으로 필터 진행 막기
+            checkRefreshTokenAndReIssueAccessToken(response, refreshToken);
         }
     }
 
-    /**
-     *  refresh token == user.refresh_token -> reIssue -> response(Token Dto)
-     */
     public void checkRefreshTokenAndReIssueAccessToken(HttpServletResponse response, String refreshToken) {
         userRepository.findByRefreshToken(refreshToken)
                 .ifPresent(user -> {
@@ -102,9 +91,6 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
                 });
     }
 
-    /**
-     * create refresh token -> update refresh token -> save & flush
-     */
     private String reIssueRefreshToken(User user) {
         String reIssuedRefreshToken = jwtService.createRefreshToken(user.getEmail());
         user.updateRefreshToken(reIssuedRefreshToken);
@@ -112,9 +98,6 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
         return reIssuedRefreshToken;
     }
 
-    /**
-     * Access Token 유효성 검사 -> email 체크 -> saveAuthentication -> 다음 필터로 이동
-     */
     public void checkAccessTokenAndAuthentication(HttpServletRequest request, HttpServletResponse response,
                                                   FilterChain filterChain) throws ServletException, IOException {
         // AccessToken 추출 (log 확인용)
@@ -160,7 +143,6 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
      * SecurityContextHolder.getContext()로 SecurityContext를 꺼낸 후,
      * setAuthentication()을 이용하여 위에서 만든 Authentication 객체에 대한 인증 허가 처리
      */
-    //TODO : 수정이 필요할 수도 있음
     public void saveAuthentication(User myUser) {
         String password = myUser.getPassword();
         if (password == null) { // 소셜 로그인 유저의 비밀번호 임의로 설정 하여 소셜 로그인 유저도 인증 되도록 설정
