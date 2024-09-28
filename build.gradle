@@ -49,6 +49,7 @@ dependencies {
 
 	// JWT library
 	implementation 'com.auth0:java-jwt:4.2.1'
+	implementation 'io.jsonwebtoken:jjwt:0.9.1'
 
 	// mysql Connector
 	//implementation 'com.mysql:mysql-connector-j'

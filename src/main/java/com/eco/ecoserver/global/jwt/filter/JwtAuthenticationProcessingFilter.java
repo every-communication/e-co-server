@@ -48,6 +48,13 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        response.setHeader("Access-Control-Allow-Methods","*");
+        response.setHeader("Access-Control-Max-Age", "3600");
+        response.setHeader("Access-Control-Allow-Headers",
+                "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+
         String uri = request.getRequestURI();
         log.info("Request URI: {}", uri);
 
@@ -124,7 +131,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
                 response.setContentType("application/json");
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 상태 코드
 
-                ApiResponseDto<String> apiResponse = ApiResponseDto.failure(401, "Invalid access token.");
+                ApiResponseDto<String> apiResponse = ApiResponseDto.failure(401, "Unauthorized");
                 response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
                 return; // 필터 체인 중단
             }

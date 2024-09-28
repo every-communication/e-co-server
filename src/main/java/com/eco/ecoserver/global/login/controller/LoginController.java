@@ -88,11 +88,11 @@ public class LoginController {
                 return ResponseEntity.ok(ApiResponseDto.success(new TokenDto(newAccessToken, refreshToken)));
             }
             else {
-                return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "액세스 토큰에서 이메일을 추출할 수 없습니다."));
+                return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorized"));
             }
         }
         else {
-            return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Invalid refresh token."));
+            return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorized"));
         }
     }
 }

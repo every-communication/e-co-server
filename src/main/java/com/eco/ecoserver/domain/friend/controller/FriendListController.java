@@ -34,7 +34,7 @@ public class FriendListController {
         Optional<String> email = jwtService.extractEmailFromToken(request);
 
         if (email.isEmpty()) {
-            return ResponseEntity.status(401).body(ApiResponseDto.failure(403, "권한이 없습니다."));
+            return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorizaed"));
         }
         // email로 찾은 user 반환
         Optional<User> user = userService.findByEmail(email.get());
@@ -42,7 +42,7 @@ public class FriendListController {
         return user.map(value -> {
             List<FriendListDTO> friendListDTO = friendListService.getFriendList(value);
             return ResponseEntity.ok(ApiResponseDto.success(friendListDTO));
-        }).orElseGet(() -> ResponseEntity.status(404).body(ApiResponseDto.failure(404, "사용자를 찾을 수 없습니다.")));
+        }).orElseGet(() -> ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorizaed")));
          }
 
 
