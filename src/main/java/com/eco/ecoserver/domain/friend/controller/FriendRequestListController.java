@@ -1,10 +1,7 @@
 package com.eco.ecoserver.domain.friend.controller;
 
 import com.eco.ecoserver.domain.friend.FriendRequestList;
-import com.eco.ecoserver.domain.friend.dto.CreateFriendListDTO;
-import com.eco.ecoserver.domain.friend.dto.CreateFriendRequestListDTO;
-import com.eco.ecoserver.domain.friend.dto.FriendListDTO;
-import com.eco.ecoserver.domain.friend.dto.FriendRequestDTO;
+import com.eco.ecoserver.domain.friend.dto.*;
 import com.eco.ecoserver.domain.friend.repository.FriendRequestListRepository;
 import com.eco.ecoserver.domain.friend.service.FriendRequestListService;
 import com.eco.ecoserver.domain.user.User;
@@ -13,6 +10,7 @@ import com.eco.ecoserver.global.dto.ApiResponseDto;
 import com.eco.ecoserver.global.jwt.service.JwtService;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,9 +28,9 @@ public class FriendRequestListController {
     private final JwtService jwtService;
     private final UserService userService;
 
-    //친구 요청
-    @PostMapping("/friend-request")
-    public ResponseEntity<ApiResponseDto<CreateFriendRequestListDTO>> createFriendRequest(@RequestBody String searchUser, HttpServletRequest request) {
+    //친구 요청 위해 유저 검색
+    @GetMapping("/friend-search")
+    public ResponseEntity<ApiResponseDto<List<FriendSearchDTO>>> searchUser(@RequestParam String userInfo, HttpServletRequest request){
         // request(token)에서 email 추출
         Optional<String> email = jwtService.extractEmailFromToken(request);
 
@@ -42,7 +40,26 @@ public class FriendRequestListController {
         // email로 찾은 user 반환
         Optional<User> user = userService.findByEmail(email.get());
         return user.map(value -> {
-            CreateFriendRequestListDTO createFriendRequestListDTO = friendRequestListService.createFriendRequest(searchUser, value.getId());
+            System.out.println("user :"+ value.getEmail());
+            List<FriendSearchDTO> friendSearchDTOS =  friendRequestListService.searchUsers(value, userInfo);
+            return ResponseEntity.ok(ApiResponseDto.success(friendSearchDTOS));
+        }).orElseGet(() -> ResponseEntity.status(404).body(ApiResponseDto.failure(404, "사용자를 찾을 수 없습니다.")));
+
+    }
+
+    //친구 요청
+    @PostMapping("/friend-request/{friendId}")
+    public ResponseEntity<ApiResponseDto<CreateFriendRequestListDTO>> createFriendRequest(@PathVariable Long friendId, HttpServletRequest request) {
+        // request(token)에서 email 추출
+        Optional<String> email = jwtService.extractEmailFromToken(request);
+
+        if (email.isEmpty()) {
+            return ResponseEntity.status(401).body(ApiResponseDto.failure(403, "권한이 없습니다."));
+        }
+        // email로 찾은 user 반환
+        Optional<User> user = userService.findByEmail(email.get());
+        return user.map(value -> {
+            CreateFriendRequestListDTO createFriendRequestListDTO = friendRequestListService.createFriendRequest(friendId, value.getId());
             return ResponseEntity.ok(ApiResponseDto.success(createFriendRequestListDTO));
         }).orElseGet(() -> ResponseEntity.status(404).body(ApiResponseDto.failure(404, "사용자를 찾을 수 없습니다.")));
 
