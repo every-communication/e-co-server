@@ -3,6 +3,8 @@ package com.eco.ecoserver.domain.notification;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Setter
 @Getter
 @Builder
@@ -31,4 +33,9 @@ public class FriendNotification {
 
     @Column(nullable = false)
     private Long receiptUserId;
+
+    private LocalDateTime createdAt;
+    public FriendNotification() {
+        this.createdAt = LocalDateTime.now();
+    }
 }
