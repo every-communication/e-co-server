@@ -32,7 +32,7 @@ public class SseEmitterService {
     private UserService userService;
     private NotificationService notificationService;
 
-    public SseEmitter createEmitter(HttpServletRequest request) throws AccessDeniedException {
+    public SseEmitter subscribe(HttpServletRequest request) throws AccessDeniedException {
         // JWT 토큰에서 이메일 추출
         Optional<String> emailOpt = jwtService.extractEmailFromToken(request);
 
@@ -54,12 +54,11 @@ public class SseEmitterService {
 
         Long userId = userOpt.get().getId(); // 사용자 ID 추출
 
-
-        SseEmitter emitter = new SseEmitter(60000L); // 300 seconds timeout
+        SseEmitter emitter = new SseEmitter(60 * 1000L); // 60 seconds timeout
         emitters.put(userId, emitter); // 사용자 ID를 키로 사용
         log.info("SseEmitter created for userId: {}", userId);
 
-        startSendingNotifications(userId, emitter);
+        sendNotificationData(userId, emitter);
 
         emitter.onCompletion(() -> {
             emitters.remove(userId);
@@ -77,7 +76,8 @@ public class SseEmitterService {
         return emitter;
     }
 
-    public void sendNotification(Long userId, FriendNotification notification) {
+
+    public void sendNotificationData(Long userId, SseEmitter emitter) {
         SseEmitter emitter = emitters.get(userId);
         if (emitter != null) {
             try {

@@ -50,11 +50,11 @@ values (99994, 99990, 'SENDING', 99994);
 insert into friend_request_list (friend_request_list_id, friend_id, friend_state, user_id)
 values (99995, 99990, 'SENDING', 99995);
 
-insert into friend_notification (id, title, message, view, friend_request_list_id, request_user_id, receipt_user_id)
-values (99990, 'Example1', 'Dummy1', false, 99992, 99990, 99992);
+insert into friend_notification (id, title, message, view, friend_request_list_id, request_user_id, receipt_user_id, notification_type)
+values (99990, 'Example1', 'Dummy1', false, 99992, 99990, 99992, 'FRIEND');
 
-insert into friend_notification (id, title, message, view, friend_request_list_id, request_user_id, receipt_user_id)
-values (99994, 'Example2', 'Dummy2', false, 99994, 99994, 99990);
+insert into friend_notification (id, title, message, view, friend_request_list_id, request_user_id, receipt_user_id, notification_type)
+values (99994, 'Example2', 'Dummy2', false, 99994, 99994, 99990, 'FRIEND');
 
-insert into friend_notification (id, title, message, view, friend_request_list_id, request_user_id, receipt_user_id)
-values (99995, 'Example3', 'Dummy3', true, 99995, 99995, 99990);
+insert into friend_notification (id, title, message, view, friend_request_list_id, request_user_id, receipt_user_id, notification_type)
+values (99995, 'Example3', 'Dummy3', true, 99995, 99995, 99990, 'FRIEND');

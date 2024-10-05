@@ -118,4 +118,9 @@ public class UserService {
             throw new Exception("사용자를 찾을 수 없습니다.");
         }
     }
+
+    public String getNicknameById(Long id){
+        Optional<User> userOptional = userRepository.findById(id);
+        return userOptional.map(User::getNickname).orElse(null);
+    }
 }

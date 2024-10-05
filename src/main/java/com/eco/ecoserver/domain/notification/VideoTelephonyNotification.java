@@ -3,35 +3,21 @@ package com.eco.ecoserver.domain.notification;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serializable;
+import java.time.LocalDateTime;
+
 @Setter
 @Getter
 @Builder
 @Entity
-@NoArgsConstructor
 @AllArgsConstructor
-public class VideoTelephonyNotification {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+public class VideoTelephonyNotification extends Notification {
     @Column(nullable = false)
-    private Long tupleId;
+    private Long videoTelephonyRoomId; // 화상 통화 방 ID
 
-    @Column(nullable = false)
-    private String title;
-
-    @Column(nullable = false)
-    private String message;
-
-    @Column(nullable = false)
-    private boolean view; // true if viewed, false otherwise
-
-    @Column(nullable = false)
-    private Long friendRequestListId;
-
-    @Column(nullable = false)
-    private Long requestUserId;
-
-    @Column(nullable = false)
-    private Long receiptUserId;
+    // 기본 생성자
+    public VideoTelephonyNotification() {
+        super(); // 부모 클래스의 생성자 호출
+        setNotificationType(NotificationType.VIDEO_TELEPHONY);
+    }
 }

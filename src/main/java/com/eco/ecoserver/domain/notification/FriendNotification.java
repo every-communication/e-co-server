@@ -1,41 +1,24 @@
 package com.eco.ecoserver.domain.notification;
 
+import com.eco.ecoserver.domain.user.service.UserService;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Setter
 @Getter
 @Builder
 @Entity
-@NoArgsConstructor
 @AllArgsConstructor
-public class FriendNotification {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false)
-    private String title;
-
-    @Column(nullable = false)
-    private String message;
-
-    @Column(nullable = false)
-    private boolean view = false; // true if viewed, false otherwise
-
+public class FriendNotification extends Notification {
     @Column(nullable = false)
     private Long friendRequestListId;
 
-    @Column(nullable = false)
-    private Long requestUserId;
-
-    @Column(nullable = false)
-    private Long receiptUserId;
-
-    private LocalDateTime createdAt;
     public FriendNotification() {
-        this.createdAt = LocalDateTime.now();
+        super();
+        setNotificationType(NotificationType.FRIEND);
     }
 }

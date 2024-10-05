@@ -33,27 +33,7 @@ public class SseEmitterContoller {
     // SSE 구독
     @GetMapping("/subscribe")
     public SseEmitter subscribe(HttpServletRequest request) throws AccessDeniedException {
-        return sseEmitterService.createEmitter(request);
-    }
-
-    @GetMapping("/notifications/unread-count")
-    public ResponseEntity<Integer> getUnreadNotificationCount(HttpServletRequest request) {
-        // JWT 토큰에서 이메일 추출
-        Optional<String> emailOpt = jwtService.extractEmailFromToken(request);
-        if (emailOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(0);
-        }
-
-        String email = emailOpt.get();
-        Optional<User> userOpt = userService.findByEmail(email);
-        if (userOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(0);
-        }
-
-        Long userId = userOpt.get().getId();
-        int unreadCount = getUnreadNotificationCountForUser(userId); // 읽지 않은 알림 개수 조회
-
-        return ResponseEntity.ok(unreadCount);
+        return sseEmitterService.subscribe(request);
     }
 
     // SSE 구독 취소
