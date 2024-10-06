@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@Builder
 @MappedSuperclass
 public abstract class Notification {
     @Id
@@ -40,7 +39,8 @@ public abstract class Notification {
     private NotificationType notificationType;
 
     // 기본 생성자
-    public Notification() {
-        this.createdAt = LocalDateTime.now(); // 생성 시각을 현재 시각으로 설정
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
     }
 }

@@ -1,6 +1,5 @@
 package com.eco.ecoserver.domain.notification.controller;
 
-import com.eco.ecoserver.domain.notification.FriendNotification;
 import com.eco.ecoserver.domain.notification.Notification;
 import com.eco.ecoserver.domain.notification.service.NotificationService;
 import com.eco.ecoserver.global.dto.ApiResponseDto;
@@ -10,6 +9,7 @@ import com.eco.ecoserver.domain.user.User;
 import com.eco.ecoserver.global.jwt.service.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -46,7 +46,7 @@ public class NotificationController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponseDto.failure("Unauthorizaed"));
         }
         User user = userOpt.get();
-        List<Notification> notifications = notificationService.getNotificationsByUserId(user.getId());
+        List<Notification> notifications = notificationService.getAllNotificationsByUserId(user.getId());
         return ResponseEntity.status(200).body(ApiResponseDto.success(notifications));
     }
 
@@ -66,16 +66,4 @@ public class NotificationController {
         long unreadCount = notificationService.countUnreadNotifications(user.getId());
         return ResponseEntity.status(200).body(ApiResponseDto.success(unreadCount));
     }
-
-    // NotificationController에서 알림 읽음 처리 메서드 추가
-    @PatchMapping("/read/{notificationId}")
-    public ResponseEntity<String> markAsRead(@PathVariable Long notificationId) {
-        boolean success = notificationService.markAsRead(notificationId);
-        if (success) {
-            return ResponseEntity.ok("Notification marked as read.");
-        } else {
-            return ResponseEntity.status(404).body("Notification not found.");
-        }
-    }
-
 }

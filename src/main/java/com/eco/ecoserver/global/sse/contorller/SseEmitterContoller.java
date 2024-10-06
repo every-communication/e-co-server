@@ -21,13 +21,9 @@ import java.util.Optional;
 public class SseEmitterContoller {
 
     private final SseEmitterService sseEmitterService;
-    private final JwtService jwtService;
-    private final UserService userService;
 
-    public SseEmitterContoller(SseEmitterService sseEmitterService, JwtService jwtService, UserService userService) {
+    public SseEmitterContoller(SseEmitterService sseEmitterService) {
         this.sseEmitterService = sseEmitterService;
-        this.jwtService = jwtService;
-        this.userService = userService;
     }
 
     // SSE 구독
