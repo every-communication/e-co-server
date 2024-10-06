@@ -12,7 +12,11 @@ spring:
         - ci
         - jwt
         - oauth
-    active: local
+      deploy:
+        - deploy
+        - jwt
+        - oauth
+    active: deploy
 
   logging:
     level:
