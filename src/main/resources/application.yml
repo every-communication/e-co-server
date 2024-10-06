@@ -16,7 +16,7 @@ spring:
         - deploy
         - jwt
         - oauth
-    active: local
+    active: deploy
 
   logging:
     level:
