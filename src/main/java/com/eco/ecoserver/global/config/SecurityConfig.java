@@ -109,7 +109,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // 허용할 도메인
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "https://api.e-co.rldnd.net")); // 허용할 도메인
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE")); // 허용할 HTTP 메서드
         configuration.setAllowedHeaders(Arrays.asList("*")); // 허용할 헤더
         configuration.setAllowCredentials(true); // 자격 증명 허용
