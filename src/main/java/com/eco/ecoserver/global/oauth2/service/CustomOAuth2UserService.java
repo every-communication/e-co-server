@@ -116,7 +116,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     public void handleGuestLogin(HttpServletResponse response, CustomOAuth2User oAuth2User) throws IOException {
         String accessToken = jwtService.createAccessToken(oAuth2User.getEmail());
-        String redirectUrl = "http://localhost:3000/auth/oauth-register?id=" + oAuth2User.getEmail();
+        String redirectUrl = "https://e-co.rldnd.net/auth/oauth-register?id=" + oAuth2User.getEmail();
         response.addHeader(jwtService.getAccessHeader(), "Bearer " + accessToken);
         response.sendRedirect(redirectUrl);
     }
@@ -125,7 +125,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String accessToken = jwtService.createAccessToken(oAuth2User.getEmail());
         String refreshToken = jwtService.createRefreshToken(oAuth2User.getEmail());
 
-        String redirectUrl = String.format("http://localhost:3000/auth/oauth-callback?accessToken=%s&refreshToken=%s",
+        String redirectUrl = String.format("https://e-co.rldnd.net/auth/oauth-callback?accessToken=%s&refreshToken=%s",
                 URLEncoder.encode(accessToken, StandardCharsets.UTF_8.name()),
                 URLEncoder.encode(refreshToken, StandardCharsets.UTF_8.name()));
 
