@@ -10,7 +10,7 @@ const videoChat = document.getElementById("videoChat");
 
 let localStream;
 let peerConnection = null;
-const signalingServerUrl = "ws://api.e-co.rldnd.net/signal";
+const signalingServerUrl = "wss://api.e-co.rldnd.net/signal";
 let signalingSocket = null;
 let reconnectAttempts = 0;
 const maxReconnectAttempts = 5;
