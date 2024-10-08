@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC Multi-User Video Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        #roomControls, #videoChat {
+            margin-top: 20px;
+        }
+        #roomList {
+            list-style-type: none;
+            padding: 0;
+        }
+        #roomList li {
+            margin-bottom: 10px;
+        }
+        #videos {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        video {
+            width: 45%;
+            border: 1px solid black;
+            margin: 1%;
+        }
+        button {
+            margin: 5px;
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+<body>
+<h1>WebRTC Multi-User Video Chat</h1>
+
+<div id="roomControls">
+    <input type="text" id="roomName" placeholder="방 이름 입력">
+    <button id="createRoom">방 만들기</button>
+    <button id="refreshRooms">방 목록 새로고침</button>
+    <ul id="roomList"></ul>
+</div>
+
+<div id="videoChat" style="display: none;">
+    <div id="videos">
+        <video id="localVideo" autoplay playsinline></video>
+    </div>
+    <button id="leaveRoom">방 나가기</button>
+</div>
+
+<script src="js/webrtc.js"></script>
+</body>
+</html>

@@ -70,9 +70,9 @@ public class SecurityConfig {
                 // 아이콘, css, js 관련
                 // 기본 페이지, css, image, js 하위 폴더에 있는 자료들은 모두 접근 가능
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/css/**", "/images/**", "/js/**", "/favicon.ico").permitAll()
+                        .requestMatchers("/", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/index.html").permitAll()
                         .requestMatchers("/api*", "/api-docs/**", "/swagger-ui/**").permitAll()
-                        .requestMatchers("/auth/**", "/login/**", "/oauth2/**","/signaling/**", "/health").permitAll()
+                        .requestMatchers("/auth/**", "/login/**", "/oauth2/**","/signaling/**", "/health", "/signal/**", "/favicon.ico/").permitAll()
                         .anyRequest().authenticated() // 위의 경로 이외에는 모두 인증된 사용자만 접근 가능
                 )
                 .csrf(csrf -> csrf.disable()) // CSRF 비활성화
