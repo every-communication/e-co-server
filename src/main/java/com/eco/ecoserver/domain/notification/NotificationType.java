@@ -1,6 +1,6 @@
 package com.eco.ecoserver.domain.notification;
 
 public enum NotificationType {
-    FRIEND,
+    FRIEND_REQUEST,
     VIDEO_TELEPHONY
 }

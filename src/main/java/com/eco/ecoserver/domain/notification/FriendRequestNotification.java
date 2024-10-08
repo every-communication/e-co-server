@@ -14,6 +14,6 @@ public class FriendRequestNotification extends Notification {
 
     public FriendRequestNotification() {
         super();
-        setNotificationType(NotificationType.FRIEND);
+        setNotificationType(NotificationType.FRIEND_REQUEST);
     }
 }

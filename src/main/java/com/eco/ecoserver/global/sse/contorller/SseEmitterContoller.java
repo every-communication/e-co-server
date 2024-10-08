@@ -35,14 +35,13 @@ public class SseEmitterContoller {
     }
 
     @GetMapping(value ="/send-test", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter sendTest(HttpServletRequest request) throws IOException {
-        return sseEmitterService.sendNotification(request, "요청 테스트");
+    public void sendTest(HttpServletRequest request) throws IOException {
+        sseEmitterService.sendNotification(request, "name:send-test", "msg:send-test");
     }
 
     // SSE 구독 취소
     @PostMapping("/unsubscribe")
-    public ResponseEntity<String> unsubscribe(HttpServletRequest request) throws IOException {
+    public void unsubscribe(HttpServletRequest request) throws IOException {
         sseEmitterService.cancelSubscription(request);
-        return ResponseEntity.ok("구독이 취소되었습니다.");
     }
 }

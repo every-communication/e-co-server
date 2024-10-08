@@ -2,15 +2,21 @@ package com.eco.ecoserver.domain.notification.service;
 
 import com.eco.ecoserver.domain.notification.FriendRequestNotification;
 import com.eco.ecoserver.domain.notification.Notification;
+import com.eco.ecoserver.domain.notification.NotificationType;
 import com.eco.ecoserver.domain.notification.VideoTelephonyNotification;
 import com.eco.ecoserver.domain.notification.repository.FriendRequestNotificationRepository;
 import com.eco.ecoserver.domain.notification.repository.VideoTelephonyNotificationRepository;
+import com.eco.ecoserver.domain.user.User;
+import com.eco.ecoserver.domain.user.service.UserService;
+import com.eco.ecoserver.global.jwt.service.JwtService;
 import com.eco.ecoserver.global.sse.service.SseEmitterService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,13 +30,12 @@ public class NotificationService {
     private FriendRequestNotificationRepository friendRequestNotificationRepository;
     @Autowired
     private VideoTelephonyNotificationRepository videoTelephonyNotificationRepository;
-
-    // 사용자의 알림 목록 가져오기
-    public NotificationService(FriendRequestNotificationRepository friendRequestNotificationRepository,
-                               VideoTelephonyNotificationRepository videoTelephonyNotificationRepository) {
-        this.friendRequestNotificationRepository = friendRequestNotificationRepository;
-        this.videoTelephonyNotificationRepository = videoTelephonyNotificationRepository;
-    }
+    @Autowired
+    private SseEmitterService sseEmitterService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private JwtService jwtService;
 
     // 사용자의 모든 알림을 가져와 시간 순으로 정렬
     public List<Notification> getAllNotificationsByUserId(Long userId) {
@@ -50,12 +55,23 @@ public class NotificationService {
     }
 
     // 안 읽은 알림 개수 세기
-    public long countUnreadNotifications(Long userId) {
-        return friendRequestNotificationRepository.countByReceiptUserIdAndViewFalse(userId)
+    public long countUnreadNotifications(HttpServletRequest request, Long userId) throws IOException {
+        long unreadCount = friendRequestNotificationRepository.countByReceiptUserIdAndViewFalse(userId)
                 + videoTelephonyNotificationRepository.countByReceiptUserIdAndViewFalse(userId);
+        sseEmitterService.sendNotification(request, "unread-count", String.valueOf(unreadCount));
+        return unreadCount;
     }
 
-    public boolean markAsRead(String notificationType, Long notificationId) {
+    public boolean markAsRead(HttpServletRequest request, String notificationType, Long notificationId) throws IOException {
+        Optional<String> emailOpt = jwtService.extractEmailFromToken(request);
+        if(emailOpt.isEmpty()) {
+            return false;
+        }
+        Optional<User> userOpt = userService.findByEmail(emailOpt.get());
+        if(userOpt.isEmpty()) {
+            return false;
+        }
+
         switch (notificationType.toLowerCase()) {
             case "friend-request":
                 Optional<FriendRequestNotification> friendNotification = friendRequestNotificationRepository.findById(notificationId);
@@ -63,6 +79,7 @@ public class NotificationService {
                     FriendRequestNotification notification = friendNotification.get();
                     notification.setView(true); // 읽음 처리
                     friendRequestNotificationRepository.save(notification); // 업데이트된 상태 저장
+                    countUnreadNotifications(request, userOpt.get().getId());
                     return true;
                 }
                 break;
@@ -72,6 +89,7 @@ public class NotificationService {
                     VideoTelephonyNotification notification = videoNotification.get();
                     notification.setView(true); // 읽음 처리
                     videoTelephonyNotificationRepository.save(notification); // 업데이트된 상태 저장
+                    countUnreadNotifications(request, userOpt.get().getId());
                     return true;
                 }
                 break;

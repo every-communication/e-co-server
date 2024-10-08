@@ -1,6 +1,7 @@
 package com.eco.ecoserver.domain.notification.controller;
 
 import com.eco.ecoserver.domain.notification.Notification;
+import com.eco.ecoserver.domain.notification.NotificationType;
 import com.eco.ecoserver.domain.notification.service.NotificationService;
 import com.eco.ecoserver.global.dto.ApiResponseDto;
 import com.eco.ecoserver.global.sse.service.SseEmitterService;
@@ -14,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,7 +54,7 @@ public class NotificationController {
 
     // 2. 미확인 알림 개수
     @GetMapping("/unread-count")
-    public ResponseEntity<ApiResponseDto<?>> getUnreadNotificationCount(HttpServletRequest request) {
+    public ResponseEntity<ApiResponseDto<?>> getUnreadNotificationCount(HttpServletRequest request) throws IOException {
         Optional<String> emailOpt = jwtService.extractEmailFromToken(request);
         if(emailOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponseDto.failure("Unauthorizaed"));
@@ -63,7 +65,20 @@ public class NotificationController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponseDto.failure("Unauthorizaed"));
         }
         User user = userOpt.get();
-        long unreadCount = notificationService.countUnreadNotifications(user.getId());
+        long unreadCount = notificationService.countUnreadNotifications(request, user.getId());
         return ResponseEntity.status(200).body(ApiResponseDto.success(unreadCount));
+    }
+
+    @PatchMapping("/read/{notificationType}/{notificationId}")
+    public ResponseEntity<String> markAsRead(HttpServletRequest request,
+                                             @PathVariable String notificationType,
+                                             @PathVariable Long notificationId) throws IOException {
+        boolean success = notificationService.markAsRead(request, notificationType, notificationId);
+
+        if (success) {
+            return ResponseEntity.ok("Notification marked as read.");
+        } else {
+            return ResponseEntity.status(404).body("Notification not found.");
+        }
     }
 }
