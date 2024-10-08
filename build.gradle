@@ -80,6 +80,8 @@ dependencies {
 
 	//시그널링 서버 구축을 위한 web socket
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+	implementation 'com.google.code.gson:gson:2.10.1'
 }
 
 tasks.named('test') {
