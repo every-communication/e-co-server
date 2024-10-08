@@ -12,12 +12,15 @@ import com.eco.ecoserver.domain.friend.exception.DuplicateFriendRequestException
 import com.eco.ecoserver.domain.friend.exception.UserNotFoundException;
 import com.eco.ecoserver.domain.friend.repository.FriendListRepository;
 import com.eco.ecoserver.domain.friend.repository.FriendRequestListRepository;
+import com.eco.ecoserver.domain.notification.service.NotificationService;
 import com.eco.ecoserver.domain.user.User;
 import com.eco.ecoserver.domain.user.repository.UserRepository;
+import com.eco.ecoserver.global.sse.service.SseEmitterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.*;
 
@@ -29,7 +32,8 @@ public class FriendRequestListService {
     private final UserRepository userRepository;
     private final FriendListService friendListService;
     private final FriendListRepository friendListRepository;
-
+    private final SseEmitterService sseEmitterService;
+    private final NotificationService notificationService;
 
     @Transactional
     public List<FriendSearchDTO> searchUsers(User user, String searchUser) {
@@ -79,15 +83,16 @@ public class FriendRequestListService {
     }
 
     @Transactional
-    public CreateFriendRequestListDTO createFriendRequest(Long selectedUserId, Long requestId) {
+    public CreateFriendRequestListDTO createFriendRequest(Long selectedUserId, Long requestId) throws IOException {
 
         // 중복 확인
         checkDuplicate(requestId, selectedUserId);
 
         // 친구 요청 생성
         CreateFriendRequestListDTO createFriendRequestListDTO = new CreateFriendRequestListDTO(requestId, selectedUserId, FriendState.SENDING);
-        friendRequestListRepository.save(createFriendRequestListDTO.toEntity());
+        FriendRequestList friendRequestList = friendRequestListRepository.save(createFriendRequestListDTO.toEntity());
 
+        notificationService.createNotification(friendRequestList.getId(), createFriendRequestListDTO);
         return createFriendRequestListDTO;
     }
 

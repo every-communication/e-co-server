@@ -36,10 +36,6 @@ public class KakaoLoginController {
         this.kakaoLoginService = kakaoLoginService;
         this.customOAuth2UserService = customOAuth2UserService;
     }
-    @GetMapping("/")
-    public void defaultServerPage(HttpServletResponse response) throws IOException {
-        response.sendRedirect("/swagger-ui/index.html");
-    }
 
     @GetMapping("/auth/code/kakao")
     public void kakaoLogin(@RequestParam(value = "code", required = false) String code,
