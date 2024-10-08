@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -59,7 +60,12 @@ public class FriendRequestListController {
         // email로 찾은 user 반환
         Optional<User> user = userService.findByEmail(email.get());
         return user.map(value -> {
-            CreateFriendRequestListDTO createFriendRequestListDTO = friendRequestListService.createFriendRequest(friendId, value.getId());
+            CreateFriendRequestListDTO createFriendRequestListDTO = null;
+            try {
+                createFriendRequestListDTO = friendRequestListService.createFriendRequest(friendId, value.getId());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             return ResponseEntity.ok(ApiResponseDto.success(createFriendRequestListDTO));
         }).orElseGet(() -> ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorizaed")));
 

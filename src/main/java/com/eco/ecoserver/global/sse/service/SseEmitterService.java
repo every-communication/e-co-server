@@ -62,17 +62,7 @@ public class SseEmitterService {
 
 
     // 알림 전송 메서드
-    public void sendNotification(HttpServletRequest request, String eventName, String message) throws IOException {
-        Optional<String> emailOpt = jwtService.extractEmailFromToken(request);
-        if(emailOpt.isEmpty()) {
-            throw new IOException("이메일 없음");
-        }
-        Optional<User> userOpt = userService.findByEmail(emailOpt.get());
-        if(userOpt.isEmpty()) {
-            throw new IOException("유저 없음");
-        }
-
-        Long userId = userOpt.get().getId();
+    public void sendNotification(Long userId, String eventName, String message) throws IOException {
         SseEmitter emitter = emitters.get(userId);
         if (emitter != null) {
             try {

@@ -65,7 +65,7 @@ public class NotificationController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponseDto.failure("Unauthorizaed"));
         }
         User user = userOpt.get();
-        long unreadCount = notificationService.countUnreadNotifications(request, user.getId());
+        long unreadCount = notificationService.countUnreadNotifications(user.getId());
         return ResponseEntity.status(200).body(ApiResponseDto.success(unreadCount));
     }
 

@@ -19,7 +19,7 @@ public abstract class Notification {
     private String title;
 
     @Column(nullable = false)
-    protected String message;
+    private String message;
 
     @Column(nullable = false)
     private boolean view = false; // true if viewed, false otherwise

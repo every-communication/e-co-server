@@ -23,9 +23,13 @@ import java.util.Optional;
 public class SseEmitterContoller {
 
     private final SseEmitterService sseEmitterService;
+    private final JwtService jwtService;
+    private final UserRepository userService;
 
-    public SseEmitterContoller(SseEmitterService sseEmitterService) {
+    public SseEmitterContoller(SseEmitterService sseEmitterService, JwtService jwtService, UserRepository userService) {
         this.sseEmitterService = sseEmitterService;
+        this.jwtService = jwtService;
+        this.userService = userService;
     }
 
     // SSE 구독
@@ -36,7 +40,15 @@ public class SseEmitterContoller {
 
     @GetMapping(value ="/send-test", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public void sendTest(HttpServletRequest request) throws IOException {
-        sseEmitterService.sendNotification(request, "name:send-test", "msg:send-test");
+        Optional<String> emailOpt = jwtService.extractEmailFromToken(request);
+        if(emailOpt.isEmpty()) {
+            throw new IOException("이메일 없음");
+        }
+        Optional<User> userOpt = userService.findByEmail(emailOpt.get());
+        if(userOpt.isEmpty()) {
+            throw new IOException("유저 없음");
+        }
+        sseEmitterService.sendNotification(userOpt.get().getId(), "name:send-test", "msg:send-test");
     }
 
     // SSE 구독 취소

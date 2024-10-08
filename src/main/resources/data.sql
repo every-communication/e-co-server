@@ -28,6 +28,10 @@ values (99995, 'friend5@eco.com', 'friend5', '{bcrypt}$2a$10$EwUz1xN6sDbOM6Ss40b
 insert into user_social (user_id, user_social_id, social_type, social_id)
 values (99995, 99995, 'ECO', 'eco_friend2_99995');
 
+insert into users (USER_ID, EMAIL, NICKNAME, PASSWORD, ROLE, USER_TYPE)
+values (99996, 'friend6@eco.com', 'friend6', '{bcrypt}$2a$10$EwUz1xN6sDbOM6Ss40bLxO5j.EPmj9pbhL2oO92ZBJQ8zuXoRUPwG', 'ADMIN', 'DEAF');
+insert into user_social (user_id, user_social_id, social_type, social_id)
+values (99996, 99996, 'ECO', 'eco_friend2_99996');
 
 insert into friend_list (friend_list_id, friend_id, user_id)
 values (99991, 99991, 99990);
