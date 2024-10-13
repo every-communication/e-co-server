@@ -11,6 +11,7 @@ const videoChat = document.getElementById("videoChat");
 let localStream;
 let peerConnection = null;
 const signalingServerUrl = "ws://localhost:8080/signal";
+
 let signalingSocket = null;
 let reconnectAttempts = 0;
 const maxReconnectAttempts = 5;
