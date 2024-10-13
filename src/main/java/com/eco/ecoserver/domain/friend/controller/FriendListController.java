@@ -46,10 +46,23 @@ public class FriendListController {
          }
 
 
-    @DeleteMapping("/friends/{friendListId}")
-    public ResponseEntity<ApiResponseDto<String>> deleteFriends(@PathVariable("friendListId") Long id){
-        friendListService.delete(id);
-        return ResponseEntity.ok(ApiResponseDto.success("친구 삭제 완료"));
+    @DeleteMapping("/friends/{friendId}")
+    public ResponseEntity<ApiResponseDto<String>> deleteFriends(@PathVariable("friendId") Long id, HttpServletRequest request){
+
+        // request(token)에서 email 추출
+        Optional<String> email = jwtService.extractEmailFromToken(request);
+
+        if (email.isEmpty()) {
+            return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorizaed"));
+        }
+        // email로 찾은 user 반환
+        Optional<User> user = userService.findByEmail(email.get());
+
+        return user.map(value -> {
+            friendListService.delete(value.getId(), id);
+            return ResponseEntity.ok(ApiResponseDto.success("친구 삭제 완료"));
+        }).orElseGet(() -> ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorizaed")));
+
     }
 
 
