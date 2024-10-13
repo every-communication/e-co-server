@@ -49,10 +49,7 @@ public class FriendListService {
 
     //친구 교차 삭제
     @Transactional
-    public void delete(Long id){
-        FriendList friendList = friendListRepository.getReferenceById(id);
-        Long userId = friendList.getUserId();
-        Long friendId = friendList.getFriendId();
+    public void delete(Long userId, Long friendId){
 
         friendListRepository.deleteByUserIdAndFriendId(userId, friendId);
         friendListRepository.deleteByUserIdAndFriendId(friendId, userId);
