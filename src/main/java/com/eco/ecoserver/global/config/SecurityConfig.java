@@ -72,6 +72,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/index.html").permitAll()
                         .requestMatchers("/api*", "/api-docs/**", "/swagger-ui/**").permitAll()
+                        .requestMatchers("/images").permitAll()
                         .requestMatchers("/auth/**", "/login/**", "/oauth2/**","/signaling/**", "/health", "/signal/**", "/favicon.ico/").permitAll()
                         .anyRequest().authenticated() // 위의 경로 이외에는 모두 인증된 사용자만 접근 가능
                 )
