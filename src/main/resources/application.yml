@@ -1,7 +1,6 @@
 spring:
   application:
     name: ecoserver
-
   profiles:
     group:
       local:
@@ -17,11 +16,16 @@ spring:
         - jwt
         - oauth
     active: local
-
   logging:
     level:
       org.springframework: DEBUG
       org.hibernate: DEBUG
+  servlet:
+    multipart:
+      enabled: true # 멀티파트 업로드 지원여부 (default: true)
+      file-size-threshold: 0 # 파일을 디스크에 저장하지 않고 메모리에 저장하는 최소 크기 (default: 0B)
+      max-file-size: 104857600 # 한개 파일의 최대 사이즈 100MB (default: 1MB)
+      max-request-size: 104857600 # 한개 요청의 최대 사이즈 100MB (default: 10MB)
 
 springdoc:
   swagger-ui:

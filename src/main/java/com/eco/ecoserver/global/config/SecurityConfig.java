@@ -13,9 +13,13 @@ import com.eco.ecoserver.global.oauth2.handler.OAuth2LoginFailureHandler;
 import com.eco.ecoserver.global.oauth2.handler.OAuth2LoginSuccessHandler;
 import com.eco.ecoserver.global.oauth2.service.CustomOAuth2UserService;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -35,10 +39,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 import org.slf4j.Logger;
+import org.springframework.util.unit.DataSize;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -63,6 +69,10 @@ public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
 
 
+    @Value("${spring.servlet.multipart.max-file-size}")
+    private long maxFileSize; // 최대 파일 크기 (바이트 단위)
+
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -82,6 +92,7 @@ public class SecurityConfig {
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable())) // FrameOptions 비활성화
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용하지 않으므로 STATELESS로 설정
 
+
                 //== 소셜 로그인 설정 ==//
                 .oauth2Login(oauth2 -> oauth2
                         .successHandler(oAuth2LoginSuccessHandler) // 동의하고 계속하기를 눌렀을 때 Handler 설정
@@ -97,6 +108,8 @@ public class SecurityConfig {
         // CORS 필터를 UsernamePasswordAuthenticationFilter 전에 추가
         http.addFilterBefore(new CorsFilter(corsConfigurationSource()), UsernamePasswordAuthenticationFilter.class);
 
+        //file size check
+        http.addFilterBefore(new FileSizeCheckFilter(maxFileSize), UsernamePasswordAuthenticationFilter.class);
 
         // 원래 스프링 시큐리티 필터 순서가 LogoutFilter 이후에 로그인 필터 동작
         // 따라서, LogoutFilter 이후에 우리가 만든 필터 동작하도록 설정
@@ -186,4 +199,24 @@ public class SecurityConfig {
     public JwtAuthenticationProcessingFilter jwtAuthenticationProcessingFilter() {
         return new JwtAuthenticationProcessingFilter(jwtService, userRepository, objectMapper);
     }
+
+
+    public class FileSizeCheckFilter extends OncePerRequestFilter {
+        private final Long maxFileSize;
+
+        public FileSizeCheckFilter(Long maxFileSize) {
+            this.maxFileSize = maxFileSize;
+        }
+
+        @Override
+        protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+            if (request.getContentLengthLong() > maxFileSize) {
+                sendErrorResponse(response, HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, "File size exceeds the maximum limit of " + maxFileSize + "MB");
+                return;
+            }
+            filterChain.doFilter(request, response);
+        }
+    }
+
+
 }
