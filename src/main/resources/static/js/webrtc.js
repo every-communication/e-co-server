@@ -98,9 +98,10 @@ async function setupLocalStream() {
     try {
       localStream = await navigator.mediaDevices.getUserMedia({
         video: true,
-        audio: true,
+        audio: true
       });
       localVideo.srcObject = localStream;
+      localVideo.muted = true; // Mute local video to prevent echo
       localVideoAdded = true;
     } catch (error) {
       console.error("Error accessing media devices.", error);
@@ -141,10 +142,10 @@ async function createPeerConnection() {
     if (event.candidate) {
       if (signalingSocket.readyState === WebSocket.OPEN) {
         signalingSocket.send(
-          JSON.stringify({
-            type: "candidate",
-            candidate: event.candidate,
-          })
+            JSON.stringify({
+              type: "candidate",
+              candidate: event.candidate,
+            })
         );
       } else {
         iceCandidatesQueue.push(event.candidate);
@@ -158,15 +159,7 @@ async function createPeerConnection() {
 
   peerConnection.ontrack = (event) => {
     console.log("Received remote track");
-    const remoteVideo =
-      document.getElementById("remoteVideo") || document.createElement("video");
-    remoteVideo.id = "remoteVideo";
-    remoteVideo.autoplay = true;
-    remoteVideo.playsinline = true;
-    remoteVideo.srcObject = event.streams[0];
-    if (!videos.contains(remoteVideo)) {
-      videos.appendChild(remoteVideo);
-    }
+    handleRemoteStream(event.streams[0]);
   };
 
   const stream = await setupLocalStream();
@@ -177,16 +170,28 @@ async function createPeerConnection() {
   return peerConnection;
 }
 
+function handleRemoteStream(stream) {
+  const remoteVideo = document.getElementById("remoteVideo") || document.createElement("video");
+  remoteVideo.id = "remoteVideo";
+  remoteVideo.autoplay = true;
+  remoteVideo.playsinline = true;
+  remoteVideo.srcObject = stream;
+  remoteVideo.muted = false; // Ensure remote video is not muted
+  if (!videos.contains(remoteVideo)) {
+    videos.appendChild(remoteVideo);
+  }
+}
+
 async function createOffer() {
   console.log("Creating offer");
   const offer = await peerConnection.createOffer();
   await peerConnection.setLocalDescription(offer);
 
   signalingSocket.send(
-    JSON.stringify({
-      type: "offer",
-      offer: offer,
-    })
+      JSON.stringify({
+        type: "offer",
+        offer: offer,
+      })
   );
 }
 
@@ -198,10 +203,10 @@ async function handleOffer(from, offer) {
   await peerConnection.setLocalDescription(answer);
 
   signalingSocket.send(
-    JSON.stringify({
-      type: "answer",
-      answer: answer,
-    })
+      JSON.stringify({
+        type: "answer",
+        answer: answer,
+      })
   );
 }
 
@@ -209,7 +214,7 @@ async function handleAnswer(from, answer) {
   console.log(`Handling answer from ${from}`);
   if (peerConnection) {
     await peerConnection.setRemoteDescription(
-      new RTCSessionDescription(answer)
+        new RTCSessionDescription(answer)
     );
   } else {
     console.error("No peer connection found");
@@ -242,9 +247,8 @@ function handleParticipantLeft(participantId) {
     remoteVideo.remove();
   }
 
-  // 방은 유지되므로 현재 방에 남아있음을 표시
   alert(
-    "The other participant has left the room. You can wait for someone else to join or leave the room."
+      "The other participant has left the room. You can wait for someone else to join or leave the room."
   );
 }
 
@@ -252,10 +256,10 @@ function createRoom() {
   const roomName = roomNameInput.value.trim();
   if (roomName) {
     signalingSocket.send(
-      JSON.stringify({
-        type: "createRoom",
-        room: roomName,
-      })
+        JSON.stringify({
+          type: "createRoom",
+          room: roomName,
+        })
     );
   }
 }
@@ -263,20 +267,20 @@ function createRoom() {
 function joinRoom(room) {
   currentRoom = room;
   signalingSocket.send(
-    JSON.stringify({
-      type: "joinRoom",
-      room: room,
-    })
+      JSON.stringify({
+        type: "joinRoom",
+        room: room,
+      })
   );
 }
 
 function leaveRoom() {
   if (currentRoom) {
     signalingSocket.send(
-      JSON.stringify({
-        type: "leaveRoom",
-        room: currentRoom,
-      })
+        JSON.stringify({
+          type: "leaveRoom",
+          room: currentRoom,
+        })
     );
 
     // Reset client-side room state
@@ -313,9 +317,9 @@ function resetRoomState() {
 
 function refreshRooms() {
   signalingSocket.send(
-    JSON.stringify({
-      type: "getRooms",
-    })
+      JSON.stringify({
+        type: "getRooms",
+      })
   );
 }
 
