@@ -9,6 +9,7 @@ import marvin.image.MarvinImage;
 import org.marvinproject.image.transform.scale.Scale;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -28,6 +29,9 @@ public class S3UploadService {
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
+
+    @Value("${spring.servlet.multipart.max-file-size}")
+    private long maxFileSize; // 최대 파일 크기 (바이트 단위)
 
     public String upload(MultipartFile multipartFile, String dirName) throws IOException {
         File uploadFile = convert(multipartFile)
@@ -136,14 +140,34 @@ public class S3UploadService {
         }
     }
 
-    public String uploadResizedImage(MultipartFile multipartFile, String dirName, int targetWidth) throws IOException {
-        String fileName = multipartFile.getOriginalFilename();
-        String fileFormatName = getFileFormatName(fileName);
-        MultipartFile resizedFile = resizeImage(fileName, fileFormatName, multipartFile, targetWidth);
+    public ResponseEntity<?> uploadResizedImage(MultipartFile multipartFile, String dirName, int targetWidth) {
+        try {
+            if (multipartFile.getSize() > maxFileSize) {
+                return ResponseEntity
+                        .status(HttpStatus.PAYLOAD_TOO_LARGE)
+                        .body("File size exceeds the maximum limit of " + (maxFileSize / (1024 * 1024)) + "MB");
+            }
 
-        File uploadFile = convert(resizedFile)
-                .orElseThrow(() -> new IllegalArgumentException("MultipartFile -> File 전환 실패"));
-        return upload(uploadFile, dirName, fileName);
+            String fileName = multipartFile.getOriginalFilename();
+            String fileFormatName = getFileFormatName(fileName);
+            MultipartFile resizedFile = resizeImage(fileName, fileFormatName, multipartFile, targetWidth);
+
+            File uploadFile = convert(resizedFile)
+                    .orElseThrow(() -> new IllegalArgumentException("MultipartFile -> File 전환 실패"));
+            String uploadedFileUrl = upload(uploadFile, dirName, fileName);
+
+            return ResponseEntity.ok(uploadedFileUrl);
+        } catch (IOException e) {
+            log.error("File upload failed", e);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("파일 업로드에 실패했습니다.");
+        } catch (IllegalArgumentException e) {
+            log.error("File conversion failed", e);
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
     }
 
     private String getFileFormatName(String fileName) {
