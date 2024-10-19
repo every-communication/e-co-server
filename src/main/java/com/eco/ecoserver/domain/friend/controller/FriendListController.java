@@ -36,6 +36,7 @@ public class FriendListController {
         if (email.isEmpty()) {
             return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorizaed"));
         }
+
         // email로 찾은 user 반환
         Optional<User> user = userService.findByEmail(email.get());
 
