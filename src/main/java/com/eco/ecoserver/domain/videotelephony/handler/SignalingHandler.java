@@ -1,5 +1,9 @@
 package com.eco.ecoserver.domain.videotelephony.handler;
 
+import com.eco.ecoserver.domain.user.User;
+import com.eco.ecoserver.domain.user.service.UserService;
+import com.eco.ecoserver.domain.videotelephony.Room;
+import com.eco.ecoserver.domain.videotelephony.service.RoomService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
@@ -15,23 +19,38 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SignalingHandler extends TextWebSocketHandler {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final Map<String, Map<String, WebSocketSession>> rooms = new ConcurrentHashMap<>();
-    private final Map<String, String> sessionToRoom = new ConcurrentHashMap<>();
+    private final Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
+    private final RoomService roomService;
+    private final UserService userService;
+
+    public SignalingHandler(RoomService roomService, UserService userService) {
+        this.roomService = roomService;
+        this.userService = userService;
+    }
 
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
         Map<String, Object> payload = objectMapper.readValue(message.getPayload(), Map.class);
         String type = (String) payload.get("type");
 
+        User user = getUserFromSession(session);
+        if (user == null) {
+            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(Map.of(
+                    "type", "error",
+                    "message", "Unauthorized"
+            ))));
+            return;
+        }
+
         switch (type) {
             case "createRoom":
-                handleCreateRoom(session, (String) payload.get("room"));
+                handleCreateRoom(session, user);
                 break;
             case "joinRoom":
-                handleJoinRoom(session, (String) payload.get("room"));
+                handleJoinRoom(session, (String) payload.get("room"), user);
                 break;
             case "leaveRoom":
-                handleLeaveRoom(session);
+                handleLeaveRoom(session, (String) payload.get("room"), user);
                 break;
             case "offer":
             case "answer":
@@ -44,132 +63,84 @@ public class SignalingHandler extends TextWebSocketHandler {
         }
     }
 
-    private void handleCreateRoom(WebSocketSession session, String roomName) throws IOException {
-        if (!rooms.containsKey(roomName)) {
-            rooms.put(roomName, new ConcurrentHashMap<>());
-            handleJoinRoom(session, roomName);
-        } else {
-            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(Map.of(
-                    "type", "error",
-                    "message", "Room already exists"
-            ))));
+    private User getUserFromSession(WebSocketSession session) {
+        String email = (String) session.getAttributes().get("email");
+        if (email != null) {
+            return userService.findByEmail(email).orElse(null);
         }
+        return null;
     }
 
-    private void handleJoinRoom(WebSocketSession session, String roomName) throws IOException {
-        Map<String, WebSocketSession> room = rooms.get(roomName);
-        if (room != null) {
-            if (room.size() < 2) {
-                // 방에 참가자 추가
-                room.put(session.getId(), session);
-                sessionToRoom.put(session.getId(), roomName);
-
-                // 현재 참가자 목록 생성
-                List<String> participants = new ArrayList<>(room.keySet());
-
-                // 새 참가자에게 방 정보 전송
-                session.sendMessage(new TextMessage(objectMapper.writeValueAsString(Map.of(
-                        "type", "joinedRoom",
-                        "room", roomName,
-                        "participants", participants
-                ))));
-
-                // 다른 참가자들에게 새 참가자 알림
-                if (room.size() > 1) {
-                    for (Map.Entry<String, WebSocketSession> entry : room.entrySet()) {
-                        if (!entry.getKey().equals(session.getId())) {
-                            entry.getValue().sendMessage(new TextMessage(objectMapper.writeValueAsString(Map.of(
-                                    "type", "newParticipant",
-                                    "participantId", session.getId()
-                            ))));
-                        }
-                    }
-                }
-
-                // 방 목록 업데이트
-                sendRoomList(null);
-            } else {
-                session.sendMessage(new TextMessage(objectMapper.writeValueAsString(Map.of(
-                        "type", "roomFull",
-                        "message", "Room is full"
-                ))));
-            }
-        } else {
+    private void handleCreateRoom(WebSocketSession session, User user) throws IOException {
+        try {
+            Room room = roomService.createRoom(user);
             session.sendMessage(new TextMessage(objectMapper.writeValueAsString(Map.of(
-                    "type", "error",
-                    "message", "Room does not exist"
+                    "type", "roomCreated",
+                    "room", room
             ))));
-        }
-    }
-
-    private void handleLeaveRoom(WebSocketSession session) throws IOException {
-        String roomName = sessionToRoom.remove(session.getId());
-        if (roomName != null) {
-            Map<String, WebSocketSession> room = rooms.get(roomName);
-            room.remove(session.getId());
-
-            if (!room.isEmpty()) {
-                broadcastToRoom(roomName, Map.of(
-                        "type", "participantLeft",
-                        "participantId", session.getId()
-                ), null);
-            } else {
-                rooms.remove(roomName);
-            }
-
             sendRoomList(null);
+        } catch (RuntimeException e) {
+            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(Map.of(
+                    "type", "error",
+                    "message", e.getMessage()
+            ))));
+        }
+    }
+
+    private void handleJoinRoom(WebSocketSession session, String roomCode, User user) throws IOException {
+        try {
+            Room room = roomService.joinRoom(roomCode, user.getId());
+            sessions.put(session.getId(), session);
+            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(Map.of(
+                    "type", "joinedRoom",
+                    "room", room
+            ))));
+            sendRoomList(null);
+        } catch (RuntimeException e) {
+            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(Map.of(
+                    "type", "error",
+                    "message", e.getMessage()
+            ))));
+        }
+    }
+
+    private void handleLeaveRoom(WebSocketSession session, String roomCode, User user) throws IOException {
+        Room room = roomService.leaveRoom(roomCode, user.getId());
+        sessions.remove(session.getId());
+        sendRoomList(null);
+        // Notify other participants in the room
+        for (WebSocketSession s : sessions.values()) {
+            s.sendMessage(new TextMessage(objectMapper.writeValueAsString(Map.of(
+                    "type", "participantLeft",
+                    "room", room,
+                    "userId", user.getId()
+            ))));
         }
     }
 
     private void handleSignaling(WebSocketSession session, Map<String, Object> payload) throws IOException {
-        String roomName = sessionToRoom.get(session.getId());
-        if (roomName != null) {
-            Map<String, WebSocketSession> room = rooms.get(roomName);
-            if (room != null) {
-                for (WebSocketSession recipient : room.values()) {
-                    if (!recipient.getId().equals(session.getId())) {
-                        payload.put("from", session.getId());
-                        recipient.sendMessage(new TextMessage(objectMapper.writeValueAsString(payload)));
-                    }
-                }
+        String roomCode = (String) payload.get("room");
+        Room room = roomService.findRoomByCode(roomCode).orElseThrow(() -> new RuntimeException("Room not found"));
+
+        for (WebSocketSession s : sessions.values()) {
+            if (!s.getId().equals(session.getId())) {
+                s.sendMessage(new TextMessage(objectMapper.writeValueAsString(payload)));
             }
         }
     }
 
     private void sendRoomList(WebSocketSession session) throws IOException {
-        List<Map<String, Object>> roomList = new ArrayList<>();
-        for (Map.Entry<String, Map<String, WebSocketSession>> entry : rooms.entrySet()) {
-            roomList.add(Map.of(
-                    "name", entry.getKey(),
-                    "participants", entry.getValue().size()
-            ));
-        }
-
-        Map<String, Object> message = Map.of(
+        List<Room> rooms = roomService.getAllRooms();
+        String messageJson = objectMapper.writeValueAsString(Map.of(
                 "type", "roomList",
-                "rooms", roomList
-        );
-        String messageJson = objectMapper.writeValueAsString(message);
+                "rooms", rooms
+        ));
 
         if (session != null) {
             session.sendMessage(new TextMessage(messageJson));
         } else {
-            for (Map<String, WebSocketSession> room : rooms.values()) {
-                for (WebSocketSession s : room.values()) {
-                    s.sendMessage(new TextMessage(messageJson));
-                }
-            }
-        }
-    }
-
-    private void broadcastToRoom(String roomName, Map<String, Object> message, String excludeSessionId) throws IOException {
-        Map<String, WebSocketSession> room = rooms.get(roomName);
-        if (room != null) {
-            String messageJson = objectMapper.writeValueAsString(message);
-            for (Map.Entry<String, WebSocketSession> entry : room.entrySet()) {
-                if (!entry.getKey().equals(excludeSessionId)) {
-                    entry.getValue().sendMessage(new TextMessage(messageJson));
-                }
+            for (WebSocketSession s : sessions.values()) {
+                s.sendMessage(new TextMessage(messageJson));
             }
         }
     }
@@ -181,6 +152,6 @@ public class SignalingHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        handleLeaveRoom(session);
+        sessions.remove(session.getId());
     }
 }
