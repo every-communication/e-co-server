@@ -5,6 +5,9 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "rooms")
@@ -36,6 +39,15 @@ public class Room {
     @Column(name = "cam2")
     private boolean cam2;
 
+    @Column(name = "created_at", nullable = false)
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+
     @Builder
     public Room(Long id, String code, Long user1Id, Long user2Id, boolean mic1, boolean cam1, boolean mic2, boolean cam2 ){
         this.id = id;
@@ -52,6 +64,10 @@ public class Room {
         this.code = code;
     }
 
+
+    public void setDeletedAt(LocalDateTime deletedAt){
+        this.deletedAt = deletedAt;
+    }
     public void updateUser1(Long userId){
         this.user1Id = userId;
     }

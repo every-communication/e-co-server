@@ -37,6 +37,20 @@ public class RoomController {
         }).orElseGet(() -> ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorized")));
     }
 
+    @PostMapping("/{friendId}")
+    public ResponseEntity<ApiResponseDto<Room>> createRoomWithFriend(HttpServletRequest request, @PathVariable Long friendId) {
+        Optional<String> email = jwtService.extractEmailFromToken(request);
+        if (email.isEmpty()) {
+            return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorized"));
+        }
+
+        Optional<User> user = userService.findByEmail(email.get());
+        return user.map(value -> {
+            Room room = roomService.createRoomWithFriend(value, friendId);
+            return ResponseEntity.ok(ApiResponseDto.success(room));
+        }).orElseGet(() -> ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorized")));
+    }
+
     @GetMapping
     public ResponseEntity<ApiResponseDto<List<Room>>> getAllRooms(HttpServletRequest request) {
         Optional<String> email = jwtService.extractEmailFromToken(request);
@@ -48,7 +62,7 @@ public class RoomController {
         return ResponseEntity.ok(ApiResponseDto.success(rooms));
     }
 
-    @PostMapping("/{code}/join")
+    @PostMapping("/join/{code}")
     public ResponseEntity<?> joinRoom(@PathVariable String code, HttpServletRequest request) {
         Optional<String> email = jwtService.extractEmailFromToken(request);
         if (email.isEmpty()) {
@@ -66,7 +80,7 @@ public class RoomController {
         }).orElseGet(() -> ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorized")));
     }
 
-    @PostMapping("/{code}/leave")
+    @PostMapping("/leave/{code}")
     public ResponseEntity<ApiResponseDto<Room>> leaveRoom(@PathVariable String code, HttpServletRequest request) {
         Optional<String> email = jwtService.extractEmailFromToken(request);
         if (email.isEmpty()) {
@@ -80,7 +94,7 @@ public class RoomController {
         }).orElseGet(() -> ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorized")));
     }
 
-    @PutMapping("/{code}/media")
+    @PutMapping("/media/{code}")
     public ResponseEntity<ApiResponseDto<Room>> updateMediaStatus(
             @PathVariable String code,
             @RequestParam boolean mic,
