@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,6 +26,14 @@ public class RoomService {
     public Room createRoom(User user) {
         Room room = new Room();
         room.updateUser1(user.getId());
+        room.setCode(UUID.randomUUID().toString());
+        return roomRepository.save(room);
+    }
+
+    public Room createRoomWithFriend(User user, Long friendId) {
+        Room room = new Room();
+        room.updateUser1(user.getId());
+        room.updateUser2(friendId);
         room.setCode(UUID.randomUUID().toString());
         return roomRepository.save(room);
     }
@@ -46,9 +56,9 @@ public class RoomService {
 
     public Room joinRoom(String code, Long userId) {
         Room room = roomRepository.findByCode(code).orElseThrow(() -> new RuntimeException("Room not found"));
-        if (room.getUser1Id() == null) {
+        if (room.getUser1Id() == null|| !room.getUser1Id().equals(userId)) {
             room.updateUser1(userId);
-        } else if (room.getUser2Id() == null) {
+        } else if (room.getUser2Id() == null|| !room.getUser2Id().equals(userId)) {
             room.updateUser2(userId);
         } else {
             throw new RuntimeException("Room is full");
@@ -67,6 +77,9 @@ public class RoomService {
 //            room.setMic2(false);
 //            room.setCam2(false);
         }
+        if(room.getUser1Id()==null&&room.getUser2Id()==null){
+            room.setDeletedAt(LocalDateTime.now());
+        }
         return roomRepository.save(room);
     }
 
@@ -83,5 +96,7 @@ public class RoomService {
         }
         return roomRepository.save(room);
     }
+
+
 }
 

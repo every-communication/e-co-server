@@ -17,15 +17,15 @@ spring:
     username: ${LOCAL_DATASOURCE_USERNAME}
     password: ${LOCAL_ROOT_PASSWORD}
 
-  sql:
-    init:
-      mode: always # mode: app 시작 시 data.sql에 작성된 코드로 database를 초기화 하도록 지정
+#  sql:
+#    init:
+#      mode: always # mode: app 시작 시 data.sql에 작성된 코드로 database를 초기화 하도록 지정
 
   jpa:
     show-sql: true
     database: mysql
     hibernate:
-      ddl-auto: create-drop # Hibernate가 데이터베이스 스키마를 자동으로 생성하도록 지정 (update:변화 유지)
+      ddl-auto: update # Hibernate가 데이터베이스 스키마를 자동으로 생성하도록 지정 (update:변화 유지)
     properties:
       hibernate:
         format_sql: true
