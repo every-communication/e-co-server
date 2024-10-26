@@ -56,10 +56,11 @@ public class RoomService {
     public Room joinRoom(String code, Long userId) {
         Room room = roomRepository.findByCode(code)
                 .orElseThrow(() -> new RuntimeException("Room not found"));
-        if (room.getUser1Id() == null || !room.getUser1Id().equals(userId)) {
+        if (room.getUser1Id() == null) {
             room.updateUser1(userId);
-        } else if (room.getUser2Id() == null || !room.getUser2Id().equals(userId)) {
+        } else if (room.getUser2Id() == null && !room.getUser1Id().equals(userId)) {
             room.updateUser2(userId);
+            room.setCreatedAt(LocalDateTime.now());
         } else {
             throw new RuntimeException("Room is full");
         }
@@ -74,7 +75,7 @@ public class RoomService {
         } else if (room.getUser2Id() != null && room.getUser2Id().equals(userId)) {
             room.updateUser2(null);
         }
-        if(room.getUser1Id() == null && room.getUser2Id() == null) {
+        if(room.getUser1Id() == null && room.getUser2Id() == null && room.getCreatedAt()!=null) {
             room.setDeletedAt(LocalDateTime.now());
         }
         return roomRepository.save(room);

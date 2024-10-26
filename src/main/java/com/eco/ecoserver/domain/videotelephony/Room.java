@@ -45,8 +45,7 @@ public class Room {
     @Column(name = "cam2")
     private boolean cam2;
 
-    @Column(name = "created_at", nullable = false)
-    @CreationTimestamp
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
 
@@ -78,6 +77,11 @@ public class Room {
     public void setFriendId(Long friendId){
         this.friendId = friendId;
     }
+
+    public void setCreatedAt(LocalDateTime createdAt){
+        this.createdAt = createdAt;
+    }
+
     public void setDeletedAt(LocalDateTime deletedAt){
         this.deletedAt = deletedAt;
     }
