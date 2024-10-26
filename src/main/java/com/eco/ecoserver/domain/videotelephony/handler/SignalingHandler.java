@@ -38,7 +38,16 @@ public class SignalingHandler extends TextWebSocketHandler {
     public void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
         Map<String, Object> payload = objectMapper.readValue(message.getPayload(), Map.class);
         String type = (String) payload.get("type");
-        Long userId = (Long) payload.get("userId");
+        // Integer를 Long으로 안전하게 변환
+        Object userIdObj = payload.get("userId");
+        Long userId = null;
+        if (userIdObj != null) {
+            if (userIdObj instanceof Integer) {
+                userId = ((Integer) userIdObj).longValue();
+            } else if (userIdObj instanceof Long) {
+                userId = (Long) userIdObj;
+            }
+        }
         User user = getUserFromSession(session);
         if (user == null) {
             session.sendMessage(new TextMessage(objectMapper.writeValueAsString(Map.of(
