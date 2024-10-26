@@ -105,20 +105,20 @@ public class RoomService {
                 .map(room -> {
                     if (room.getDeletedAt() != null) {
                         return ResponseEntity.status(400)
-                                .body(ApiResponseDto.failure(400, "Room is deleted"));
+                                .body(ApiResponseDto.failure(400, "통화가 종료된 방입니다."));
                     }
 
                     // user1Id와 user2Id가 모두 존재하고, 현재 유저가 둘 다 아닌 경우
                     if (room.getUser1Id() != null && room.getUser2Id() != null &&
                             !room.getUser1Id().equals(user.getId()) && !room.getUser2Id().equals(user.getId())) {
                         return ResponseEntity.status(400)
-                                .body(ApiResponseDto.failure(400, "You are not a participant of this room"));
+                                .body(ApiResponseDto.failure(400, "접속할 수 있는 방이 아닙니다."));
                     }
 
                     return ResponseEntity.ok(ApiResponseDto.success(room));
                 })
-                .orElseGet(() -> ResponseEntity.status(400)
-                        .body(ApiResponseDto.failure(400, "Room not found")));
+                .orElseGet(() -> ResponseEntity.status(404)
+                        .body(ApiResponseDto.failure(404, "존재하지 않는 방입니다.")));
     }
 }
 
