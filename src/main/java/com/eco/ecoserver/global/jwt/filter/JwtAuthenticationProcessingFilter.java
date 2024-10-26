@@ -34,11 +34,18 @@ import java.util.*;
 public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     // TODO: 예외 uri 추가가 필요할 수도 있음.
     private static final Set<String> NO_CHECK_URL = new HashSet<>() {{
-        add("/login");
-        add("/auth");
-        add("/health");
+        add("/");
+        add("/css");
         add("/images");
-
+        add("/js");
+        add("/favicon.ico");
+        add("/index.html");
+        add("/api-docs");
+        add("/swagger-ui");
+        add("/auth");
+        add("/login");
+        add("/oauth2");
+        add("/health");
     }};
 
     private final JwtService jwtService;
@@ -63,36 +70,34 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
         String uri = request.getRequestURI();
         log.info("Request URI: {}", uri);
 
-        // 로그인 uri 는 해당 필터(jwt)를 적용시키지 않음. -> 바로 다음 필터(custom)를 호출
-        for(String checkUrl : NO_CHECK_URL) {
-            if (uri.startsWith(checkUrl)) {
-                filterChain.doFilter(request, response);
-                log.info("skip URI : {}", uri);
-                return;
-            }
+        // NO_CHECK_PATHS와 일치하는 경우에만 필터를 건너뛰도록 수정
+        if (NO_CHECK_URL.stream().anyMatch(path -> uri.equals(path) || uri.startsWith(path + "/"))) {
+            filterChain.doFilter(request, response);
+            log.info("skip URI : {}", uri);
+            return;
         }
+
+        // 여기서부터는 모든 요청에 대해 JWT 체크 수행
+        log.info("JWT check for URI : {}", uri);
 
         // Request Header 에서 Authorization 추출
         String authHeader = request.getHeader("Authorization");
         log.info("Authorization Header: {}", authHeader);
 
-        // 사용자 요청 헤더에서 RefreshToken 추출 <- 없거나 유효하지 않다면(DB에 없다면) Null 반환
+        // 사용자 요청 헤더에서 RefreshToken 추출
         String refreshToken = jwtService.extractRefreshToken(request)
                 .filter(jwtService::isTokenValid)
                 .orElse(null);
 
-        // 1. refresh token 이 없다 -> access token 체크 -> 인증 성공하면 다음 필터로 넘어감.
         if (refreshToken == null) {
             log.info("No valid refresh token found. Checking access token and authentication.");
             checkAccessTokenAndAuthentication(request, response, filterChain);
+            return; // 여기서 return 추가
         }
 
-        // 2. refresh token 이 있다 -> access token 이 만료되어 재발급 요청 -> refresh token 체크 후 재발급
-        if (refreshToken != null) {
-            checkRefreshTokenAndReIssueAccessToken(response, refreshToken);
-            log.info("Valid refresh token found. Checking user and re-issuing access token.");
-            return; // RefreshToken을 보낸 경우에는 AccessToken을 재발급 하고 인증 처리는 하지 않게 하기위해 바로 return으로 필터 진행 막기
-        }
+        // refresh token이 있는 경우
+        checkRefreshTokenAndReIssueAccessToken(response, refreshToken);
+        log.info("Valid refresh token found. Checking user and re-issuing access token.");
     }
 
     /**
