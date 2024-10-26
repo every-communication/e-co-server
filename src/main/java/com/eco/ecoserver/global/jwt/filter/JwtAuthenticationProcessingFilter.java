@@ -144,6 +144,8 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
                 ApiResponseDto<String> apiResponse = ApiResponseDto.failure(401, "Unauthorized");
                 response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
+                response.getWriter().flush();
+                response.getWriter().close();
                 return; // 필터 체인 중단
             }
 

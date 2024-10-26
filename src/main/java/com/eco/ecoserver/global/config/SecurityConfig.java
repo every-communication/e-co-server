@@ -141,6 +141,8 @@ public class SecurityConfig {
 
         String jsonResponse = objectMapper.writeValueAsString(errorResponse);
         response.getWriter().write(jsonResponse);
+        response.getWriter().flush();
+        response.getWriter().close();
     }
     @Bean
     public PasswordEncoder passwordEncoder() {
