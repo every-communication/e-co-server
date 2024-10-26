@@ -35,7 +35,7 @@ public class RoomController {
         return user.map(value -> {
             ResponseEntity<?> room = roomService.getRoom(code, value.getId());
             if(room.getStatusCode().equals(HttpStatus.OK)){
-                return ResponseEntity.ok(ApiResponseDto.success(room.getBody()));
+                return room;
             }
             else{
                 return room;
