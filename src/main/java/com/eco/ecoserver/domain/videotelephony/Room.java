@@ -27,6 +27,12 @@ public class Room {
     @Column(name = "user2_id")
     private Long user2Id;
 
+    @Column(name = "owner_id")
+    private Long ownerId;
+
+    @Column(name = "friend_id")
+    private Long friendId;
+
     @Column(name = "mic1")
     private boolean mic1;
 
@@ -65,6 +71,13 @@ public class Room {
     }
 
 
+    public void setOwnerId(Long ownerId){
+        this.ownerId = ownerId;
+    }
+
+    public void setFriendId(Long friendId){
+        this.friendId = friendId;
+    }
     public void setDeletedAt(LocalDateTime deletedAt){
         this.deletedAt = deletedAt;
     }
