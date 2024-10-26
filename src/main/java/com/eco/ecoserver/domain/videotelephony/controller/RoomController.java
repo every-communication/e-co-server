@@ -33,7 +33,7 @@ public class RoomController {
 
         Optional<User> user = userService.findByEmail(email.get());
         return user.map(value -> {
-            ResponseEntity<?> room = roomService.getRoom(code, value);
+            ResponseEntity<?> room = roomService.getRoom(code, value.getId());
             if(room.getStatusCode().equals(HttpStatus.OK)){
                 return ResponseEntity.ok(ApiResponseDto.success(room.getBody()));
             }
@@ -54,7 +54,7 @@ public class RoomController {
 
         Optional<User> user = userService.findByEmail(email.get());
         return user.map(value -> {
-            Room room = roomService.createRoom(value);
+            Room room = roomService.createRoom(value.getId());
             return ResponseEntity.ok(ApiResponseDto.success(room));
         }).orElseGet(() -> ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorized")));
     }
@@ -68,7 +68,7 @@ public class RoomController {
 
         Optional<User> user = userService.findByEmail(email.get());
         return user.map(value -> {
-            Room room = roomService.createRoomWithFriend(value, friendId);
+            Room room = roomService.createRoomWithFriend(value.getId(), friendId);
             return ResponseEntity.ok(ApiResponseDto.success(room));
         }).orElseGet(() -> ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorized")));
     }
@@ -111,7 +111,7 @@ public class RoomController {
 
         Optional<User> user = userService.findByEmail(email.get());
         return user.map(value -> {
-            Room room = roomService.leaveRoom(code, value);
+            Room room = roomService.leaveRoom(code, value.getId());
             return ResponseEntity.ok(ApiResponseDto.success(room));
         }).orElseGet(() -> ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorized")));
     }

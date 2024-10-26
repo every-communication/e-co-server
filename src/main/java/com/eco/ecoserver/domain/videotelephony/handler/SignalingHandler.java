@@ -24,21 +24,17 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SignalingHandler extends TextWebSocketHandler {
 
     private final ObjectMapper objectMapper = new ObjectMapper()
-            .registerModule(new JavaTimeModule())  // LocalDateTime 처리를 위한 모듈 추가
-            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);  // ISO-8601 형식으로 날짜 직렬화
+            .registerModule(new JavaTimeModule())
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
     private final Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
-    private final RoomService roomService;
-    private final UserService userService;
-    private final UserRepository userRepository;
-
-
+    private final RoomService roomService;  // roomService만 필요
 
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
         Map<String, Object> payload = objectMapper.readValue(message.getPayload(), Map.class);
         String type = (String) payload.get("type");
-        // Integer를 Long으로 안전하게 변환
+
         Object userIdObj = payload.get("userId");
         Long userId = null;
         if (userIdObj != null) {
@@ -47,14 +43,6 @@ public class SignalingHandler extends TextWebSocketHandler {
             } else if (userIdObj instanceof Long) {
                 userId = (Long) userIdObj;
             }
-        }
-        User user = getUserFromSession(session);
-        if (user == null) {
-            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(Map.of(
-                    "type", "error",
-                    "message", "Unauthorized"
-            ))));
-            return;
         }
 
         switch (type) {
@@ -73,28 +61,19 @@ public class SignalingHandler extends TextWebSocketHandler {
                 handleSignaling(session, payload);
                 break;
             case "getRooms":
-                sendRoomList(session);
+                sendRoomList(session, userId);
                 break;
         }
     }
 
-    private User getUserFromSession(WebSocketSession session) {
-        String email = (String) session.getAttributes().get("email");
-        if (email != null) {
-            return userService.findByEmail(email).orElse(null);
-        }
-        return null;
-    }
-
     private void handleCreateRoom(WebSocketSession session, Long userId) throws IOException {
         try {
-            User user = userRepository.getReferenceById(userId);
-            Room room = roomService.createRoom(user);
+            Room room = roomService.createRoom(userId);  // User 객체 대신 userId만 전달
             session.sendMessage(new TextMessage(objectMapper.writeValueAsString(Map.of(
                     "type", "roomCreated",
                     "room", room
             ))));
-            sendRoomList(null);
+            sendRoomList(null, userId);
         } catch (RuntimeException e) {
             session.sendMessage(new TextMessage(objectMapper.writeValueAsString(Map.of(
                     "type", "error",
@@ -105,14 +84,13 @@ public class SignalingHandler extends TextWebSocketHandler {
 
     private void handleJoinRoom(WebSocketSession session, String roomCode, Long userId) throws IOException {
         try {
-            User user = userRepository.getReferenceById(userId);
-            Room room = roomService.joinRoom(roomCode, user.getId());
+            Room room = roomService.joinRoom(roomCode, userId);  // User 객체 대신 userId만 전달
             sessions.put(session.getId(), session);
             session.sendMessage(new TextMessage(objectMapper.writeValueAsString(Map.of(
                     "type", "joinedRoom",
                     "room", room
             ))));
-            sendRoomList(null);
+            sendRoomList(null, userId);
         } catch (RuntimeException e) {
             session.sendMessage(new TextMessage(objectMapper.writeValueAsString(Map.of(
                     "type", "error",
@@ -122,16 +100,15 @@ public class SignalingHandler extends TextWebSocketHandler {
     }
 
     private void handleLeaveRoom(WebSocketSession session, String roomCode, Long userId) throws IOException {
-        User user = userRepository.getReferenceById(userId);
-        Room room = roomService.leaveRoom(roomCode, user);
+        Room room = roomService.leaveRoom(roomCode, userId);  // User 객체 대신 userId만 전달
         sessions.remove(session.getId());
-        sendRoomList(null);
-        // Notify other participants in the room
+        sendRoomList(null, userId);
+
         for (WebSocketSession s : sessions.values()) {
             s.sendMessage(new TextMessage(objectMapper.writeValueAsString(Map.of(
                     "type", "participantLeft",
                     "room", room,
-                    "userId", user.getId()
+                    "userId", userId
             ))));
         }
     }
@@ -147,7 +124,7 @@ public class SignalingHandler extends TextWebSocketHandler {
         }
     }
 
-    private void sendRoomList(WebSocketSession session) throws IOException {
+    private void sendRoomList(WebSocketSession session, Long userId) throws IOException {
         List<Room> rooms = roomService.getAllRooms();
         String messageJson = objectMapper.writeValueAsString(Map.of(
                 "type", "roomList",
@@ -165,7 +142,7 @@ public class SignalingHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        sendRoomList(session);
+        // 필요한 초기화 작업
     }
 
     @Override
