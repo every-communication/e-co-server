@@ -6,6 +6,8 @@ import com.eco.ecoserver.domain.user.service.UserService;
 import com.eco.ecoserver.domain.videotelephony.Room;
 import com.eco.ecoserver.domain.videotelephony.service.RoomService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
@@ -21,7 +23,10 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class SignalingHandler extends TextWebSocketHandler {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper()
+            .registerModule(new JavaTimeModule())  // LocalDateTime 처리를 위한 모듈 추가
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);  // ISO-8601 형식으로 날짜 직렬화
+
     private final Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
     private final RoomService roomService;
     private final UserService userService;

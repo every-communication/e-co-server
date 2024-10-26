@@ -91,6 +91,9 @@ dependencies {
 	implementation 'com.github.downgoon:marvin:1.5.5'
 	implementation 'com.github.downgoon:MarvinPlugins:1.5.5'
 
+	//LocalDateTime 오류 수정 위해
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
 }
 
 tasks.named('test') {
