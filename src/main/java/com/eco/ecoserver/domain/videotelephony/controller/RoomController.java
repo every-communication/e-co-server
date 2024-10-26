@@ -111,7 +111,7 @@ public class RoomController {
 
         Optional<User> user = userService.findByEmail(email.get());
         return user.map(value -> {
-            Room room = roomService.leaveRoom(code, value.getId());
+            Room room = roomService.leaveRoom(code, value);
             return ResponseEntity.ok(ApiResponseDto.success(room));
         }).orElseGet(() -> ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorized")));
     }
