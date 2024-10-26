@@ -8,6 +8,7 @@ import com.eco.ecoserver.global.dto.ApiResponseDto;
 import com.eco.ecoserver.global.jwt.service.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,12 +17,33 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/rooms")
+@RequestMapping("/rooms")
 public class RoomController {
 
     private final RoomService roomService;
     private final JwtService jwtService;
     private final UserService userService;
+
+    @GetMapping("/{code}")
+    public ResponseEntity<?> getRoom(HttpServletRequest request, @PathVariable("code")String code){
+        Optional<String> email = jwtService.extractEmailFromToken(request);
+        if (email.isEmpty()) {
+            return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorized"));
+        }
+
+        Optional<User> user = userService.findByEmail(email.get());
+        return user.map(value -> {
+            ResponseEntity<?> room = roomService.getRoom(code, value);
+            if(room.getStatusCode().equals(HttpStatus.OK)){
+                return ResponseEntity.ok(ApiResponseDto.success(room.getBody()));
+            }
+            else{
+                return room;
+            }
+
+        }).orElseGet(() -> ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorized")));
+
+    }
 
     @PostMapping
     public ResponseEntity<ApiResponseDto<Room>> createRoom(HttpServletRequest request) {

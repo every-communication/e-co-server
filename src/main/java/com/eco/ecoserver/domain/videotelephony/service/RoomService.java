@@ -4,8 +4,10 @@ package com.eco.ecoserver.domain.videotelephony.service;
 import com.eco.ecoserver.domain.user.User;
 import com.eco.ecoserver.domain.videotelephony.Room;
 import com.eco.ecoserver.domain.videotelephony.repository.RoomRepository;
+import com.eco.ecoserver.global.dto.ApiResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -98,5 +100,25 @@ public class RoomService {
     }
 
 
+    public ResponseEntity<?> getRoom(String code, User user) {
+        return roomRepository.findByCode(code)
+                .map(room -> {
+                    if (room.getDeletedAt() != null) {
+                        return ResponseEntity.status(400)
+                                .body(ApiResponseDto.failure(400, "Room is deleted"));
+                    }
+
+                    // user1Id와 user2Id가 모두 존재하고, 현재 유저가 둘 다 아닌 경우
+                    if (room.getUser1Id() != null && room.getUser2Id() != null &&
+                            !room.getUser1Id().equals(user.getId()) && !room.getUser2Id().equals(user.getId())) {
+                        return ResponseEntity.status(400)
+                                .body(ApiResponseDto.failure(400, "You are not a participant of this room"));
+                    }
+
+                    return ResponseEntity.ok(ApiResponseDto.success(room));
+                })
+                .orElseGet(() -> ResponseEntity.status(400)
+                        .body(ApiResponseDto.failure(400, "Room not found")));
+    }
 }
 
