@@ -27,15 +27,15 @@ public class RoomService {
 
     public Room createRoom(User user) {
         Room room = new Room();
-        room.updateUser1(user.getId());
+        room.setOwnerId(user.getId());
         room.setCode(UUID.randomUUID().toString());
         return roomRepository.save(room);
     }
 
     public Room createRoomWithFriend(User user, Long friendId) {
         Room room = new Room();
-        room.updateUser1(user.getId());
-        room.updateUser2(friendId);
+        room.setOwnerId(user.getId());
+        room.setFriendId(friendId);
         room.setCode(UUID.randomUUID().toString());
         return roomRepository.save(room);
     }
