@@ -20,21 +20,18 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class RoomService {
 
-
     private final RoomRepository roomRepository;
 
-
-
-    public Room createRoom(User user) {
+    public Room createRoom(Long userId) {
         Room room = new Room();
-        room.setOwnerId(user.getId());
+        room.setOwnerId(userId);
         room.setCode(UUID.randomUUID().toString());
         return roomRepository.save(room);
     }
 
-    public Room createRoomWithFriend(User user, Long friendId) {
+    public Room createRoomWithFriend(Long userId, Long friendId) {
         Room room = new Room();
-        room.setOwnerId(user.getId());
+        room.setOwnerId(userId);
         room.setFriendId(friendId);
         room.setCode(UUID.randomUUID().toString());
         return roomRepository.save(room);
@@ -57,10 +54,11 @@ public class RoomService {
     }
 
     public Room joinRoom(String code, Long userId) {
-        Room room = roomRepository.findByCode(code).orElseThrow(() -> new RuntimeException("Room not found"));
-        if (room.getUser1Id() == null|| !room.getUser1Id().equals(userId)) {
+        Room room = roomRepository.findByCode(code)
+                .orElseThrow(() -> new RuntimeException("Room not found"));
+        if (room.getUser1Id() == null || !room.getUser1Id().equals(userId)) {
             room.updateUser1(userId);
-        } else if (room.getUser2Id() == null|| !room.getUser2Id().equals(userId)) {
+        } else if (room.getUser2Id() == null || !room.getUser2Id().equals(userId)) {
             room.updateUser2(userId);
         } else {
             throw new RuntimeException("Room is full");
@@ -68,29 +66,27 @@ public class RoomService {
         return roomRepository.save(room);
     }
 
-    public Room leaveRoom(String code, User user) {
-        Room room = roomRepository.findByCode(code).orElseThrow(() -> new RuntimeException("존재하지 않는 방입니다."));
-        if (room.getUser1Id().equals(user.getId())) {
+    public Room leaveRoom(String code, Long userId) {
+        Room room = roomRepository.findByCode(code)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 방입니다."));
+        if (room.getUser1Id() != null && room.getUser1Id().equals(userId)) {
             room.updateUser1(null);
-//            room.setMic1(false);
-//            room.setCam1(false);
-        } else if (room.getUser2Id().equals(user.getId())) {
+        } else if (room.getUser2Id() != null && room.getUser2Id().equals(userId)) {
             room.updateUser2(null);
-//            room.setMic2(false);
-//            room.setCam2(false);
         }
-        if(room.getUser1Id()==null&&room.getUser2Id()==null){
+        if(room.getUser1Id() == null && room.getUser2Id() == null) {
             room.setDeletedAt(LocalDateTime.now());
         }
         return roomRepository.save(room);
     }
 
     public Room updateMediaStatus(String code, Long userId, boolean mic, boolean cam) {
-        Room room = roomRepository.findByCode(code).orElseThrow(() -> new RuntimeException("Room not found"));
-        if (room.getUser1Id().equals(userId)) {
+        Room room = roomRepository.findByCode(code)
+                .orElseThrow(() -> new RuntimeException("Room not found"));
+        if (room.getUser1Id() != null && room.getUser1Id().equals(userId)) {
             room.updateMic1(mic);
             room.updateCam1(cam);
-        } else if (room.getUser2Id().equals(userId)) {
+        } else if (room.getUser2Id() != null && room.getUser2Id().equals(userId)) {
             room.updateMic2(mic);
             room.updateCam2(cam);
         } else {
@@ -99,8 +95,7 @@ public class RoomService {
         return roomRepository.save(room);
     }
 
-
-    public ResponseEntity<?> getRoom(String code, User user) {
+    public ResponseEntity<?> getRoom(String code, Long userId) {
         return roomRepository.findByCode(code)
                 .map(room -> {
                     if (room.getDeletedAt() != null) {
@@ -110,7 +105,7 @@ public class RoomService {
 
                     // user1Id와 user2Id가 모두 존재하고, 현재 유저가 둘 다 아닌 경우
                     if (room.getUser1Id() != null && room.getUser2Id() != null &&
-                            !room.getUser1Id().equals(user.getId()) && !room.getUser2Id().equals(user.getId())) {
+                            !room.getUser1Id().equals(userId) && !room.getUser2Id().equals(userId)) {
                         return ResponseEntity.status(400)
                                 .body(ApiResponseDto.failure(400, "접속할 수 있는 방이 아닙니다."));
                     }
