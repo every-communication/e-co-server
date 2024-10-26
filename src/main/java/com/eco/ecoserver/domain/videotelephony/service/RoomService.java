@@ -116,5 +116,19 @@ public class RoomService {
                 .orElseGet(() -> ResponseEntity.status(404)
                         .body(ApiResponseDto.failure(404, "존재하지 않는 방입니다.")));
     }
+
+    public Long getFriendId(String code, Long userId) {
+        Optional<Room> room  = roomRepository.findByCode(code);
+        if(room.isPresent()){
+            Room room1 = room.get();
+            if(!room1.getUser1Id().equals(userId)){
+                return room1.getUser1Id();
+            }
+            if(!room1.getUser2Id().equals(userId)){
+                return room1.getUser2Id();
+            }
+        }
+        return null;
+    }
 }
 
