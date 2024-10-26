@@ -89,7 +89,7 @@ async function setupLocalStream() {
     try {
       localStream = await navigator.mediaDevices.getUserMedia({
         video: true,
-        audio: true
+        audio: true,
       });
       localVideo.srcObject = localStream;
       localVideo.muted = true; // Mute local video to prevent echo
@@ -106,7 +106,9 @@ function updateRoomList(rooms) {
   rooms.forEach((room) => {
     const li = document.createElement("li");
     const joinButton = document.createElement("button");
-    joinButton.textContent = `Join ${room.code} (${(room.user1Id ? 1 : 0) + (room.user2Id ? 1 : 0)}/2)`;
+    joinButton.textContent = `Join ${room.code} (${
+      (room.user1Id ? 1 : 0) + (room.user2Id ? 1 : 0)
+    }/2)`;
     joinButton.onclick = () => joinRoom(room.code);
     joinButton.disabled = room.user1Id && room.user2Id;
     li.appendChild(joinButton);
@@ -125,11 +127,13 @@ async function createPeerConnection() {
 
   peerConnection.onicecandidate = (event) => {
     if (event.candidate) {
-      signalingSocket.send(JSON.stringify({
-        type: "candidate",
-        candidate: event.candidate,
-        room: currentRoom,
-      }));
+      signalingSocket.send(
+        JSON.stringify({
+          type: "candidate",
+          candidate: event.candidate,
+          room: currentRoom,
+        })
+      );
     }
   };
 
@@ -151,7 +155,8 @@ async function createPeerConnection() {
 }
 
 function handleRemoteStream(stream) {
-  const remoteVideo = document.getElementById("remoteVideo") || document.createElement("video");
+  const remoteVideo =
+    document.getElementById("remoteVideo") || document.createElement("video");
   remoteVideo.id = "remoteVideo";
   remoteVideo.autoplay = true;
   remoteVideo.playsinline = true;
@@ -167,11 +172,13 @@ async function createOffer() {
   const offer = await peerConnection.createOffer();
   await peerConnection.setLocalDescription(offer);
 
-  signalingSocket.send(JSON.stringify({
-    type: "offer",
-    offer: offer,
-    room: currentRoom,
-  }));
+  signalingSocket.send(
+    JSON.stringify({
+      type: "offer",
+      offer: offer,
+      room: currentRoom,
+    })
+  );
 }
 
 async function handleOffer(from, offer) {
@@ -181,17 +188,21 @@ async function handleOffer(from, offer) {
   const answer = await peerConnection.createAnswer();
   await peerConnection.setLocalDescription(answer);
 
-  signalingSocket.send(JSON.stringify({
-    type: "answer",
-    answer: answer,
-    room: currentRoom,
-  }));
+  signalingSocket.send(
+    JSON.stringify({
+      type: "answer",
+      answer: answer,
+      room: currentRoom,
+    })
+  );
 }
 
 async function handleAnswer(from, answer) {
   console.log(`Handling answer from ${from}`);
   if (peerConnection) {
-    await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+    await peerConnection.setRemoteDescription(
+      new RTCSessionDescription(answer)
+    );
   } else {
     console.error("No peer connection found");
   }
@@ -223,12 +234,14 @@ function handleParticipantLeft(userId) {
     remoteVideo.remove();
   }
 
-  alert("The other participant has left the room. You can wait for someone else to join or leave the room.");
+  alert(
+    "The other participant has left the room. You can wait for someone else to join or leave the room."
+  );
 }
 
 async function createRoom() {
   try {
-    const response = await fetch(`${apiBaseUrl}/rooms`, { method: 'POST' });
+    const response = await fetch(`${apiBaseUrl}/rooms`, { method: "POST" });
     const room = await response.json();
     console.log("Room created:", room);
     currentRoom = room.code;
@@ -244,16 +257,21 @@ async function joinRoom(roomCode) {
   }
 
   try {
-    const response = await fetch(`${apiBaseUrl}/rooms/${roomCode}/join?userId=${currentUserId}`, { method: 'POST' });
+    const response = await fetch(
+      `${apiBaseUrl}/rooms/${roomCode}/join?userId=${currentUserId}`,
+      { method: "POST" }
+    );
     const room = await response.json();
     console.log("Joined room:", room);
     currentRoom = room.code;
 
-    signalingSocket.send(JSON.stringify({
-      type: "joinRoom",
-      room: roomCode,
-      userId: currentUserId
-    }));
+    signalingSocket.send(
+      JSON.stringify({
+        type: "joinRoom",
+        room: roomCode,
+        userId: currentUserId,
+      })
+    );
 
     roomControls.style.display = "none";
     videoChat.style.display = "block";
@@ -265,13 +283,18 @@ async function joinRoom(roomCode) {
 async function leaveRoom() {
   if (currentRoom && currentUserId) {
     try {
-      await fetch(`${apiBaseUrl}/rooms/${currentRoom}/leave?userId=${currentUserId}`, { method: 'POST' });
+      await fetch(
+        `${apiBaseUrl}/rooms/${currentRoom}/leave?userId=${currentUserId}`,
+        { method: "POST" }
+      );
 
-      signalingSocket.send(JSON.stringify({
-        type: "leaveRoom",
-        room: currentRoom,
-        userId: currentUserId
-      }));
+      signalingSocket.send(
+        JSON.stringify({
+          type: "leaveRoom",
+          room: currentRoom,
+          userId: currentUserId,
+        })
+      );
 
       resetRoomState();
     } catch (error) {
@@ -332,7 +355,10 @@ async function handleJoinedRoom(room) {
 async function updateMediaStatus(mic, cam) {
   if (currentRoom && currentUserId) {
     try {
-      await fetch(`${apiBaseUrl}/rooms/${currentRoom}/media?userId=${currentUserId}&mic=${mic}&cam=${cam}`, { method: 'PUT' });
+      await fetch(
+        `${apiBaseUrl}/rooms/${currentRoom}/media?userId=${currentUserId}&mic=${mic}&cam=${cam}`,
+        { method: "PUT" }
+      );
 
       // Update local stream
       localStream.getAudioTracks()[0].enabled = mic;
