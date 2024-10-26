@@ -46,6 +46,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
         add("/login");
         add("/oauth2");
         add("/health");
+        add("/signal");
     }};
 
     private final JwtService jwtService;
