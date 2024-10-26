@@ -13,7 +13,7 @@ const videoChat = document.getElementById("videoChat");
 let localStream;
 let peerConnection = null;
 const signalingServerUrl = "ws://localhost:8080/signal";
-const apiBaseUrl = "http://localhost:8080/api";
+const apiBaseUrl = "http://localhost:8080";
 
 let signalingSocket = null;
 let reconnectAttempts = 0;

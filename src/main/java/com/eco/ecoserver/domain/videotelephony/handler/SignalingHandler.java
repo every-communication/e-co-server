@@ -1,10 +1,12 @@
 package com.eco.ecoserver.domain.videotelephony.handler;
 
 import com.eco.ecoserver.domain.user.User;
+import com.eco.ecoserver.domain.user.repository.UserRepository;
 import com.eco.ecoserver.domain.user.service.UserService;
 import com.eco.ecoserver.domain.videotelephony.Room;
 import com.eco.ecoserver.domain.videotelephony.service.RoomService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -16,23 +18,22 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
+@RequiredArgsConstructor
 public class SignalingHandler extends TextWebSocketHandler {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
     private final RoomService roomService;
     private final UserService userService;
+    private final UserRepository userRepository;
 
-    public SignalingHandler(RoomService roomService, UserService userService) {
-        this.roomService = roomService;
-        this.userService = userService;
-    }
+
 
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
         Map<String, Object> payload = objectMapper.readValue(message.getPayload(), Map.class);
         String type = (String) payload.get("type");
-
+        Long userId = (Long) payload.get("userId");
         User user = getUserFromSession(session);
         if (user == null) {
             session.sendMessage(new TextMessage(objectMapper.writeValueAsString(Map.of(
@@ -44,13 +45,13 @@ public class SignalingHandler extends TextWebSocketHandler {
 
         switch (type) {
             case "createRoom":
-                handleCreateRoom(session, user);
+                handleCreateRoom(session, userId);
                 break;
             case "joinRoom":
-                handleJoinRoom(session, (String) payload.get("room"), user);
+                handleJoinRoom(session, (String) payload.get("room"), userId);
                 break;
             case "leaveRoom":
-                handleLeaveRoom(session, (String) payload.get("room"), user);
+                handleLeaveRoom(session, (String) payload.get("room"), userId);
                 break;
             case "offer":
             case "answer":
@@ -71,8 +72,9 @@ public class SignalingHandler extends TextWebSocketHandler {
         return null;
     }
 
-    private void handleCreateRoom(WebSocketSession session, User user) throws IOException {
+    private void handleCreateRoom(WebSocketSession session, Long userId) throws IOException {
         try {
+            User user = userRepository.getReferenceById(userId);
             Room room = roomService.createRoom(user);
             session.sendMessage(new TextMessage(objectMapper.writeValueAsString(Map.of(
                     "type", "roomCreated",
@@ -87,8 +89,9 @@ public class SignalingHandler extends TextWebSocketHandler {
         }
     }
 
-    private void handleJoinRoom(WebSocketSession session, String roomCode, User user) throws IOException {
+    private void handleJoinRoom(WebSocketSession session, String roomCode, Long userId) throws IOException {
         try {
+            User user = userRepository.getReferenceById(userId);
             Room room = roomService.joinRoom(roomCode, user.getId());
             sessions.put(session.getId(), session);
             session.sendMessage(new TextMessage(objectMapper.writeValueAsString(Map.of(
@@ -104,8 +107,9 @@ public class SignalingHandler extends TextWebSocketHandler {
         }
     }
 
-    private void handleLeaveRoom(WebSocketSession session, String roomCode, User user) throws IOException {
-        Room room = roomService.leaveRoom(roomCode, user.getId());
+    private void handleLeaveRoom(WebSocketSession session, String roomCode, Long userId) throws IOException {
+        User user = userRepository.getReferenceById(userId);
+        Room room = roomService.leaveRoom(roomCode, user);
         sessions.remove(session.getId());
         sendRoomList(null);
         // Notify other participants in the room

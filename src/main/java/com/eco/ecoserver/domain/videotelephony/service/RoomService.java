@@ -68,13 +68,13 @@ public class RoomService {
         return roomRepository.save(room);
     }
 
-    public Room leaveRoom(String code, Long userId) {
-        Room room = roomRepository.findByCode(code).orElseThrow(() -> new RuntimeException("Room not found"));
-        if (room.getUser1Id().equals(userId)) {
+    public Room leaveRoom(String code, User user) {
+        Room room = roomRepository.findByCode(code).orElseThrow(() -> new RuntimeException("존재하지 않는 방입니다."));
+        if (room.getUser1Id().equals(user.getId())) {
             room.updateUser1(null);
 //            room.setMic1(false);
 //            room.setCam1(false);
-        } else if (room.getUser2Id().equals(userId)) {
+        } else if (room.getUser2Id().equals(user.getId())) {
             room.updateUser2(null);
 //            room.setMic2(false);
 //            room.setCam2(false);
