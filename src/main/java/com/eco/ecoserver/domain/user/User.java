@@ -22,6 +22,7 @@ public class User {
     private String password;
     @Setter
     private String nickname;
+    @Setter
     private String thumbnail; //imageUrl
 
     @Enumerated(EnumType.STRING)

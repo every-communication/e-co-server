@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserUpdateDto {
     private String nickname;
-    private String password;
+    private String thumbnail;
     private UserType userType;
 }

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 public class OAuthRegistrationDto {
+    private String thumbnail;
     private String nickname;
     private UserType userType;
 }

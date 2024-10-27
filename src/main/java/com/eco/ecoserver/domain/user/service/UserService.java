@@ -61,9 +61,7 @@ public class UserService {
             User user = userOptional.get();
             user.setNickname(userUpdateDto.getNickname());
             user.setUserType(userUpdateDto.getUserType());
-            if(userUpdateDto.getPassword() != null) {
-                user.setPassword(passwordEncoder.encode(userUpdateDto.getPassword()));
-            }
+            user.setThumbnail(userUpdateDto.getThumbnail());
             user = userRepository.save(user);
 
             return new UserInfoDto(user);
@@ -107,6 +105,7 @@ public class UserService {
         Optional<User> userOptional = findByEmail(email);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
+            user.setThumbnail(oauthRegistrationDto.getThumbnail());
             user.setNickname(oauthRegistrationDto.getNickname());
             user.setUserType(oauthRegistrationDto.getUserType());
             user.authorizeUser(); // Change role to USER
