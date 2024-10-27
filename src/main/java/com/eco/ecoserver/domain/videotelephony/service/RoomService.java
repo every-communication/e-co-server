@@ -121,12 +121,17 @@ public class RoomService {
         Optional<Room> room  = roomRepository.findByCode(code);
         if(room.isPresent()){
             Room room1 = room.get();
-            if(!room1.getUser1Id().equals(userId)){
-                return room1.getUser1Id();
+            if(room1.getUser1Id()!=null){
+                if(!room1.getUser1Id().equals(userId)){
+                    return room1.getUser1Id();
+                }
             }
-            if(!room1.getUser2Id().equals(userId)){
-                return room1.getUser2Id();
+            if(room1.getUser2Id()!=null){
+                if(!room1.getUser2Id().equals(userId)){
+                    return room1.getUser2Id();
+                }
             }
+
         }
         return null;
     }
