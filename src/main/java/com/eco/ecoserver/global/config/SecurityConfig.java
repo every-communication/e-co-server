@@ -80,7 +80,7 @@ public class SecurityConfig {
                 // 아이콘, css, js 관련
                 // 기본 페이지, css, image, js 하위 폴더에 있는 자료들은 모두 접근 가능
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/index.html").permitAll()
+                        .requestMatchers("/", "/css/**", "/js/**", "/favicon.ico", "/index.html").permitAll()
                         .requestMatchers("/api-docs/**", "/swagger-ui/**").permitAll()
                         .requestMatchers("/auth/**", "/login/**", "/oauth2/**", "/health", "/favicon.ico/").permitAll()
                         .requestMatchers("/signal").permitAll()

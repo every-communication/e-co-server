@@ -5,6 +5,7 @@ import com.eco.ecoserver.domain.user.repository.UserSocialRepository;
 import com.eco.ecoserver.global.jwt.service.JwtService;
 import com.eco.ecoserver.global.oauth2.CustomOAuth2User;
 import com.eco.ecoserver.global.oauth2.service.CustomOAuth2UserService;
+import com.eco.ecoserver.global.oauth2.service.OAuthImageService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -27,14 +28,16 @@ public class KakaoLoginService {
     private final UserRepository userRepository;
     private final UserSocialRepository userSocialRepository;
     private final JwtService jwtService;
+    private final OAuthImageService oAuthImageService;
 
     public KakaoLoginService(KakaoLoginProperties kakaoLoginProperties, ObjectMapper objectMapper, JwtService jwtService,
-                             UserRepository userRepository, UserSocialRepository userSocialRepository) {
+                             UserRepository userRepository, UserSocialRepository userSocialRepository, OAuthImageService oAuthImageService) {
         this.kakaoLoginProperties = kakaoLoginProperties;
         this.objectMapper = objectMapper;
         this.jwtService = jwtService;
         this.userRepository = userRepository;
         this.userSocialRepository = userSocialRepository;
+        this.oAuthImageService = oAuthImageService;
     }
 
     /**
@@ -88,7 +91,7 @@ public class KakaoLoginService {
         OAuth2UserRequest userRequest = new OAuth2UserRequest(clientRegistration, accessToken);
 
         // CustomOAuth2UserService를 사용하여 사용자 정보 로드
-        CustomOAuth2UserService userService = new CustomOAuth2UserService(userRepository, userSocialRepository, jwtService);
+        CustomOAuth2UserService userService = new CustomOAuth2UserService(userRepository, userSocialRepository, jwtService, oAuthImageService);
         OAuth2User oAuth2User = userService.loadUser(userRequest);
 
         return oAuth2User;
