@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -52,6 +53,9 @@ public class SignalingHandler extends TextWebSocketHandler {
                 }
             }
             String msg = (String) payload.get("message");
+            boolean mic = (boolean) payload.get("mic");
+            boolean cam = (boolean) payload.get("cam");
+
 
             switch (type) {
                 case "createRoom":
@@ -74,6 +78,9 @@ public class SignalingHandler extends TextWebSocketHandler {
                 case "translation":
                     translateSignLangauge(session,(String) payload.get("room"), userId,msg);
                     break;
+                case "changeMedia":
+                    changeMedia(session,(String) payload.get("room"), userId, cam, mic);
+                    break;
                 default:
                     logger.error("Unknown message type: {}", type);
                     break;
@@ -88,6 +95,24 @@ public class SignalingHandler extends TextWebSocketHandler {
             } catch (IOException ex) {
                 logger.error("Error sending error message to client", ex);
             }
+        }
+    }
+
+    private void changeMedia(WebSocketSession session, String code, Long userId, boolean cam, boolean mic) throws IOException{
+        try {
+
+            roomService.updateMediaStatus(code, userId, mic, cam);
+            Optional<Room> room = roomService.findRoomByCode(code);
+            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(Map.of(
+                    "type", "changedMedia",
+                    "room", room.get()
+            ))));
+            sendRoomList(null, userId);
+        } catch (RuntimeException e) {
+            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(Map.of(
+                    "type", "error",
+                    "message", e.getMessage()
+            ))));
         }
     }
 
