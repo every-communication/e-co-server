@@ -31,7 +31,10 @@ public class S3UploadService {
     private String bucket;
 
     @Value("${spring.servlet.multipart.max-file-size}")
-    private long maxFileSize; // 최대 파일 크기 (바이트 단위)
+    private long maxFileSize;
+
+    @Value("${cloud.aws.cloudfront.domain}")
+    private String cloudfrontDomain;
 
     public String upload(MultipartFile multipartFile, String dirName) throws IOException {
         File uploadFile = convert(multipartFile)
@@ -41,16 +44,19 @@ public class S3UploadService {
 
     private String upload(File uploadFile, String dirName, String originalName) {
         String fileName = dirName + "/" + UUID.randomUUID() + originalName;
-        String uploadImageUrl = putS3(uploadFile, fileName);
+        putS3(uploadFile, fileName);
         removeNewFile(uploadFile);
-        return uploadImageUrl;
+        return getCloudFrontUrl(fileName);
     }
 
-    private String putS3(File uploadFile, String fileName) {
+    private void putS3(File uploadFile, String fileName) {
         amazonS3Client.putObject(
                 new PutObjectRequest(bucket, fileName, uploadFile)
         );
-        return amazonS3Client.getUrl(bucket, fileName).toString();
+    }
+
+    private String getCloudFrontUrl(String fileName) {
+        return String.format("https://%s/%s", cloudfrontDomain, fileName);
     }
 
     private void removeNewFile(File targetFile) {
@@ -154,9 +160,11 @@ public class S3UploadService {
 
             File uploadFile = convert(resizedFile)
                     .orElseThrow(() -> new IllegalArgumentException("MultipartFile -> File 전환 실패"));
-            String uploadedFileUrl = upload(uploadFile, dirName, fileName);
+            String cloudfrontUrl = upload(uploadFile, dirName, fileName);
 
-            return ResponseEntity.ok(uploadedFileUrl);
+            log.info("Uploaded to CloudFront: {}", cloudfrontUrl);
+            return ResponseEntity.ok(cloudfrontUrl);
+
         } catch (IOException e) {
             log.error("File upload failed", e);
             return ResponseEntity

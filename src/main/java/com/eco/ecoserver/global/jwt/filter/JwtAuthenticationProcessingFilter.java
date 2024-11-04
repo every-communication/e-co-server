@@ -36,6 +36,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     private static final Set<String> NO_CHECK_URL = new HashSet<>() {{
         add("/");
         add("/css");
+        add("/images");
         add("/js");
         add("/favicon.ico");
         add("/index.html");
