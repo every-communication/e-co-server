@@ -38,6 +38,7 @@ public class UserService {
                 .email(userSignUpDto.getEmail())
                 .password(userSignUpDto.getPassword())
                 .nickname(userSignUpDto.getNickname())
+                .thumbnail(userSignUpDto.getThumbnail())
                 .role(Role.USER)
                 .userType(userSignUpDto.getUserType())
                 .build();
