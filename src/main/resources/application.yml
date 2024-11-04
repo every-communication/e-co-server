@@ -38,6 +38,8 @@ springdoc:
 
 cloud:
   aws:
+    cloudfront:
+      domain: images.e-co.rldnd.net
     credentials:
       access-key: ${AWS_ACCESS_KEY}
       secret-key: ${AWS_SECRET_KEY}

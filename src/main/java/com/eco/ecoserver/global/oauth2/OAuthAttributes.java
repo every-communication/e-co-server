@@ -1,17 +1,28 @@
 package com.eco.ecoserver.global.oauth2;
 
+import com.eco.ecoserver.domain.image.URLMultipartFile;
+import com.eco.ecoserver.domain.image.service.S3UploadService;
 import com.eco.ecoserver.domain.user.Role;
 import com.eco.ecoserver.domain.user.SocialType;
 import com.eco.ecoserver.domain.user.User;
 import com.eco.ecoserver.domain.user.UserSocial;
+import com.eco.ecoserver.global.oauth2.service.OAuthImageService;
 import com.eco.ecoserver.global.oauth2.userinfo.GoogleOAuth2UserInfo;
 import com.eco.ecoserver.global.oauth2.userinfo.KakaoOAuth2UserInfo;
 import com.eco.ecoserver.global.oauth2.userinfo.NaverOAuth2UserInfo;
 import com.eco.ecoserver.global.oauth2.userinfo.OAuth2UserInfo;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.Map;
 import java.util.UUID;
 
@@ -22,56 +33,57 @@ import java.util.UUID;
 @Builder
 @Getter
 @ToString
+@RequiredArgsConstructor
 public class OAuthAttributes {
-    private String nameAttributeKey;
-    private OAuth2UserInfo oauth2UserInfo;
-    private String provider;
+    private final String nameAttributeKey;
+    private final OAuth2UserInfo oauth2UserInfo;
+    private final OAuthImageService oAuthImageService;
 
-    /**
-     * SocialType에 맞는 메소드 호출하여 OAuthAttributes 객체 반환
-     * 파라미터 : userNameAttributeName -> OAuth2 로그인 시 키(PK)가 되는 값 / attributes : OAuth 서비스의 유저 정보들
-     * 소셜별 of 메소드(ofGoogle, ofKaKao, ofNaver)들은 각각 소셜 로그인 API에서 제공하는
-     * 회원의 식별값(id), attributes, nameAttributeKey를 저장 후 build
-     */
-    public static OAuthAttributes of(SocialType socialType, String userNameAttributeName, Map<String, Object> attributes) {
+    public static OAuthAttributes of(SocialType socialType,
+                                     String userNameAttributeName,
+                                     Map<String, Object> attributes,
+                                     OAuthImageService oAuthImageService) {
         switch (socialType) {
             case GOOGLE:
-                return ofGoogle(userNameAttributeName, attributes);
+                return ofGoogle(userNameAttributeName, attributes, oAuthImageService);
             case KAKAO:
-                return ofKakao(userNameAttributeName, attributes);
+                return ofKakao(userNameAttributeName, attributes, oAuthImageService);
             case NAVER:
-                return ofNaver(userNameAttributeName, attributes);
+                return ofNaver(userNameAttributeName, attributes, oAuthImageService);
             default:
-                throw new RuntimeException(); // TODO: 에러 메시지
+                throw new RuntimeException("Unsupported social type");
         }
     }
 
-    private static OAuthAttributes ofGoogle(String userNameAttributeName, Map<String, Object> attributes) {
+    private static OAuthAttributes ofGoogle(String userNameAttributeName,
+                                            Map<String, Object> attributes,
+                                            OAuthImageService oAuthImageService) {
         return OAuthAttributes.builder()
                 .nameAttributeKey(userNameAttributeName)
                 .oauth2UserInfo(new GoogleOAuth2UserInfo(attributes))
+                .oAuthImageService(oAuthImageService)
                 .build();
     }
 
-    private static OAuthAttributes ofNaver(String userNameAttributeName, Map<String, Object> attributes) {
-        return OAuthAttributes.builder()
-                .nameAttributeKey(userNameAttributeName)
-                .oauth2UserInfo(new NaverOAuth2UserInfo(attributes))
-                .build();
-    }
-
-    private static OAuthAttributes ofKakao(String userNameAttributeName, Map<String, Object> attributes) {
+    private static OAuthAttributes ofKakao(String userNameAttributeName,
+                                           Map<String, Object> attributes,
+                                           OAuthImageService oAuthImageService) {
         return OAuthAttributes.builder()
                 .nameAttributeKey(userNameAttributeName)
                 .oauth2UserInfo(new KakaoOAuth2UserInfo(attributes))
+                .oAuthImageService(oAuthImageService)
                 .build();
     }
-    /**
-     * of메소드로 OAuthAttributes 객체가 생성되어, 유저 정보들이 담긴 OAuth2UserInfo가 소셜 타입별로 주입된 상태
-     * OAuth2UserInfo에서 socialId(식별값), nickname, imageUrl을 가져와서 build
-     * email에는 UUID로 중복 없는 랜덤 값 생성
-     * role은 GUEST로 설정
-     */
+
+    private static OAuthAttributes ofNaver(String userNameAttributeName,
+                                           Map<String, Object> attributes,
+                                           OAuthImageService oAuthImageService) {
+        return OAuthAttributes.builder()
+                .nameAttributeKey(userNameAttributeName)
+                .oauth2UserInfo(new NaverOAuth2UserInfo(attributes))
+                .oAuthImageService(oAuthImageService)
+                .build();
+    }
 
     public User toEntity(SocialType socialType, OAuth2UserInfo oauth2UserInfo) {
         UserSocial userSocial = UserSocial.builder()
@@ -79,16 +91,18 @@ public class OAuthAttributes {
                 .socialId(oauth2UserInfo.getId())
                 .build();
 
-        // User 객체 생성 및 반환
+        // 소셜 프로필 이미지 URL을 S3에 업로드하고 새 URL 받기
+        String originalImageUrl = oauth2UserInfo.getImageUrl();
+        String thumbnailUrl = oAuthImageService.transferSocialProfileImage(originalImageUrl);
+
         User user = User.builder()
-                .nickname(oauth2UserInfo.getNickname())              // 닉네임
-                .email(oauth2UserInfo.getId() + "@" + socialType.name().toLowerCase() + ".com")                    // 이메일
-                .thumbnail(oauth2UserInfo.getImageUrl())
-                .role(Role.GUEST)                // 기본 역할 GUEST
-                .userSocial(userSocial)          // UserSocial과 연결
+                .nickname(oauth2UserInfo.getNickname())
+                .email(oauth2UserInfo.getId() + "@" + socialType.name().toLowerCase() + ".com")
+                .thumbnail(thumbnailUrl)
+                .role(Role.GUEST)
+                .userSocial(userSocial)
                 .build();
 
-        // UserSocial의 User 설정 (양방향 관계를 위해)
         userSocial.setUser(user);
         return user;
     }

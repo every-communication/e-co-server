@@ -34,16 +34,16 @@ public class Room {
     private Long friendId;
 
     @Column(name = "mic1")
-    private boolean mic1;
+    private boolean mic1 = true;  // 초기값 true
 
     @Column(name = "cam1")
-    private boolean cam1;
+    private boolean cam1 = true;  // 초기값 true
 
     @Column(name = "mic2")
-    private boolean mic2;
+    private boolean mic2 = true;  // 초기값 true
 
     @Column(name = "cam2")
-    private boolean cam2;
+    private boolean cam2 = true;  // 초기값 true
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -85,6 +85,8 @@ public class Room {
     public void setDeletedAt(LocalDateTime deletedAt){
         this.deletedAt = deletedAt;
     }
+
+
     public void updateUser1(Long userId){
         this.user1Id = userId;
     }

@@ -46,6 +46,9 @@ public class User {
             userSocial.setUser(this);
         }
     }
+    public void setThumbnail(String thumbnail){
+        this.thumbnail = thumbnail;
+    }
 
     public SocialType getSocialType() {
         return this.userSocial != null ? this.userSocial.getSocialType() : null;

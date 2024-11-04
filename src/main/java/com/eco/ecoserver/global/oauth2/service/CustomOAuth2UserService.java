@@ -39,6 +39,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final UserRepository userRepository;
     private final UserSocialRepository userSocialRepository;
     private final JwtService jwtService;
+    private final OAuthImageService oAuthImageService;
 
     private static final String NAVER = "naver";
     private static final String KAKAO = "kakao";
@@ -68,7 +69,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 .getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName(); // OAuth2 로그인 시 키(PK)가 되는 값
         Map<String, Object> attributes = oAuth2User.getAttributes(); // 소셜 로그인에서 API가 제공하는 userInfo의 Json 값(유저 정보들)
 
-        OAuthAttributes extractAttributes = OAuthAttributes.of(socialType, userNameAttributeName, attributes);
+        OAuthAttributes extractAttributes = OAuthAttributes.of(socialType, userNameAttributeName, attributes, oAuthImageService);
         log.info("oAuth2UserInfo");
 
         // 4. 유저가 저장되어 있는지 유저 정보 확인
