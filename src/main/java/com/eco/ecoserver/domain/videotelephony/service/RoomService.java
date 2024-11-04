@@ -26,6 +26,7 @@ public class RoomService {
         Room room = new Room();
         room.setOwnerId(userId);
         room.setCode(UUID.randomUUID().toString());
+
         return roomRepository.save(room);
     }
 
