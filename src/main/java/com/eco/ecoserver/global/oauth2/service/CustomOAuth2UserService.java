@@ -41,7 +41,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final JwtService jwtService;
     private final OAuthImageService oAuthImageService;
 
-    private static final String NAVER = "naver";
     private static final String KAKAO = "kakao";
     private static final String GOOGLE = "google";
 
@@ -89,9 +88,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     }
 
     private SocialType getSocialType(String provider) {
-        if(GOOGLE.equals(provider)) return SocialType.GOOGLE;
-        if(NAVER.equals(provider)) return SocialType.NAVER;
-        if(KAKAO.equals(provider)) return SocialType.KAKAO;
+        if(GOOGLE.equals(provider))
+            return SocialType.GOOGLE;
+        if(KAKAO.equals(provider))
+            return SocialType.KAKAO;
         return null;
     }
 

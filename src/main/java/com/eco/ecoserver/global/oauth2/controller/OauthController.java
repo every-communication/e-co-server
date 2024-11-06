@@ -29,11 +29,6 @@ public class OauthController {
     private final UserRepository userRepository;
     private final CustomOAuth2UserService customOAuth2UserService;
 
-    @GetMapping("/naver")
-    public void redirectToNaver(HttpServletResponse response) throws IOException {
-        response.sendRedirect("/oauth2/authorization/naver");
-    }
-
     @GetMapping("/google")
     public void redirectToGoogle(HttpServletResponse response) throws IOException {
         response.sendRedirect("/oauth2/authorization/google");

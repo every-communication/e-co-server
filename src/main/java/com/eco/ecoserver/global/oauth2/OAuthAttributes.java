@@ -9,7 +9,6 @@ import com.eco.ecoserver.domain.user.UserSocial;
 import com.eco.ecoserver.global.oauth2.service.OAuthImageService;
 import com.eco.ecoserver.global.oauth2.userinfo.GoogleOAuth2UserInfo;
 import com.eco.ecoserver.global.oauth2.userinfo.KakaoOAuth2UserInfo;
-import com.eco.ecoserver.global.oauth2.userinfo.NaverOAuth2UserInfo;
 import com.eco.ecoserver.global.oauth2.userinfo.OAuth2UserInfo;
 import lombok.Builder;
 import lombok.Getter;
@@ -48,8 +47,6 @@ public class OAuthAttributes {
                 return ofGoogle(userNameAttributeName, attributes, oAuthImageService);
             case KAKAO:
                 return ofKakao(userNameAttributeName, attributes, oAuthImageService);
-            case NAVER:
-                return ofNaver(userNameAttributeName, attributes, oAuthImageService);
             default:
                 throw new RuntimeException("Unsupported social type");
         }
@@ -71,16 +68,6 @@ public class OAuthAttributes {
         return OAuthAttributes.builder()
                 .nameAttributeKey(userNameAttributeName)
                 .oauth2UserInfo(new KakaoOAuth2UserInfo(attributes))
-                .oAuthImageService(oAuthImageService)
-                .build();
-    }
-
-    private static OAuthAttributes ofNaver(String userNameAttributeName,
-                                           Map<String, Object> attributes,
-                                           OAuthImageService oAuthImageService) {
-        return OAuthAttributes.builder()
-                .nameAttributeKey(userNameAttributeName)
-                .oauth2UserInfo(new NaverOAuth2UserInfo(attributes))
                 .oAuthImageService(oAuthImageService)
                 .build();
     }
