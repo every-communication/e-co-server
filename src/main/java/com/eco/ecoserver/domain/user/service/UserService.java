@@ -9,7 +9,10 @@ import com.eco.ecoserver.domain.user.dto.UserSignUpDto;
 import com.eco.ecoserver.domain.user.Role;
 import com.eco.ecoserver.domain.user.User;
 import com.eco.ecoserver.domain.user.repository.UserSocialRepository;
+import com.eco.ecoserver.global.jwt.service.JwtService;
 import com.eco.ecoserver.global.oauth2.dto.OAuthRegistrationDto;
+import io.jsonwebtoken.ExpiredJwtException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -27,6 +30,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserSocialRepository userSocialRepository;
+    private final JwtService jwtService;
 
     // 회원가입
     public void signUp(UserSignUpDto userSignUpDto) throws Exception {
@@ -56,28 +60,25 @@ public class UserService {
     }
 
     // 사용자 정보 업데이트
-    public UserInfoDto updateUser(Long id, UserUpdateDto userUpdateDto) throws Exception {
-        Optional<User> userOptional = userRepository.findById(id);
-        if(userOptional.isPresent()) {
-            User user = userOptional.get();
-            user.setNickname(userUpdateDto.getNickname());
-            user.setUserType(userUpdateDto.getUserType());
-            user.setThumbnail(userUpdateDto.getThumbnail());
-            user = userRepository.save(user);
+    public UserInfoDto updateUser(HttpServletRequest request, UserUpdateDto userUpdateDto) throws Exception {
+        User user = findUserFromRequest(request)
+                .orElseThrow(() -> new Exception("Unauthorized"));
 
-            return new UserInfoDto(user);
-        } else {
-            throw new Exception("사용자를 찾을 수 없습니다.");
+        if(userUpdateDto.getNickname() != null) {
+            user.setNickname(userUpdateDto.getNickname());
         }
+        user.setUserType(userUpdateDto.getUserType());
+        user = userRepository.save(user);
+
+        return new UserInfoDto(user);
     }
 
     // 사용자 삭제
-    public void deleteUser(Long id) throws Exception {
-        if (userRepository.existsById(id)) {
-            userRepository.deleteById(id);
-        } else {
-            throw new Exception("사용자를 찾을 수 없습니다.");
-        }
+    public void deleteUser(HttpServletRequest  request) throws Exception {
+        User user = findUserFromRequest(request)
+                .orElseThrow(() -> new Exception("Unauthorized"));
+
+        userRepository.delete(user);
     }
 
     // 사용자 인증 (로그인)
@@ -122,5 +123,16 @@ public class UserService {
     public String getNicknameById(Long id){
         Optional<User> userOptional = userRepository.findById(id);
         return userOptional.map(User::getNickname).orElse(null);
+    }
+
+    public UserInfoDto getUser(HttpServletRequest request) throws Exception{
+        User user = findUserFromRequest(request)
+                .orElseThrow(() -> new Exception("Unauthorized"));
+        return new UserInfoDto(user);
+    }
+
+    public Optional<User> findUserFromRequest(HttpServletRequest request){
+        return jwtService.extractEmailFromToken(request)
+                .flatMap(userRepository::findByEmail);
     }
 }
