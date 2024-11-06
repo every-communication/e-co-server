@@ -1,13 +1,9 @@
 package com.eco.ecoserver.global.oauth2.handler;
 
-import com.eco.ecoserver.global.dto.TokenDto;
-import com.eco.ecoserver.domain.user.repository.UserRepository;
-import com.eco.ecoserver.global.jwt.service.JwtService;
 import com.eco.ecoserver.global.oauth2.CustomOAuth2User;
 import com.eco.ecoserver.domain.user.Role;
 
 import com.eco.ecoserver.global.oauth2.service.CustomOAuth2UserService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,8 +12,6 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.logging.Logger;
 
 @Component

@@ -1,4 +1,4 @@
-package com.eco.ecoserver.global.dto;
+package com.eco.ecoserver.global.jwt.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
