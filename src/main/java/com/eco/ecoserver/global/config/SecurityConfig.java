@@ -1,5 +1,6 @@
 package com.eco.ecoserver.global.config;
 
+import com.eco.ecoserver.global.cors.filter.CustomCorsFilter;
 import com.eco.ecoserver.global.dto.ApiResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.eco.ecoserver.domain.user.repository.UserRepository;
@@ -105,33 +106,19 @@ public class SecurityConfig {
                         })
                 );
 
-        // CORS 필터를 UsernamePasswordAuthenticationFilter 전에 추가
-        http.addFilterBefore(new CorsFilter(corsConfigurationSource()), UsernamePasswordAuthenticationFilter.class);
+        // CORS 필터
+        http.addFilterBefore(new CustomCorsFilter(), UsernamePasswordAuthenticationFilter.class);
 
         //file size check
         http.addFilterBefore(new FileSizeCheckFilter(maxFileSize), UsernamePasswordAuthenticationFilter.class);
 
-        // 원래 스프링 시큐리티 필터 순서가 LogoutFilter 이후에 로그인 필터 동작
-        // 따라서, LogoutFilter 이후에 우리가 만든 필터 동작하도록 설정
-        // 순서 : LogoutFilter -> JwtAuthenticationProcessingFilter -> CustomJsonUsernamePasswordAuthenticationFilter
+        // JWT 필터
         http.addFilterAfter(customJsonUsernamePasswordAuthenticationFilter(), LogoutFilter.class);
         http.addFilterBefore(jwtAuthenticationProcessingFilter(), CustomJsonUsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "https://api.e-co.rldnd.net", "https://api.e-co.rldnd.net", "ws://localhost:8080", "wss://api.e-co.rldnd.net")); // 허용할 도메인
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE")); // 허용할 HTTP 메서드
-        configuration.setAllowedHeaders(Arrays.asList("*")); // 허용할 헤더
-        configuration.setAllowCredentials(true); // 자격 증명 허용
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // 모든 경로에 대해 CORS 설정 적용
-        return source;
-    }
     public void sendErrorResponse(HttpServletResponse response, int status, String message) throws IOException {
         ApiResponseDto<String> errorResponse = ApiResponseDto.failure(status, message);
 
