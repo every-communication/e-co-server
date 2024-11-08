@@ -2,12 +2,10 @@ package com.eco.ecoserver.global.oauth2.controller;
 
 import com.eco.ecoserver.domain.user.SocialType;
 import com.eco.ecoserver.domain.user.User;
-import com.eco.ecoserver.domain.user.repository.UserRepository;
 import com.eco.ecoserver.domain.user.service.UserService;
 import com.eco.ecoserver.global.dto.ApiResponseDto;
-import com.eco.ecoserver.global.jwt.service.JwtService;
-import com.eco.ecoserver.global.login.service.LoginService;
 import com.eco.ecoserver.global.oauth2.dto.OAuthRegistrationDto;
+import com.eco.ecoserver.global.oauth2.service.KakaoLoginService;
 import com.eco.ecoserver.global.oauth2.service.CustomOAuth2UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -16,18 +14,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.Optional;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth")
-public class OauthController {
+public class OAuthController {
     private final UserService userService;
-    private final JwtService jwtService;
-    private final LoginService loginService;
-    private final UserRepository userRepository;
     private final CustomOAuth2UserService customOAuth2UserService;
+    private final KakaoLoginService kakaoLoginService;
 
     @GetMapping("/google")
     public void redirectToGoogle(HttpServletResponse response) throws IOException {

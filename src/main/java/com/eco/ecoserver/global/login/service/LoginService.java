@@ -39,20 +39,6 @@ public class LoginService implements UserDetailsService {
                 .build();
     }
 
-    public ResponseEntity<ApiResponseDto<TokenDto>> generateTokenResponse(String email) {
-        String accessToken = jwtService.createAccessToken(email);
-        String refreshToken = jwtService.createRefreshToken(email);
-
-        return userRepository.findByEmail(email)
-                .map(user -> {
-                    user.updateRefreshToken(refreshToken);
-                    log.info("Updating refresh token for user: {}", email);
-                    userRepository.saveAndFlush(user);
-                    return ResponseEntity.ok(ApiResponseDto.success(new TokenDto(accessToken, refreshToken)));
-                })
-                .orElseGet(() -> ResponseEntity.badRequest().body(ApiResponseDto.failure("로그인 실패: 유저를 찾을 수 없습니다.")));
-    }
-
     public ResponseEntity<ApiResponseDto<TokenDto>> refreshTokenResponse(String refreshToken) {
         Optional<String> emailOpt = jwtService.extractEmail(refreshToken);
         if (emailOpt.isPresent()) {
@@ -74,5 +60,19 @@ public class LoginService implements UserDetailsService {
             }
         }
         return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorized"));
+    }
+
+    public ApiResponseDto<TokenDto> loginSuccessToken(String email) {
+        String accessToken = jwtService.createAccessToken(email);
+        String refreshToken = jwtService.createRefreshToken(email);
+
+        return userRepository.findByEmail(email)
+                .map(user -> {
+                    user.updateRefreshToken(refreshToken);
+                    log.info("Updating refresh token for user: {}", email);
+                    userRepository.saveAndFlush(user);
+                    return ApiResponseDto.success(new TokenDto(accessToken, refreshToken));
+                })
+                .orElseGet(() -> ApiResponseDto.failure(401, "로그인 실패: 유저를 찾을 수 없습니다."));
     }
 }

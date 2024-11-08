@@ -16,22 +16,18 @@ public class KakaoOAuth2UserInfo extends OAuth2UserInfo {
     @Override
     public String getNickname() {
         Map<String, Object> properties = (Map<String, Object>) attributes.get("properties");
-
         if (properties == null) {
             return null;
         }
-
         return (String)properties.get("profile_nickname");
     }
 
     @Override
     public String getImageUrl() {
         Map<String, Object> properties = (Map<String, Object>) attributes.get("properties");
-
         if (properties == null) {
             return null;
         }
-
         return (String)properties.get("profile_image");
     }
 }

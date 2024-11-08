@@ -1,4 +1,4 @@
-package com.eco.ecoserver.global.oauth2.kakao;
+package com.eco.ecoserver.global.oauth2.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;

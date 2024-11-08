@@ -1,5 +1,7 @@
 package com.eco.ecoserver.global.oauth2.handler;
 
+import com.eco.ecoserver.global.dto.ApiResponseDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,14 +14,16 @@ import java.util.logging.Logger;
 
 @Component
 public class OAuth2LoginFailureHandler implements AuthenticationFailureHandler {
-
     private static final Logger log = Logger.getLogger(OAuth2LoginFailureHandler.class.getName());
 
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-        //TODO: ApiResponseDto 로 보내기
-        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        response.setContentType("text/plain;charset=UTF-8");
-        response.getWriter().write("소셜 로그인 실패! 서버 로그를 확인해주세요.");
+        ApiResponseDto<String> apiResponseDto = ApiResponseDto.failure(401, "소셜 로그인 실패!");
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.getWriter().write(apiResponseDto.toString());
+
         log.info("소셜 로그인에 실패했습니다. 에러 메시지 : " + exception.getMessage());
     }
 }

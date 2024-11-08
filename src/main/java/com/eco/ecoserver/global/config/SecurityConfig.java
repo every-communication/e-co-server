@@ -93,7 +93,6 @@ public class SecurityConfig {
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable())) // FrameOptions 비활성화
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용하지 않으므로 STATELESS로 설정
 
-
                 //== 소셜 로그인 설정 ==//
                 .oauth2Login(oauth2 -> oauth2
                         .successHandler(oAuth2LoginSuccessHandler) // 동의하고 계속하기를 눌렀을 때 Handler 설정
@@ -131,19 +130,12 @@ public class SecurityConfig {
         response.getWriter().flush();
         response.getWriter().close();
     }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
-    /**
-     * AuthenticationManager 설정 후 등록
-     * PasswordEncoder를 사용하는 AuthenticationProvider 지정 (PasswordEncoder는 위에서 등록한 PasswordEncoder 사용)
-     * FormLogin(기존 스프링 시큐리티 로그인)과 동일하게 DaoAuthenticationProvider 사용
-     * UserDetailsService는 커스텀 LoginService로 등록
-     * 또한, FormLogin과 동일하게 AuthenticationManager로는 구현체인 ProviderManager 사용(return ProviderManager)
-     *
-     */
     @Bean
     public AuthenticationManager authenticationManager() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -157,7 +149,7 @@ public class SecurityConfig {
      */
     @Bean
     public LoginSuccessHandler loginSuccessHandler() {
-        return new LoginSuccessHandler(jwtService, userRepository);
+        return new LoginSuccessHandler(jwtService, userRepository, loginService, objectMapper);
     }
 
     /**
@@ -165,15 +157,9 @@ public class SecurityConfig {
      */
     @Bean
     public LoginFailureHandler loginFailureHandler() {
-        return new LoginFailureHandler();
+        return new LoginFailureHandler(loginService, objectMapper);
     }
 
-    /**
-     * CustomJsonUsernamePasswordAuthenticationFilter 빈 등록
-     * 커스텀 필터를 사용하기 위해 만든 커스텀 필터를 Bean으로 등록
-     * setAuthenticationManager(authenticationManager())로 위에서 등록한 AuthenticationManager(ProviderManager) 설정
-     * 로그인 성공 시 호출할 handler, 실패 시 호출할 handler로 위에서 등록한 handler 설정
-     */
     @Bean
     public CustomJsonUsernamePasswordAuthenticationFilter customJsonUsernamePasswordAuthenticationFilter() {
         CustomJsonUsernamePasswordAuthenticationFilter customJsonUsernamePasswordLoginFilter

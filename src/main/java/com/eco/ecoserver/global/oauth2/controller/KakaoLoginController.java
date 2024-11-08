@@ -1,30 +1,15 @@
-package com.eco.ecoserver.global.oauth2.kakao;
+package com.eco.ecoserver.global.oauth2.controller;
 
-import com.eco.ecoserver.domain.user.SocialType;
-import com.eco.ecoserver.domain.user.repository.UserRepository;
-import com.eco.ecoserver.domain.user.repository.UserSocialRepository;
-import com.eco.ecoserver.global.dto.ApiResponseDto;
-import com.eco.ecoserver.global.jwt.service.JwtService;
 import com.eco.ecoserver.global.oauth2.CustomOAuth2User;
-import com.eco.ecoserver.global.oauth2.OAuthAttributes;
+import com.eco.ecoserver.global.oauth2.service.KakaoLoginService;
+import com.eco.ecoserver.global.oauth2.dto.KakaoTokenResponseDto;
 import com.eco.ecoserver.global.oauth2.service.CustomOAuth2UserService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.io.IOException;
-import java.util.Collections;
 
 @Slf4j
 @RestController

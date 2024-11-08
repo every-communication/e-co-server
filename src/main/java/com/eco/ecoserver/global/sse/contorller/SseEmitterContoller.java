@@ -50,10 +50,4 @@ public class SseEmitterContoller {
         }
         sseEmitterService.sendNotification(userOpt.get().getId(), "name:send-test", "msg:send-test");
     }
-
-    // SSE 구독 취소
-    @PostMapping("/unsubscribe")
-    public void unsubscribe(HttpServletRequest request) throws IOException {
-        sseEmitterService.cancelSubscription(request);
-    }
 }

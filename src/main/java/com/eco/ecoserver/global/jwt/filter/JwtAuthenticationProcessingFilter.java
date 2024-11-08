@@ -33,6 +33,7 @@ import java.util.*;
 @Slf4j
 public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     private static final Set<String> NO_CHECK_URL = new HashSet<>() {{
+        //TODO: Cors 처리 외부로 빼서 url들 빼도 될 수 있음
         add("/");
         add("/css");
         add("/images");

@@ -1,4 +1,4 @@
-package com.eco.ecoserver.global.oauth2.kakao;
+package com.eco.ecoserver.global.oauth2.userinfo;
 
 import lombok.Getter;
 import lombok.Setter;

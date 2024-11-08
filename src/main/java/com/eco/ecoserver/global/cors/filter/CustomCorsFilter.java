@@ -4,21 +4,25 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 public class CustomCorsFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         List<String> allowedOrigins = Arrays.asList(
                 "https://api.e-co.rldnd.net",
                 "https://e-co.rldnd.net",
                 "http://localhost:3000",
+                "http://localhost:8080",
                 "ws://localhost:8080",
                 "wss://api.e-co.rldnd.net"
         );
+
         String origin = request.getHeader("Origin");
         if(allowedOrigins.contains(origin)) {
             response.setHeader("Access-Control-Allow-Origin", origin);

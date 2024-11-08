@@ -1,11 +1,11 @@
-package com.eco.ecoserver.global.oauth2.kakao;
+package com.eco.ecoserver.global.oauth2.service;
 
 import com.eco.ecoserver.domain.user.repository.UserRepository;
 import com.eco.ecoserver.domain.user.repository.UserSocialRepository;
 import com.eco.ecoserver.global.jwt.service.JwtService;
 import com.eco.ecoserver.global.oauth2.CustomOAuth2User;
-import com.eco.ecoserver.global.oauth2.service.CustomOAuth2UserService;
-import com.eco.ecoserver.global.oauth2.service.OAuthImageService;
+import com.eco.ecoserver.global.oauth2.dto.KakaoTokenResponseDto;
+import com.eco.ecoserver.global.oauth2.userinfo.KakaoLoginProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +42,6 @@ public class KakaoLoginService {
 
     /**
      * 2. 토큰 얻기 단계
-     *
      * @param code 인증 코드
      * @return 카카오 토큰 정보
      */

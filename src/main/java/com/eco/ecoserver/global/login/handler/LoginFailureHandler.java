@@ -1,5 +1,9 @@
 package com.eco.ecoserver.global.login.handler;
 
+import com.eco.ecoserver.global.dto.ApiResponseDto;
+import com.eco.ecoserver.global.login.service.LoginService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
@@ -13,18 +17,21 @@ import java.io.IOException;
  * SimpleUrlAuthenticationFailureHandler를 상속받아서 구현
  */
 @Slf4j
+@RequiredArgsConstructor
 public class LoginFailureHandler extends SimpleUrlAuthenticationFailureHandler {
+    private final LoginService loginService;
+    private final ObjectMapper objectMapper;
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
                                         AuthenticationException exception) throws IOException {
-          /* // 사용하지 않을 듯 TODO: 일단 대기
-        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        response.setCharacterEncoding("UTF-8");
-        response.setContentType("text/plain;charset=UTF-8");
-        response.getWriter().write("로그인 실패! 이메일이나 비밀번호를 확인해주세요.");
-        log.info("로그인에 실패했습니다. 메시지 : {}", exception.getMessage());
+        ApiResponseDto<String> apiResponseDto = ApiResponseDto.failure(401, "로그인 실패! 이메일이나 비밀번호를 확인해주세요.");
 
-         */
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.getWriter().write(objectMapper.writeValueAsString(apiResponseDto));
+
+        log.info("로그인에 실패했습니다. 메시지 : {}", exception.getMessage());
     }
 }

@@ -6,7 +6,7 @@ values (99990, 99990, 'ECO', 'eco_admin_99990');
 insert into users (USER_ID, EMAIL, NICKNAME, PASSWORD, ROLE, USER_TYPE)
 values (99991, 'friend1@eco.com', 'friend1', '{bcrypt}$2a$10$EwUz1xN6sDbOM6Ss40bLxO5j.EPmj9pbhL2oO92ZBJQ8zuXoRUPwG', 'ADMIN', 'DEAF');
 insert into user_social (user_id, user_social_id, social_type, social_id)
-values (99991, 99991, 'NAVER', 'naver_admin_99991');
+values (99991, 99991, 'KAKAO', 'kakao_admin_99991');
 
 insert into users (USER_ID, EMAIL, NICKNAME, PASSWORD, ROLE, USER_TYPE)
 values (99992, 'friend2@eco.com', 'friend2', '{bcrypt}$2a$10$EwUz1xN6sDbOM6Ss40bLxO5j.EPmj9pbhL2oO92ZBJQ8zuXoRUPwG', 'ADMIN', 'DEAF');

@@ -53,9 +53,22 @@ public class SseEmitterService {
         emitters.put(userId, emitter); // 사용자 ID를 키로 사용
         log.info("SseEmitter created for userId: {}", userId);
 
-        emitter.onCompletion(() -> emitters.remove(userId));
-        emitter.onTimeout(() -> emitters.remove(userId));
-        emitter.onError(e -> emitters.remove(userId));
+//        emitter.onCompletion(() -> emitters.remove(userId));
+//        emitter.onTimeout(() -> emitters.remove(userId));
+//        emitter.onError(e -> emitters.remove(userId));
+        // 자동 구독 해제를 위한 이벤트 핸들러 설정
+        emitter.onCompletion(() -> {
+            emitters.remove(userId);
+            log.info("SseEmitter completed for userId: {}", userId);
+        });
+        emitter.onTimeout(() -> {
+            emitters.remove(userId);
+            log.info("SseEmitter timed out for userId: {}", userId);
+        });
+        emitter.onError(e -> {
+            emitters.remove(userId);
+            log.error("SseEmitter error for userId: {}", userId, e);
+        });
 
         return emitter;
     }

@@ -58,7 +58,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         OAuth2User oAuth2User = delegate.loadUser(userRequest);
         log.info("getAttributes : {}", oAuth2User.getAttributes());
 
-        // 2. provider : google, naver, kakao
+        // 2. provider : google, kakao
         String provider = userRequest.getClientRegistration().getRegistrationId();
         SocialType socialType = getSocialType(provider);
         log.info("provider : {}", provider);
@@ -83,7 +83,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 attributes,
                 extractAttributes.getNameAttributeKey(),
                 createdUser.getEmail(),
-                createdUser.getRole()
+                createdUser.getRole(),
+                createdUser.getThumbnail()
         );
     }
 
@@ -117,7 +118,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     public void handleGuestLogin(HttpServletResponse response, CustomOAuth2User oAuth2User) throws IOException {
         String accessToken = jwtService.createAccessToken(oAuth2User.getEmail());
-        String redirectUrl = "https://e-co.rldnd.net/auth/oauth-register?id=" + oAuth2User.getEmail();
+
+        //String redirectUrl = "https://localhost:3000/auth/oauth-register";
+        String redirectUrl = "https://e-co.rldnd.net/auth/oauth-register";
+
+        redirectUrl += "?id=" + oAuth2User.getEmail();
+        redirectUrl += "&thumbnail=" + oAuth2User.getThumnail();
+
         response.addHeader(jwtService.getAccessHeader(), "Bearer " + accessToken);
         response.sendRedirect(redirectUrl);
     }
@@ -126,9 +133,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String accessToken = jwtService.createAccessToken(oAuth2User.getEmail());
         String refreshToken = jwtService.createRefreshToken(oAuth2User.getEmail());
 
-        String redirectUrl = String.format("https://e-co.rldnd.net/auth/oauth-callback?accessToken=%s&refreshToken=%s",
-                URLEncoder.encode(accessToken, StandardCharsets.UTF_8.name()),
-                URLEncoder.encode(refreshToken, StandardCharsets.UTF_8.name()));
+        //String redirectUrl = "https://localhost:3000/auth/oauth-callback";
+        String redirectUrl = "https://e-co.rldnd.net/auth/oauth-callback";
+
+        redirectUrl += "?accessToken=" + accessToken;
+        redirectUrl += "&refreshToken=" + refreshToken;
 
         userRepository.findByEmail(oAuth2User.getEmail())
                 .ifPresent(user -> {
