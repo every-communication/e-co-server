@@ -13,6 +13,7 @@ import com.eco.ecoserver.domain.friend.exception.UserNotFoundException;
 import com.eco.ecoserver.domain.friend.repository.FriendListRepository;
 import com.eco.ecoserver.domain.friend.repository.FriendRequestListRepository;
 import com.eco.ecoserver.domain.notification.service.NotificationService;
+import com.eco.ecoserver.domain.user.Role;
 import com.eco.ecoserver.domain.user.User;
 import com.eco.ecoserver.domain.user.repository.UserRepository;
 import com.eco.ecoserver.global.sse.service.SseEmitterService;
@@ -45,7 +46,10 @@ public class FriendRequestListService {
         Set<User> users = new HashSet<>(usersByNickname);
         users.addAll(usersByEmail);
         //System.out.println("user:" + users.toArray());
-
+        
+        // 소셜로그인 추가 정보 기입하지 않은 유저 제거
+        users.removeIf(u -> u.getRole().equals(Role.GUEST));
+        // 자신을 제외한 사용자들만 포함
         users.remove(user);
         List<FriendSearchDTO> friendSearchDTOS = new ArrayList<>();
         if(!users.isEmpty()){
