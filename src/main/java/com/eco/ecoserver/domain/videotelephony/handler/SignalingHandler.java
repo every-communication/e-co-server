@@ -53,8 +53,10 @@ public class SignalingHandler extends TextWebSocketHandler {
                 }
             }
             String msg = (String) payload.get("message");
-            boolean mic = (boolean) payload.get("mic");
-            boolean cam = (boolean) payload.get("cam");
+            Boolean micObject = (Boolean) payload.get("mic");
+            Boolean camObject = (Boolean) payload.get("cam");
+            boolean mic = micObject != null ? micObject : false;
+            boolean cam = camObject != null ? camObject : false;
 
 
             switch (type) {
