@@ -35,6 +35,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
+import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
@@ -83,10 +84,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/css/**", "/images/**","/js/**", "/favicon.ico", "/index.html").permitAll()
                         .requestMatchers("/api-docs/**", "/swagger-ui/**").permitAll()
-                        .requestMatchers("/auth/**", "/login/**", "/oauth2/**", "/health", "/favicon.ico/").permitAll()
+                        .requestMatchers("/auth/**", "/login/**", "/oauth2/**", "/health", "/favicon.ico/**").permitAll()
                         .requestMatchers("/signal").permitAll()
                         .anyRequest().authenticated() // 위의 경로 이외에는 모두 인증된 사용자만 접근 가능
                 )
+                .cors(cors -> cors.disable()) // 기본 CORS 설정 비활성화
                 .csrf(csrf -> csrf.disable()) // CSRF 비활성화
                 .httpBasic(httpBasic -> httpBasic.disable()) // HTTP Basic 비활성화
                 .formLogin(form -> form.disable()) // Form 로그인 비활성화
@@ -106,8 +108,8 @@ public class SecurityConfig {
                 );
 
         // CORS 필터
-        http.addFilterBefore(new CustomCorsFilter(), UsernamePasswordAuthenticationFilter.class);
-
+        //http.addFilterBefore(new CustomCorsFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new CustomCorsFilter(), ChannelProcessingFilter.class); // 가장 앞에 CustomCorsFilter 추가
         //file size check
         http.addFilterBefore(new FileSizeCheckFilter(maxFileSize), UsernamePasswordAuthenticationFilter.class);
 

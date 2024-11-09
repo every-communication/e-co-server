@@ -24,6 +24,8 @@ public class CustomCorsFilter extends OncePerRequestFilter {
         );
 
         String origin = request.getHeader("Origin");
+        log.info("CORS Filter triggered for origin: {}", origin);
+
         if(allowedOrigins.contains(origin)) {
             response.setHeader("Access-Control-Allow-Origin", origin);
         }
@@ -32,6 +34,12 @@ public class CustomCorsFilter extends OncePerRequestFilter {
         response.setHeader("Access-Control-Max-Age", "3600");
         response.setHeader("Access-Control-Allow-Headers",
                 "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            log.info("OPTIONS request received, returning 200 OK");
+            response.setStatus(HttpServletResponse.SC_OK);
+            return;
+        }
 
         filterChain.doFilter(request, response);
     }
