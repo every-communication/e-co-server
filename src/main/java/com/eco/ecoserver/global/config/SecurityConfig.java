@@ -108,8 +108,8 @@ public class SecurityConfig {
                 );
 
         // CORS 필터
-        //http.addFilterBefore(new CustomCorsFilter(), UsernamePasswordAuthenticationFilter.class);
-        http.addFilterBefore(new CustomCorsFilter(), ChannelProcessingFilter.class); // 가장 앞에 CustomCorsFilter 추가
+        http.addFilterBefore(new CustomCorsFilter(), UsernamePasswordAuthenticationFilter.class);
+        //http.addFilterBefore(new CustomCorsFilter(), ChannelProcessingFilter.class); // 가장 앞에 CustomCorsFilter 추가
         //file size check
         http.addFilterBefore(new FileSizeCheckFilter(maxFileSize), UsernamePasswordAuthenticationFilter.class);
 
