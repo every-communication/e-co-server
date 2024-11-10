@@ -14,19 +14,10 @@ import java.util.List;
 @Slf4j
 public class CustomCorsFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        List<String> allowedOrigins = Arrays.asList(
-                "https://api.e-co.rldnd.net",
-                "https://e-co.rldnd.net",
-                "http://localhost:3000",
-                "http://localhost:8080",
-                "ws://localhost:8080",
-                "wss://api.e-co.rldnd.net"
-        );
-
         String origin = request.getHeader("Origin");
         log.info("CORS Filter triggered for origin: {}", origin);
 
-        if(allowedOrigins.contains(origin)) {
+        if (origin != null) {
             response.setHeader("Access-Control-Allow-Origin", origin);
         }
         response.setHeader("Access-Control-Allow-Credentials", "true");
@@ -35,11 +26,11 @@ public class CustomCorsFilter extends OncePerRequestFilter {
         response.setHeader("Access-Control-Allow-Headers",
                 "Origin, X-Requested-With, Content-Type, Accept, Authorization");
 
-//        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
-//            log.info("OPTIONS request received, returning 200 OK");
-//            response.setStatus(HttpServletResponse.SC_OK);
-//            return;
-//        }
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            log.info("OPTIONS request received, returning 200 OK");
+            response.setStatus(HttpServletResponse.SC_OK);
+            return;
+        }
 
         filterChain.doFilter(request, response);
     }
