@@ -35,11 +35,11 @@ public class CustomCorsFilter extends OncePerRequestFilter {
         response.setHeader("Access-Control-Allow-Headers",
                 "Origin, X-Requested-With, Content-Type, Accept, Authorization");
 
-        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
-            log.info("OPTIONS request received, returning 200 OK");
-            response.setStatus(HttpServletResponse.SC_OK);
-            return;
-        }
+//        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+//            log.info("OPTIONS request received, returning 200 OK");
+//            response.setStatus(HttpServletResponse.SC_OK);
+//            return;
+//        }
 
         filterChain.doFilter(request, response);
     }
