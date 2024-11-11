@@ -110,6 +110,8 @@ public class SecurityConfig {
         // CORS 필터
         //http.addFilterBefore(new CustomCorsFilter(), UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(new CustomCorsFilter(), ChannelProcessingFilter.class); // 가장 앞에 CustomCorsFilter 추가
+        http.addFilterBefore(new CorsFilter(corsConfigurationSource()), UsernamePasswordAuthenticationFilter.class);
+
         //file size check
         http.addFilterBefore(new FileSizeCheckFilter(maxFileSize), UsernamePasswordAuthenticationFilter.class);
 
@@ -118,6 +120,26 @@ public class SecurityConfig {
         http.addFilterBefore(jwtAuthenticationProcessingFilter(), CustomJsonUsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        configuration.setAllowedOrigins(Arrays.asList(
+                "http://localhost:3000",
+                "https://api.e-co.rldnd.net",
+                "https://api.e-co.rldnd.net",
+                "ws://localhost:8080",
+                "wss://api.e-co.rldnd.net"
+        )); // 허용할 도메인
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTION")); // 허용할 HTTP 메서드
+        configuration.setAllowedHeaders(Arrays.asList("*")); // 허용할 헤더
+        configuration.setAllowCredentials(true); // 자격 증명 허용
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration); // 모든 경로에 대해 CORS 설정 적용
+        return source;
     }
 
     public void sendErrorResponse(HttpServletResponse response, int status, String message) throws IOException {
