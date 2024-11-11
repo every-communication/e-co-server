@@ -3,6 +3,7 @@ package com.eco.ecoserver.domain.videotelephony.controller;
 import com.eco.ecoserver.domain.user.User;
 import com.eco.ecoserver.domain.user.service.UserService;
 import com.eco.ecoserver.domain.videotelephony.Room;
+import com.eco.ecoserver.domain.videotelephony.dto.CallInfoDto;
 import com.eco.ecoserver.domain.videotelephony.service.RoomService;
 import com.eco.ecoserver.global.dto.ApiResponseDto;
 import com.eco.ecoserver.global.jwt.service.JwtService;
@@ -132,5 +133,21 @@ public class RoomController {
             Room roomDTO = roomService.updateMediaStatus(code, value.getId(), mic, cam);
             return ResponseEntity.ok(ApiResponseDto.success(roomDTO));
         }).orElseGet(() -> ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorized")));
+    }
+
+
+    @GetMapping("/histories")
+    public ResponseEntity<ApiResponseDto<List<CallInfoDto>>> getRecentCalls(HttpServletRequest request){
+        Optional<String> email = jwtService.extractEmailFromToken(request);
+        if (email.isEmpty()) {
+            return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorized"));
+        }
+
+        Optional<User> user = userService.findByEmail(email.get());
+        return user.map(value -> {
+            List<CallInfoDto> callInfoDtos =  roomService.getRecentCalls(value);
+            return ResponseEntity.ok(ApiResponseDto.success(callInfoDtos));
+        }).orElseGet(() -> ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorized")));
+
     }
 }
