@@ -28,7 +28,7 @@ public class FriendListController {
     private final JwtService jwtService;
     private final UserService userService;
     @GetMapping("/friends")
-    public ResponseEntity<ApiResponseDto<List<FriendListDTO>>> getFriendList(HttpServletRequest request){
+    public ResponseEntity<ApiResponseDto<List<FriendListDTO>>> getFriendList(HttpServletRequest request) {
 
         // request(token)에서 email 추출
         Optional<String> email = jwtService.extractEmailFromToken(request);
@@ -44,7 +44,7 @@ public class FriendListController {
             List<FriendListDTO> friendListDTO = friendListService.getFriendList(value);
             return ResponseEntity.ok(ApiResponseDto.success(friendListDTO));
         }).orElseGet(() -> ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorizaed")));
-         }
+    }
 
 
     @DeleteMapping("/friends/{friendId}")

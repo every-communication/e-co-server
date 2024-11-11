@@ -1,26 +1,36 @@
 package com.eco.ecoserver.domain.videotelephony.service;
 
 
+import com.eco.ecoserver.domain.notification.VideoTelephonyNotification;
+import com.eco.ecoserver.domain.notification.repository.VideoTelephonyNotificationRepository;
+import com.eco.ecoserver.domain.notification.service.NotificationService;
 import com.eco.ecoserver.domain.user.User;
+import com.eco.ecoserver.domain.user.repository.UserRepository;
 import com.eco.ecoserver.domain.videotelephony.Room;
+import com.eco.ecoserver.domain.videotelephony.dto.RoomHistoryDto;
 import com.eco.ecoserver.domain.videotelephony.repository.RoomRepository;
 import com.eco.ecoserver.global.dto.ApiResponseDto;
+import com.eco.ecoserver.global.sse.service.SseEmitterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class RoomService {
 
     private final RoomRepository roomRepository;
+    private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     public Room createRoom(Long userId) {
         Room room = new Room();
@@ -35,6 +45,8 @@ public class RoomService {
         room.setOwnerId(userId);
         room.setFriendId(friendId);
         room.setCode(UUID.randomUUID().toString());
+
+        notificationService.createVideoTelephonyNotification(room);
         return roomRepository.save(room);
     }
 
@@ -61,6 +73,10 @@ public class RoomService {
             room.updateUser1(userId);
         } else if (room.getUser2Id() == null && !room.getUser1Id().equals(userId)) {
             room.updateUser2(userId);
+            //TODO
+            if (room.getFriendId() == null) {
+                room.setFriendId(userId);
+            }
             room.setCreatedAt(LocalDateTime.now());
         } else {
             throw new RuntimeException("Room is full");
@@ -135,6 +151,28 @@ public class RoomService {
 
         }
         return null;
+    }
+
+    public List<RoomHistoryDto> getRoomHistory(Long userId) {
+        List<Room> rooms = roomRepository.findByOwnerIdOrFriendIdAndDeletedAtIsNotNull(userId);
+
+        return rooms.stream().map(room -> {
+            // friendId를 ownerId와 friendId 중 userId와 다른 쪽으로 설정
+            Long friendId = room.getOwnerId().equals(userId) ? room.getFriendId() : room.getOwnerId();
+
+            // friendEmail을 friendId를 통해 조회
+            String friendEmail = userRepository.findById(friendId)
+                    .map(User::getEmail)
+                    .orElse("Unknown");
+
+            // RoomHistoryDto 생성
+            return new RoomHistoryDto(
+                    friendId,
+                    friendEmail,
+                    room.getCreatedAt(),
+                    room.getDeletedAt()
+            );
+        }).collect(Collectors.toList());
     }
 }
 

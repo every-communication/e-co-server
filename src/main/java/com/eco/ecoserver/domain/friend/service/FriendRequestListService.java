@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.*;
 
 @Service
@@ -96,7 +95,7 @@ public class FriendRequestListService {
         CreateFriendRequestListDTO createFriendRequestListDTO = new CreateFriendRequestListDTO(requestId, selectedUserId, FriendState.SENDING);
         FriendRequestList friendRequestList = friendRequestListRepository.save(createFriendRequestListDTO.toEntity());
 
-        notificationService.createNotification(friendRequestList.getId(), createFriendRequestListDTO);
+        notificationService.createFriendRequestNotification(friendRequestList.getId(), createFriendRequestListDTO);
         return createFriendRequestListDTO;
     }
 

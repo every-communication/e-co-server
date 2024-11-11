@@ -135,4 +135,10 @@ public class UserService {
         return jwtService.extractEmailFromToken(request)
                 .flatMap(userRepository::findByEmail);
     }
+
+    public String findEmailById(Long userId) {
+        return userRepository.findById(userId)
+                .map(User::getEmail)
+                .orElse("Unknown");
+    }
 }

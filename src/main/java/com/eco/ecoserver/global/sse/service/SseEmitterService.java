@@ -83,6 +83,23 @@ public class SseEmitterService {
                         .name(eventName)
                         .data(message));
                 log.info("Notification sent to userId: {}", userId);
+                log.info("Notification sent to event: {}", eventName);
+            } catch (IOException e) {
+                emitters.remove(userId);
+                log.error("Failed to send notification to userId: {}", userId, e);
+            }
+        }
+    }
+
+    public void sendNotification(Long userId, String eventName, Object data) throws IOException {
+        SseEmitter emitter = emitters.get(userId);
+        if (emitter != null) {
+            try {
+                emitter.send(SseEmitter.event()
+                        .name(eventName)
+                        .data(data));
+                log.info("Notification sent to userId: {}", userId);
+                log.info("Notification sent to event: {}", eventName);
             } catch (IOException e) {
                 emitters.remove(userId);
                 log.error("Failed to send notification to userId: {}", userId, e);

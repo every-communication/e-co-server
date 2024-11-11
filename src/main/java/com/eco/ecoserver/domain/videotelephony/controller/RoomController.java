@@ -3,18 +3,22 @@ package com.eco.ecoserver.domain.videotelephony.controller;
 import com.eco.ecoserver.domain.user.User;
 import com.eco.ecoserver.domain.user.service.UserService;
 import com.eco.ecoserver.domain.videotelephony.Room;
+import com.eco.ecoserver.domain.videotelephony.dto.RoomHistoryDto;
 import com.eco.ecoserver.domain.videotelephony.service.RoomService;
 import com.eco.ecoserver.global.dto.ApiResponseDto;
 import com.eco.ecoserver.global.jwt.service.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/rooms")
@@ -132,5 +136,22 @@ public class RoomController {
             Room roomDTO = roomService.updateMediaStatus(code, value.getId(), mic, cam);
             return ResponseEntity.ok(ApiResponseDto.success(roomDTO));
         }).orElseGet(() -> ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorized")));
+    }
+
+    @GetMapping("/history")
+    public ResponseEntity<ApiResponseDto<List<RoomHistoryDto>>> getRoomHistory(HttpServletRequest request) {
+        Optional<String> email = jwtService.extractEmailFromToken(request);
+        if (email.isEmpty()) {
+            log.error("Email is empty");
+            return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorized"));
+        }
+
+        Optional<User> user = userService.findByEmail(email.get());
+        if (user.isEmpty()) {
+            log.error("User is empty");
+            return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorized"));
+        }
+        List<RoomHistoryDto> roomHistoryDtos = roomService.getRoomHistory(user.get().getId());
+        return ResponseEntity.ok(ApiResponseDto.success(roomHistoryDtos));
     }
 }

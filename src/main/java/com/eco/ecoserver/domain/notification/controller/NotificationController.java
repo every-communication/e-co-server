@@ -23,13 +23,11 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/notifications")
 public class NotificationController {
-    private final SseEmitterService sseEmitterService;
     private final UserService userService;
     private final NotificationService notificationService; // 알림 서비스 주입
     private final JwtService jwtService;
 
-    public NotificationController(SseEmitterService sseEmitterService, UserService userService, NotificationService notificationService, JwtService jwtService) {
-        this.sseEmitterService = sseEmitterService;
+    public NotificationController(UserService userService, NotificationService notificationService, JwtService jwtService) {
         this.userService = userService;
         this.notificationService = notificationService;
         this.jwtService = jwtService;
@@ -67,18 +65,5 @@ public class NotificationController {
         User user = userOpt.get();
         long unreadCount = notificationService.countUnreadNotifications(user.getId());
         return ResponseEntity.status(200).body(ApiResponseDto.success(unreadCount));
-    }
-
-    @PatchMapping("/read/{notificationType}/{notificationId}")
-    public ResponseEntity<String> markAsRead(HttpServletRequest request,
-                                             @PathVariable String notificationType,
-                                             @PathVariable Long notificationId) throws IOException {
-        boolean success = notificationService.markAsRead(request, notificationType, notificationId);
-
-        if (success) {
-            return ResponseEntity.ok("Notification marked as read.");
-        } else {
-            return ResponseEntity.status(404).body("Notification not found.");
-        }
     }
 }
