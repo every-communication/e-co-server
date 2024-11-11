@@ -1,24 +1,26 @@
 package com.eco.ecoserver.domain.videotelephony.service;
 
 
-import com.eco.ecoserver.domain.notification.VideoTelephonyNotification;
-import com.eco.ecoserver.domain.notification.repository.VideoTelephonyNotificationRepository;
+import com.eco.ecoserver.domain.friend.FriendList;
+import com.eco.ecoserver.domain.friend.repository.FriendListRepository;
 import com.eco.ecoserver.domain.notification.service.NotificationService;
 import com.eco.ecoserver.domain.user.User;
 import com.eco.ecoserver.domain.user.repository.UserRepository;
 import com.eco.ecoserver.domain.videotelephony.Room;
-import com.eco.ecoserver.domain.videotelephony.dto.RoomHistoryDto;
+import com.eco.ecoserver.domain.videotelephony.dto.CallInfoDto;
 import com.eco.ecoserver.domain.videotelephony.repository.RoomRepository;
 import com.eco.ecoserver.global.dto.ApiResponseDto;
 import com.eco.ecoserver.global.sse.service.SseEmitterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -29,6 +31,7 @@ import java.util.stream.Collectors;
 public class RoomService {
 
     private final RoomRepository roomRepository;
+    private final FriendListRepository friendListRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
 
@@ -69,16 +72,16 @@ public class RoomService {
     public Room joinRoom(String code, Long userId) {
         Room room = roomRepository.findByCode(code)
                 .orElseThrow(() -> new RuntimeException("Room not found"));
-        if (room.getUser1Id() == null) {
+        if (room.getOwnerId().equals(userId)) {
             room.updateUser1(userId);
+
         } else if (room.getUser2Id() == null && !room.getUser1Id().equals(userId)) {
             room.updateUser2(userId);
-            //TODO
-            if (room.getFriendId() == null) {
-                room.setFriendId(userId);
-            }
+            room.setFriendId(userId);
             room.setCreatedAt(LocalDateTime.now());
-        } else {
+        } else if(room.getFriendId()!=null && !room.getFriendId().equals(userId)){
+            throw new RuntimeException("Room is full");
+        } else{
             throw new RuntimeException("Room is full");
         }
         return roomRepository.save(room);
@@ -153,26 +156,39 @@ public class RoomService {
         return null;
     }
 
-    public List<RoomHistoryDto> getRoomHistory(Long userId) {
-        List<Room> rooms = roomRepository.findByOwnerIdOrFriendIdAndDeletedAtIsNotNull(userId);
+    public List<CallInfoDto> getRecentCalls(User user) {
+        List<Room> room = roomRepository.findByOwnerId(user.getId());
+        room.addAll(roomRepository.findByFriendId(user.getId()));
+        List<CallInfoDto> callInfoDtos = new ArrayList<>();
+        for(Room r:room){
+            if(r.getDeletedAt()!=null) {
+                List<FriendList> f = friendListRepository.findByUserIdAndFriendId(r.getOwnerId(), r.getFriendId());
+                String friendName, friendEmail, friendThumbnail;
+                if (r.getOwnerId().equals(user.getId())) {
+                    User friend = userRepository.findById(r.getFriendId()).get();
+                    friendName = friend.getNickname();
+                    friendEmail = friend.getEmail();
+                    friendThumbnail = friend.getThumbnail();
 
-        return rooms.stream().map(room -> {
-            // friendId를 ownerId와 friendId 중 userId와 다른 쪽으로 설정
-            Long friendId = room.getOwnerId().equals(userId) ? room.getFriendId() : room.getOwnerId();
+                } else {
+                    User friend = userRepository.findById(r.getOwnerId()).get();
+                    friendName = friend.getNickname();
+                    friendEmail = friend.getEmail();
+                    friendThumbnail = friend.getThumbnail();
+                }
+                Duration duration = Duration.between(r.getCreatedAt(), r.getDeletedAt());
+                Duration callTime = Duration.between(r.getCreatedAt(), LocalDateTime.now());
+                if (f.isEmpty()) {
+                    CallInfoDto c = new CallInfoDto(friendName, friendEmail, friendThumbnail, false, duration.toString(), duration.toString());
+                    callInfoDtos.add(c);
+                    continue;
+                }
+                CallInfoDto c = new CallInfoDto(friendName, friendEmail, friendThumbnail, true, duration.toString(), duration.toString());
+                callInfoDtos.add(c);
 
-            // friendEmail을 friendId를 통해 조회
-            String friendEmail = userRepository.findById(friendId)
-                    .map(User::getEmail)
-                    .orElse("Unknown");
-
-            // RoomHistoryDto 생성
-            return new RoomHistoryDto(
-                    friendId,
-                    friendEmail,
-                    room.getCreatedAt(),
-                    room.getDeletedAt()
-            );
-        }).collect(Collectors.toList());
+            }
+        }
+        return callInfoDtos;
     }
 }
 
