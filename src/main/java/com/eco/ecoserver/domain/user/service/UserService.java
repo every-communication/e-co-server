@@ -68,6 +68,7 @@ public class UserService {
             user.setNickname(userUpdateDto.getNickname());
         }
         user.setUserType(userUpdateDto.getUserType());
+        user.setThumbnail(userUpdateDto.getThumbnail());
         user = userRepository.save(user);
 
         return new UserInfoDto(user);
