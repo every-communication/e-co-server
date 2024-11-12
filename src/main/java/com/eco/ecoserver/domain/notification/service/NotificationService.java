@@ -69,34 +69,14 @@ public class NotificationService {
         sseEmitterService.sendNotification(receiptUserId, "friend-request", "친구 요청을 받았습니다");
     }
 
-    public void createVideoTelephonyNotification(Room room) {
+    public void createVideoTelephonyNotification(Room room) throws IOException {
+        log.info("room code is {}", room.getCode());
+        log.info("room id is {}", room.getId());
         VideoTelephonyNotification videoTelephonyNotification = new VideoTelephonyNotification(
                 room.getId(), room.getOwnerId(), room.getFriendId()
         );
         videoTelephonyNotificationRepository.save(videoTelephonyNotification);
-
-        String requestUserEmail = userRepository.findById(room.getOwnerId())
-                .map(User::getEmail)
-                .orElse("Unknown");
-        VideoNotificationDto videoNotificationDto = new VideoNotificationDto();
-        videoNotificationDto.setTitle("화상통화 초대");
-        videoNotificationDto.setMessage("화상통화 초대를 받았습니다");
-
-        videoNotificationDto.setRoomCode(room.getCode());
-        videoNotificationDto.setNotificationId(videoTelephonyNotification.getId());
-        videoNotificationDto.setRequestUserId(room.getOwnerId());
-        videoNotificationDto.setRequestUserEmail(requestUserEmail);
-
-        videoNotificationDto.setTimestamp(LocalDateTime.now());
-        videoNotificationDto.setNotificationType(NotificationType.VIDEO_TELEPHONY);
-
-
-//        try {
-//            String notificationJson = new ObjectMapper().writeValueAsString(videoNotificationDto);
-//            sseEmitterService.sendNotification(room.getFriendId(), "video-telephony", notificationJson);
-//        } catch (IOException e) {
-//            log.error("Failed to send notification to user with ID: " + room.getFriendId(), e);
-//        }
+        sseEmitterService.sendNotification(room.getFriendId(), "video-telephony", "화상통화에 초대 받았습니다");
     }
 
     // 사용자의 모든 알림을 가져와 시간 순으로 정렬

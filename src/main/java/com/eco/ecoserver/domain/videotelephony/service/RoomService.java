@@ -11,12 +11,14 @@ import com.eco.ecoserver.domain.videotelephony.dto.CallInfoDto;
 import com.eco.ecoserver.domain.videotelephony.repository.RoomRepository;
 import com.eco.ecoserver.global.dto.ApiResponseDto;
 import com.eco.ecoserver.global.sse.service.SseEmitterService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -54,7 +56,6 @@ public class RoomService {
         room.setFriendId(friendId);
         room.setCode(UUID.randomUUID().toString());
 
-        notificationService.createVideoTelephonyNotification(room);
         return roomRepository.save(room);
     }
 

@@ -1,5 +1,6 @@
 package com.eco.ecoserver.domain.videotelephony.controller;
 
+import com.eco.ecoserver.domain.notification.service.NotificationService;
 import com.eco.ecoserver.domain.user.User;
 import com.eco.ecoserver.domain.user.service.UserService;
 import com.eco.ecoserver.domain.videotelephony.Room;
@@ -27,6 +28,7 @@ public class RoomController {
     private final RoomService roomService;
     private final JwtService jwtService;
     private final UserService userService;
+    private final NotificationService notificationService;
 
     @GetMapping("/{code}")
     public ResponseEntity<?> getRoom(HttpServletRequest request, @PathVariable("code")String code){
@@ -73,6 +75,11 @@ public class RoomController {
         Optional<User> user = userService.findByEmail(email.get());
         return user.map(value -> {
             Room room = roomService.createRoomWithFriend(value.getId(), friendId);
+            try {
+                notificationService.createVideoTelephonyNotification(room);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             return ResponseEntity.ok(ApiResponseDto.success(room));
         }).orElseGet(() -> ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorized")));
     }
