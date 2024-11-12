@@ -28,6 +28,9 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class RoomService {
@@ -159,42 +162,52 @@ public class RoomService {
     }
 
     public List<CallInfoDto> getRecentCalls(User user) {
-        List<Room> room = roomRepository.findByOwnerId(user.getId());
-        room.addAll(roomRepository.findByFriendId(user.getId()));
+        List<Room> rooms = roomRepository.findByOwnerId(user.getId());
+        rooms.addAll(roomRepository.findByFriendId(user.getId()));
         List<CallInfoDto> callInfoDtos = new ArrayList<>();
 
-        for(Room r:room){
-            if(r.getDeletedAt()!=null) {
-                List<FriendList> f = friendListRepository.findByUserIdAndFriendId(r.getOwnerId(), r.getFriendId());
-                String friendName, friendEmail, friendThumbnail;
-                if (r.getOwnerId().equals(user.getId())) {
-                    User friend = userRepository.findById(r.getFriendId()).get();
-                    friendName = friend.getNickname();
-                    friendEmail = friend.getEmail();
-                    friendThumbnail = friend.getThumbnail();
+        for(Room room : rooms){
+            if(room.getDeletedAt()!=null) {
+                User friend = getFriendUser(user, room);
 
-                } else {
-                    User friend = userRepository.findById(r.getOwnerId()).get();
-                    friendName = friend.getNickname();
-                    friendEmail = friend.getEmail();
-                    friendThumbnail = friend.getThumbnail();
+                if (friend!=null){
+                    String friendName = friend.getNickname();
+                    String friendEmail = friend.getEmail();
+                    String friendThumbnail = friend.getThumbnail();
+
+                    // 친구 여부 확인
+                    boolean isFriend = !friendListRepository.findByUserIdAndFriendId(user.getId(), friend.getId()).isEmpty();
+
+                    // duration을 초 단위로 계산
+                    long durationInSeconds = ChronoUnit.SECONDS.between(room.getCreatedAt(), room.getDeletedAt());
+
+                    // deletedAt을 문자열 형식으로 설정
+                    ZonedDateTime deletedAtKST = room.getDeletedAt().atZone(ZoneId.of("UTC")).withZoneSameInstant(ZoneId.of("Asia/Seoul"));
+                    String deletedAtStr = deletedAtKST.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+                    // CallInfoDto 생성 및 리스트에 추가
+                    callInfoDtos.add(new CallInfoDto(
+                            friend.getId(),
+                            friendName,
+                            friendEmail,
+                            friendThumbnail,
+                            isFriend,
+                            durationInSeconds,
+                            deletedAtStr
+                    ));
                 }
-                // duration을 초 단위로 계산
-                long durationInSeconds = ChronoUnit.SECONDS.between(r.getCreatedAt(), r.getDeletedAt());
-
-                // deletedAt을 문자열 형식으로 설정
-                String deletedAtStr = r.getDeletedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                if (f.isEmpty()) {
-                    CallInfoDto c = new CallInfoDto(r.getFriendId(), friendName, friendEmail, friendThumbnail, false, durationInSeconds, deletedAtStr);
-                    callInfoDtos.add(c);
-                    continue;
-                }
-                CallInfoDto c = new CallInfoDto(r.getFriendId(), friendName, friendEmail, friendThumbnail, true, durationInSeconds, deletedAtStr);
-                callInfoDtos.add(c);
-
             }
         }
+        // deletedAt 기준으로 내림차순 정렬
+        callInfoDtos.sort((dto1, dto2) -> dto2.getDeletedAt().compareTo(dto1.getDeletedAt()));
+
         return callInfoDtos;
+    }
+
+    // 친구 정보를 가져오는 헬퍼 메서드
+    private User getFriendUser(User user, Room room) {
+        Long friendId = room.getOwnerId().equals(user.getId()) ? room.getFriendId() : room.getOwnerId();
+        return userRepository.findById(friendId).orElse(null);
     }
 }
 

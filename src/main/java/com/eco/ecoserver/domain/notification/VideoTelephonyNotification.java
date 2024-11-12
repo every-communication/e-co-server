@@ -22,9 +22,9 @@ public class VideoTelephonyNotification extends Notification {
     }
 
     public VideoTelephonyNotification(Long roomId, Long requestUserId, Long receiptUserId) {
+        setRoomId(roomId);
         setRequestUserId(requestUserId);
         setReceiptUserId(receiptUserId);
-        setRoomId(roomId);
         setTitle("video telephony notification-title");
         setMessage("video telephony notification-message");
         setNotificationType(NotificationType.VIDEO_TELEPHONY);

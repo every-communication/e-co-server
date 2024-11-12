@@ -78,10 +78,12 @@ public class NotificationService {
         VideoNotificationDto videoNotificationDto = new VideoNotificationDto();
         videoNotificationDto.setTitle("화상통화 초대");
         videoNotificationDto.setMessage("화상통화 초대를 받았습니다");
-        videoNotificationDto.setNotificationId(videoTelephonyNotification.getId());
+
         videoNotificationDto.setRoomCode(room.getCode());
+        videoNotificationDto.setNotificationId(videoTelephonyNotification.getId());
         videoNotificationDto.setRequestUserId(room.getOwnerId());
         videoNotificationDto.setRequestUserEmail(requestUserEmail);
+
         videoNotificationDto.setTimestamp(LocalDateTime.now());
         videoNotificationDto.setNotificationType(NotificationType.VIDEO_TELEPHONY);
 
