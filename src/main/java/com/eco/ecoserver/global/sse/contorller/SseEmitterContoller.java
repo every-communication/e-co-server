@@ -48,6 +48,6 @@ public class SseEmitterContoller {
         if(userOpt.isEmpty()) {
             throw new IOException("유저 없음");
         }
-        sseEmitterService.sendNotification(userOpt.get().getId(), "name:send-test", "msg:send-test");
+        //sseEmitterService.sendNotification(userOpt.get().getId(), "name:send-test", "msg:send-test");
     }
 }

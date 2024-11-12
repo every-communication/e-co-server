@@ -66,7 +66,7 @@ public class NotificationService {
                 friendRequestListId, requestUserId, receiptUserId
         );
         friendRequestNotificationRepository.save(friendRequestNotification);
-        sseEmitterService.sendNotification(receiptUserId, "friend-request", "친구 요청을 받았습니다");
+        //sseEmitterService.sendNotification(receiptUserId, "friend-request", "친구 요청을 받았습니다");
     }
 
     public void createVideoTelephonyNotification(Room room) throws IOException {
@@ -76,7 +76,7 @@ public class NotificationService {
                 room.getId(), room.getOwnerId(), room.getFriendId()
         );
         videoTelephonyNotificationRepository.save(videoTelephonyNotification);
-        sseEmitterService.sendNotification(room.getFriendId(), "video-telephony", "화상통화에 초대 받았습니다");
+        //sseEmitterService.sendNotification(room.getFriendId(), "video-telephony", "화상통화에 초대 받았습니다");
     }
 
     // 사용자의 모든 알림을 가져와 시간 순으로 정렬
@@ -101,7 +101,7 @@ public class NotificationService {
     public long countUnreadNotifications(Long userId) throws IOException {
         long unreadCount = friendRequestNotificationRepository.countByReceiptUserIdAndViewFalse(userId)
                 + videoTelephonyNotificationRepository.countByReceiptUserIdAndViewFalse(userId);
-        sseEmitterService.sendNotification(userId, "unread-count", String.valueOf(unreadCount));
+        //sseEmitterService.sendNotification(userId, "unread-count", String.valueOf(unreadCount));
         return unreadCount;
     }
 
