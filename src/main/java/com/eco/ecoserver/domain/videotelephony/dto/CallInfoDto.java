@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 @Getter
 @AllArgsConstructor
@@ -14,8 +16,6 @@ public class CallInfoDto {
     private String friendEmail;
     private String friendThumbnail;
     private boolean friendOrNot;
-    private String totalCallTime;
-    private String callTime;
-
-
+    private long duration;
+    private String deletedAt;
 }

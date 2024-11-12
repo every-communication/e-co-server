@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -160,6 +162,7 @@ public class RoomService {
         List<Room> room = roomRepository.findByOwnerId(user.getId());
         room.addAll(roomRepository.findByFriendId(user.getId()));
         List<CallInfoDto> callInfoDtos = new ArrayList<>();
+
         for(Room r:room){
             if(r.getDeletedAt()!=null) {
                 List<FriendList> f = friendListRepository.findByUserIdAndFriendId(r.getOwnerId(), r.getFriendId());
@@ -176,14 +179,17 @@ public class RoomService {
                     friendEmail = friend.getEmail();
                     friendThumbnail = friend.getThumbnail();
                 }
-                Duration duration = Duration.between(r.getCreatedAt(), r.getDeletedAt());
-                Duration callTime = Duration.between(r.getCreatedAt(), LocalDateTime.now());
+                // duration을 초 단위로 계산
+                long durationInSeconds = ChronoUnit.SECONDS.between(r.getCreatedAt(), r.getDeletedAt());
+
+                // deletedAt을 문자열 형식으로 설정
+                String deletedAtStr = r.getDeletedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                 if (f.isEmpty()) {
-                    CallInfoDto c = new CallInfoDto(friendName, friendEmail, friendThumbnail, false, duration.toString(), duration.toString());
+                    CallInfoDto c = new CallInfoDto(friendName, friendEmail, friendThumbnail, false, durationInSeconds, deletedAtStr);
                     callInfoDtos.add(c);
                     continue;
                 }
-                CallInfoDto c = new CallInfoDto(friendName, friendEmail, friendThumbnail, true, duration.toString(), duration.toString());
+                CallInfoDto c = new CallInfoDto(friendName, friendEmail, friendThumbnail, true, durationInSeconds, deletedAtStr);
                 callInfoDtos.add(c);
 
             }
