@@ -149,7 +149,7 @@ public class NotificationService {
                 .filter(notification -> {
                     // roomRepository에서 Room을 찾아 createdAt이 null인지 확인
                     Room room = roomRepository.findById(notification.getRoomId()).orElse(null);
-                    return room != null && room.getCreatedAt() == null;
+                    return !notification.isView() && room != null && room.getCreatedAt() == null;
                 })
                 .map(notification -> {
                     // Room 조회 및 RoomCode 설정
