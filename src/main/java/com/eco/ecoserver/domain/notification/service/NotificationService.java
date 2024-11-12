@@ -76,7 +76,7 @@ public class NotificationService {
                 room.getId(), room.getOwnerId(), room.getFriendId()
         );
         videoTelephonyNotificationRepository.save(videoTelephonyNotification);
-        //sseEmitterService.sendNotification(room.getFriendId(), "video-telephony", "화상통화에 초대 받았습니다");
+        sseEmitterService.sendNotification(room.getFriendId(), "video-telephony", "화상통화에 초대 받았습니다");
     }
 
     // 사용자의 모든 알림을 가져와 시간 순으로 정렬
