@@ -12,6 +12,8 @@ import java.time.temporal.ChronoUnit;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CallInfoDto {
+    private Long friendId;
+
     private String friendName;
     private String friendEmail;
     private String friendThumbnail;

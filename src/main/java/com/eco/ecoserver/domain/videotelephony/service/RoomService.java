@@ -185,11 +185,11 @@ public class RoomService {
                 // deletedAt을 문자열 형식으로 설정
                 String deletedAtStr = r.getDeletedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                 if (f.isEmpty()) {
-                    CallInfoDto c = new CallInfoDto(friendName, friendEmail, friendThumbnail, false, durationInSeconds, deletedAtStr);
+                    CallInfoDto c = new CallInfoDto(r.getFriendId(), friendName, friendEmail, friendThumbnail, false, durationInSeconds, deletedAtStr);
                     callInfoDtos.add(c);
                     continue;
                 }
-                CallInfoDto c = new CallInfoDto(friendName, friendEmail, friendThumbnail, true, durationInSeconds, deletedAtStr);
+                CallInfoDto c = new CallInfoDto(r.getFriendId(), friendName, friendEmail, friendThumbnail, true, durationInSeconds, deletedAtStr);
                 callInfoDtos.add(c);
 
             }
