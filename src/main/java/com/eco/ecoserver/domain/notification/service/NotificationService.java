@@ -91,12 +91,12 @@ public class NotificationService {
         videoNotificationDto.setNotificationType(NotificationType.VIDEO_TELEPHONY);
 
 
-        try {
-            String notificationJson = new ObjectMapper().writeValueAsString(videoNotificationDto);
-            sseEmitterService.sendNotification(room.getFriendId(), "video-telephony", notificationJson);
-        } catch (IOException e) {
-            log.error("Failed to send notification to user with ID: " + room.getFriendId(), e);
-        }
+//        try {
+//            String notificationJson = new ObjectMapper().writeValueAsString(videoNotificationDto);
+//            sseEmitterService.sendNotification(room.getFriendId(), "video-telephony", notificationJson);
+//        } catch (IOException e) {
+//            log.error("Failed to send notification to user with ID: " + room.getFriendId(), e);
+//        }
     }
 
     // 사용자의 모든 알림을 가져와 시간 순으로 정렬

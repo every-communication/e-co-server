@@ -54,6 +54,7 @@ public class RoomService {
         room.setFriendId(friendId);
         room.setCode(UUID.randomUUID().toString());
 
+        notificationService.createVideoTelephonyNotification(room);
         return roomRepository.save(room);
     }
 
