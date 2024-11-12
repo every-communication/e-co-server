@@ -7,6 +7,7 @@ import com.eco.ecoserver.domain.notification.NotificationType;
 import com.eco.ecoserver.domain.notification.VideoTelephonyNotification;
 import com.eco.ecoserver.domain.notification.dto.NotificationDto;
 import com.eco.ecoserver.domain.notification.dto.VideoNotificationDto;
+import com.eco.ecoserver.domain.notification.dto.VideoTelephonyRequestDto;
 import com.eco.ecoserver.domain.notification.repository.FriendRequestNotificationRepository;
 import com.eco.ecoserver.domain.notification.repository.VideoTelephonyNotificationRepository;
 import com.eco.ecoserver.domain.user.User;
@@ -29,6 +30,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -159,28 +162,44 @@ public class NotificationService {
         return false;
     }
 
-    public ApiResponseDto<List<VideoNotificationDto>> getVideoNotifications(Long userId) {
+    public ApiResponseDto<List<VideoTelephonyRequestDto>> getVideoNotifications(Long userId) {
         List<VideoTelephonyNotification> videoNotifications = videoTelephonyNotificationRepository.findByReceiptUserId(userId);
 
-        List<VideoNotificationDto> notificationDtos = videoNotifications.stream()
+        List<VideoTelephonyRequestDto> notificationDtos = videoNotifications.stream()
                 .filter(notification -> {
                     // roomRepository에서 Room을 찾아 createdAt이 null인지 확인
                     Room room = roomRepository.findById(notification.getRoomId()).orElse(null);
                     return room != null && room.getCreatedAt() == null;
                 })
                 .map(notification -> {
+                    // Room 조회 및 RoomCode 설정
                     Room room = roomRepository.findById(notification.getRoomId()).orElse(null);
                     String roomCode = (room != null) ? room.getCode() : "Unknown";
+                    Long roomId = (room != null) ? room.getId() : null;
 
-                    VideoNotificationDto dto = new VideoNotificationDto();
-                    dto.setTitle(notification.getTitle());
-                    dto.setMessage(notification.getMessage());
+                    // User 조회 및 이메일, 이름, 썸네일 설정
+                    User requestUser = userRepository.findById(notification.getRequestUserId()).orElse(null);
+                    String requestUserEmail = (requestUser != null) ? requestUser.getEmail() : "Unknown";
+                    String requestUserName = (requestUser != null) ? requestUser.getNickname() : "Unknown";
+                    String requestUserThumbnail = (requestUser != null) ? requestUser.getThumbnail() : "Unknown";
+
+                    // 한국 시간대(KST)로 변환하여 문자열로 포맷
+                    String requestTimeKST = notification.getCreatedAt()
+                            .atZone(ZoneId.of("UTC"))
+                            .withZoneSameInstant(ZoneId.of("Asia/Seoul"))
+                            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+                    // VideoTelephonyRequestDto 생성 및 설정
+                    VideoTelephonyRequestDto dto = new VideoTelephonyRequestDto();
                     dto.setNotificationId(notification.getId());
-                    dto.setRoomCode(roomCode); // Room의 roomCode를 설정
+                    dto.setRoomCode(roomCode);
+                    dto.setRoomId(roomId);
                     dto.setRequestUserId(notification.getRequestUserId());
-                    dto.setRequestUserEmail(userService.findEmailById(notification.getRequestUserId())); // requestUserId로 이메일 조회
-                    dto.setTimestamp(notification.getCreatedAt());
-                    dto.setNotificationType(notification.getNotificationType());
+                    dto.setRequestUserEmail(requestUserEmail);
+                    dto.setRequestUserName(requestUserName);
+                    dto.setRequestUserThumbnail(requestUserThumbnail);
+                    dto.setRequestTime(requestTimeKST);
+
                     return dto;
                 })
                 .collect(Collectors.toList());

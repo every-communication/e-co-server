@@ -4,6 +4,7 @@ package com.eco.ecoserver.domain.notification.controller;
 import com.eco.ecoserver.domain.notification.VideoTelephonyNotification;
 import com.eco.ecoserver.domain.notification.dto.NotificationDto;
 import com.eco.ecoserver.domain.notification.dto.VideoNotificationDto;
+import com.eco.ecoserver.domain.notification.dto.VideoTelephonyRequestDto;
 import com.eco.ecoserver.domain.notification.repository.VideoTelephonyNotificationRepository;
 import com.eco.ecoserver.domain.notification.service.NotificationService;
 import com.eco.ecoserver.domain.user.User;
@@ -41,7 +42,7 @@ public class VideoTelephonyNotificationController {
     }
 
     @GetMapping("/requested")
-    public ResponseEntity<ApiResponseDto<List<VideoNotificationDto>>> getRequestedNotifications(HttpServletRequest request) {
+    public ResponseEntity<ApiResponseDto<List<VideoTelephonyRequestDto>>> getRequestedNotifications(HttpServletRequest request) {
         Optional<String> email = jwtService.extractEmailFromToken(request);
         if (email.isEmpty()) {
             return ResponseEntity.status(401).body(ApiResponseDto.failure(401, "Unauthorized"));
